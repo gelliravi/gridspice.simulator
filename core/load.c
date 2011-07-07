@@ -5039,11 +5039,20 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,MACRO "else",5)==0)
 	{
+		char *term;
 		if ( (suppress&(1<<(nesting-1))) == (1<<(nesting-1)) )
 			suppress &= ~(1<<(nesting-1));
 		else
 			suppress |= (1<<(nesting-1));
+		term = line+5;
+		strip_right_white(term);
+		if(strlen(term)!=0)
+		{
+			output_error_raw("%s(%d): %selse macro should not contain any terms",filename,linenum,MACRO);
+			return FALSE;
+		}
 		strcpy(line,"\n");
+		return TRUE;
 	}
 	else if (strncmp(line,MACRO "ifdef",6)==0)
 	{
