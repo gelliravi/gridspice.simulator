@@ -12,7 +12,6 @@
 	You must be in the module directory to do this.
 
  **/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -22,69 +21,6 @@
 #include "matrix.h"
 #include "solver_matpower.h"
 
-CLASS *solver_matpower::oclass = NULL;
-solver_matpower *solver_matpower::defaults = NULL;
-
-#ifdef OPTIONAL
-/* TODO: define this to allow the use of derived classes */
-CLASS *PARENTsolver_matpower::pclass = NULL;
-#endif
-
-/* TODO: remove passes that aren't needed */
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
-
-/* TODO: specify which pass the clock advances */
-static PASSCONFIG clockpass = PC_BOTTOMUP;
-
-/* Class registration is only called once to register the class with the core */
-solver_matpower::solver_matpower(MODULE *module)
-#ifdef OPTIONAL
-/* TODO: include this if you are deriving this from a superclass */
-: SUPERCLASS(module)
-#endif
-{
-#ifdef OPTIONAL
-	/* TODO: include this if you are deriving this from a superclass */
-	pclass = SUPERCLASS::oclass;
-#endif
-	if (oclass==NULL)
-	{
-		oclass = gl_register_class(module,"solver_matpower",sizeof(solver_matpower),passconfig);
-		if (oclass==NULL)
-			GL_THROW("unable to register object class implemented by %s", __FILE__);
-
-		if (gl_publish_variable(oclass,
-			PT_bool,"gencost",PADDR(enabled),
-			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
-		defaults = this;
-		memset(this,0,sizeof(solver_matpower));
-		/* TODO: set the default values of all properties here */
-	}
-}
-
-/* Object creation is called once for each object that is created by the core */
-int solver_matpower::create(void)
-{
-	memcpy(this,defaults,sizeof(solver_matpower));
-	/* TODO: set the context-free initial value of properties, such as random distributions */
-	return 1; /* return 1 on success, 0 on failure */
-}
-
-/* Object initialization is called once after all object have been created */
-int solver_matpower::init(OBJECT *parent)
-{
-	/* TODO: set the context-dependent initial value of properties */
-	return 1; /* return 1 on success, 0 on failure */
-}
-
-/* Presync is called when the clock needs to advance on the first top-down pass */
-TIMESTAMP solver_matpower::presync(TIMESTAMP t0, TIMESTAMP t1)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	/* TODO: implement pre-topdown behavior */
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
-}
-
 mxArray* initArray(double rdata[], int nRow, int nColumn) {
 	mxArray* X = mxCreateDoubleMatrix(nRow, nColumn, mxREAL);
 	memcpy(mxGetPr(X), rdata, nRow*nColumn*sizeof(double));
@@ -92,7 +28,7 @@ mxArray* initArray(double rdata[], int nRow, int nColumn) {
 }
 
 /* Sync is called when the clock needs to advance on the bottom-up pass */
-TIMESTAMP solver_matpower::sync(TIMESTAMP t0, TIMESTAMP t1)
+int solver_matpower()
 {
 	TIMESTAMP t2 = TS_NEVER;
 
@@ -194,79 +130,4 @@ TIMESTAMP solver_matpower::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	mlxOpf(0, plhs, 6, prhs);
 
-	//printf("%d\n", mxGetNumberOfDimensions(busout));
-
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
-}
-
-/* Postsync is called when the clock needs to advance on the second top-down pass */
-TIMESTAMP solver_matpower::postsync(TIMESTAMP t0, TIMESTAMP t1)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	/* TODO: implement post-topdown behavior */
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
-}
-
-//////////////////////////////////////////////////////////////////////////
-// IMPLEMENTATION OF CORE LINKAGE
-//////////////////////////////////////////////////////////////////////////
-
-EXPORT int create_solver_matpower(OBJECT **obj)
-{
-	try
-	{
-		*obj = gl_create_object(solver_matpower::oclass);
-		if (*obj!=NULL)
-			return OBJECTDATA(*obj,solver_matpower)->create();
-	}
-	catch (char *msg)
-	{
-		gl_error("create_solver_matpower: %s", msg);
-	}
-	return 0;
-}
-
-EXPORT int init_solver_matpower(OBJECT *obj, OBJECT *parent)
-{
-	try
-	{
-		if (obj!=NULL)
-			return OBJECTDATA(obj,solver_matpower)->init(parent);
-	}
-	catch (char *msg)
-	{
-		gl_error("init_solver_matpower(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
-	}
-	return 0;
-}
-
-EXPORT TIMESTAMP sync_solver_matpower(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	solver_matpower *my = OBJECTDATA(obj,solver_matpower);
-	try
-	{
-		switch (pass) {
-		case PC_PRETOPDOWN:
-			t2 = my->presync(obj->clock,t1);
-			break;
-		case PC_BOTTOMUP:
-			t2 = my->sync(obj->clock,t1);
-			break;
-		case PC_POSTTOPDOWN:
-			t2 = my->postsync(obj->clock,t1);
-			break;
-		default:
-			GL_THROW("invalid pass request (%d)", pass);
-			break;
-		}
-		if (pass==clockpass)
-			obj->clock = t1;
-		return t2;
-	}
-	catch (char *msg)
-	{
-		gl_error("sync_solver_matpower(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
-	}
-	return TS_INVALID;
 }

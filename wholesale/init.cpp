@@ -8,6 +8,8 @@
 
 #include "wholesale.h"
 #include "solver_matpower.h"
+#include "bus.h"
+#include "line.h"
 //NEWCLASSINC
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
@@ -25,11 +27,12 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 #endif
 
 	/*** DO NOT EDIT NEXT LINE ***/
-	new solver_matpower(module);
+	new line(module);
+	new bus(module);
 	
 	/* always return the first class registered */
 	/* TODO this module will not compile until a class has been defined */
-	return solver_matpower::oclass;
+	return line::oclass;
 }
 
 

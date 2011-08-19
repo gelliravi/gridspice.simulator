@@ -17,8 +17,8 @@ while [ $# -gt 0 ]; do
 		;;
 	*)	if [ $BUILD -eq 1 ]; then
 
-			# build was moved to SF at rev 1228
-			echo "#define BUILD \"\$Revision: $(( 1228+$(svn -R info "$1" | grep Revision | cut -f2 -d: | sort -ur | head -n 1)))\""
+			# Hard coding revision number b/c we are not using svn -Kyle
+			echo "#define BUILD \"\$Revision: $(2696)\""
 		else
 			echo $(svn -R info "$1" | grep Revision | cut -f2 -d: | sort -ur | head -n 1)
 		fi
