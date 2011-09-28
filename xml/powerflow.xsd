@@ -6,7 +6,7 @@
       <xs:element name="node_a" type="xs:int" />
       <xs:element name="node_b" type="xs:int" />
       <xs:element name="length" type="xs:double" />
-      <xs:element name="obj_type" type="Link_x0020_Type">
+      <xs:element name="obj_type" type="xLink_x0020_Type">
       </xs:element>
       <xs:element name="configuration" type="xs:int" />
       <xs:element name="phase" type="Phase_x0020_Combination">

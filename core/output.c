@@ -685,8 +685,10 @@ int output_progress()
 		res = fprintf(redirect.progress,"%s\n",ts);
 		fflush(redirect.progress);
 	}
-	else if (global_keep_progress)
-		res = output_message("Processing %s...", ts);
+	else if (global_keep_progress){
+		res = printf("Processing %s...\n", ts);
+	        fflush(stdout); 
+	}
 	else
 	{
 		static int len=0;
@@ -730,6 +732,7 @@ int output_raw(char *format,...) /**< \bprintf style argument list */
 }
 
 #include "module.h"
+ 
 
 /** Output the XSD snippet of a class */
 int output_xsd(char *spec)
@@ -792,6 +795,72 @@ int output_xsd(char *spec)
 	output_message("</xs:schema>\n");
 	return 0;
 }
+
+
+
+/** Output the JAVA setup of a class */
+int output_java(char *spec)
+{
+	MODULE *mod = NULL;
+	CLASS *oclass = NULL;
+	char modulename[1024], classname[1024]="";
+	char buffer[65536];
+	/*if(sscanf(spec, "%[A-Za-z_0-9]::%[A-Za-z_0-9]:%s",modulename, submodulename, classname) == 3)
+	{
+		sprintf(jointname, "%s::%s", modulename, submodulename);
+		mod = module_load(jointname, 0, NULL);
+		if(mod == NULL){
+			output_error("unable to load parent module %s", modulename);
+			return 0;
+		}
+		
+	}
+	else if(sscanf(spec, "%[A-Za-z_0-9]::%[A-Za-z_0-9]",modulename, submodulename) == 2)
+	{
+		sprintf(jointname, "%s::%s", modulename, submodulename);
+		mod = module_load(jointname, 0, NULL);
+		if(mod == NULL){
+			output_error("unable to load parent module %s", modulename);
+			return 0;
+		}
+	}
+	else */if (sscanf(spec,"%[A-Za-z_0-9]:%s",modulename,classname)<1)
+	{
+		output_error("improperly formatted XSD dump specification");
+		return 0;
+	}
+	if (mod == NULL)
+		mod = module_load(modulename,0,NULL);
+	if (mod==NULL)
+	{
+		output_error("unable to find module '%s'", spec);
+		return 0;
+	}
+	if (classname[0]!='\0' && (oclass=class_get_class_from_classname(classname))==NULL)
+	{
+		output_error("unable to find class '%s' in module '%s'", classname, modulename);
+		return 0;
+	}
+	//if ((strlen(submodulename) > 1))
+	//	strcpy(modulename, submodulename);
+	//output_message("<?xml version=\"1.0\" encoding=\"utf-%d\"?>",global_xml_encoding);
+	//output_message("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://www.w3.org/\" xmlns=\"http://www.w3.org/\" elementFormDefault=\"qualified\">\n");
+	for (oclass=(classname[0]!='\0'?oclass:class_get_first_class()); oclass!=NULL; oclass=oclass->next) 
+	{
+		if (class_get_java(oclass,buffer,sizeof(buffer))<=0)
+		{
+			output_error("unable to convert class '%s' to XSD", oclass->name);
+			return 0;
+		}
+		output_message(buffer);
+		if (classname[0]!='\0')	/**  is this needed? -mh **/
+			break;
+	}
+	//output_message("</xs:schema>\n");
+	return 0;
+}
+
+
 
 int output_xsl(char *fname, int n_mods, char *p_mods[])
 {

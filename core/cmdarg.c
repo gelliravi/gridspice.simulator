@@ -765,6 +765,22 @@ STATUS cmdarg_load(int argc, /**< the number of arguments in \p argv */
 				return SUCCESS;
 			}
 		}
+
+		else if (strcmp(*argv,"--java")==0)
+		{
+			if (argc-1>0)
+			{
+				argc--;
+				exit(output_java(*++argv));
+			}
+			else
+			{
+				MODULE *mod;
+				for (mod=module_get_first(); mod!=NULL; mod=mod->next)
+					output_java(mod->name);
+				return SUCCESS;
+			}
+		}
 		else if (strcmp(*argv,"--xsl")==0)
 		{
 			if (argc-1>0)

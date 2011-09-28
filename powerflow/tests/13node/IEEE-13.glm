@@ -4,7 +4,7 @@
 #set profiler=1
 #set pauseatexit=1
 #set iteration_limit=100000;
-
+#set relax_naming_rules=1;
 clock {
 	timestamp '2000-01-01 0:00:00';
 	timezone EST+5EDT;

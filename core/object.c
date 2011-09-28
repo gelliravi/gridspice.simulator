@@ -879,6 +879,7 @@ int object_set_value_by_name(OBJECT *obj, /**< the object to change */
 		return 0;
 	}
 	addr = (void*)((char *)(obj+1)+(int64)(prop->addr)); /* warning: cast from pointer to integer of different size */
+	//printf("class: %s name: %s value: %s\n",obj->oclass->name,prop->name, value);
 	return object_set_value_by_addr(obj,addr,value,prop);
 }
 
@@ -1313,7 +1314,15 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
  **/
 int object_init(OBJECT *obj){ /**< the object to initialize */
 	if(obj->oclass->init != NULL){
-		return (int)(*(obj->oclass->init))(obj, obj->parent);
+	  //printf("<%s>\n",obj->oclass->name);
+      	        
+	  //printf("<\\%s>\n",obj->oclass->name);
+	  //char outbuffer [50000];
+	  //int size = 50000;
+	  
+	  //object_dump(outbuffer, 50000, obj);
+	  //printf("object dump: %s \n",outbuffer);
+	  return (int)(*(obj->oclass->init))(obj, obj->parent);
 	}
 	return 1;
 }
@@ -1389,6 +1398,9 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 	for(prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next){
 		char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 		if(value != NULL){
+		  if( strlen(value)==0 ){
+		    continue;
+		  }
 			count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 			if(count > size){
 				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
@@ -1406,7 +1418,10 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 		for(prop = pclass->pmap; prop != NULL && prop->oclass == pclass; prop = prop->next){
 			char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 			if(value != NULL){
-				count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+			 if( strlen(value)==0 ){
+			   continue;
+			 }
+			  count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 				if(count > size){
 					throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 					/* TROUBLESHOOT
