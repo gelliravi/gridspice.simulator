@@ -1315,14 +1315,15 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 int object_init(OBJECT *obj){ /**< the object to initialize */
 	if(obj->oclass->init != NULL){
 	  //printf("<%s>\n",obj->oclass->name);
-      	        
+          int result = (int)(*(obj->oclass->init))(obj, obj->parent);
+	        
 	  //printf("<\\%s>\n",obj->oclass->name);
 	  //char outbuffer [50000];
 	  //int size = 50000;
 	  
 	  //object_dump(outbuffer, 50000, obj);
 	  //printf("object dump: %s \n",outbuffer);
-	  return (int)(*(obj->oclass->init))(obj, obj->parent);
+	  return result;
 	}
 	return 1;
 }
