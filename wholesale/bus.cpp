@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-
+#include "solver_matpower.h"
 #include "bus.h"
 
 CLASS *bus::oclass = NULL;
@@ -51,8 +51,9 @@ bus::bus(MODULE *module)
 			GL_THROW("unable to register object class implemented by %s", __FILE__);
 
 		if (gl_publish_variable(oclass,
-			/* TODO: add your published properties here */
-			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
+	  	     PT_double, "length[ft]",PADDR(length),
+		     /* TODO: add your published properties here */
+		    NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(bus));
 		/* TODO: set the default values of all properties here */
@@ -86,6 +87,7 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
+	solver_matpower();
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }

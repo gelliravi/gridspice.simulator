@@ -30,6 +30,7 @@ public:
 public:
 	static CLASS *oclass;
 	static bus *defaults;
+	double length;
 #ifdef OPTIONAL
 	static CLASS *pclass; /**< defines the parent class */
 	TIMESTAMP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */

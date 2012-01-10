@@ -61,7 +61,7 @@ LTLIBRARIES = $(pkglib_LTLIBRARIES)
 wholesale_la_LIBADD =
 am_wholesale_la_OBJECTS = wholesale_la-init.lo wholesale_la-main.lo \
 	wholesale_la-solver_matpower.lo wholesale_la-bus.lo \
-	wholesale_la-line.lo
+	wholesale_la-line.lo wholesale_la-solver_matpower.lo
 wholesale_la_OBJECTS = $(am_wholesale_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/core
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -270,6 +270,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	solver_matpower.cpp solver_matpower.h include/mclmcrrt.h include/mclcppclass.h\
 	bus.cpp bus.h \
 	line.cpp line.h \
+	solver_matpower.cpp solver_matpower.h \
 	# NEWCLASS 
 
 # DO NOT EDIT THE PREVIOUS LINE

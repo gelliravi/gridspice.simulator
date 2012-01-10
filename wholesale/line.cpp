@@ -52,7 +52,7 @@ line::line(MODULE *module)
 	GL_THROW("unable to register object class implemented by %s", __FILE__);
       
       if (gl_publish_variable(oclass,
-			      PT_complex, "power_in[VA]", PADDR(power_in),
+		          PT_complex, "power_in[VA]", PADDR(power_in),
 			      NULL)<1 && errno) GL_THROW("unable to publish properties in %s",__FILE__);
       defaults = this;
       memset(this,0,sizeof(line));

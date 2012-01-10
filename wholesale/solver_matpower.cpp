@@ -30,7 +30,6 @@ mxArray* initArray(double rdata[], int nRow, int nColumn) {
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 int solver_matpower()
 {
-	TIMESTAMP t2 = TS_NEVER;
 
 	printf("Running Test\n");
         libopfInitialize();

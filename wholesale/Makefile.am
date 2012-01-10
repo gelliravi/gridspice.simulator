@@ -3,6 +3,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	solver_matpower.cpp solver_matpower.h include/mclmcrrt.h include/mclcppclass.h\
 	bus.cpp bus.h \
 	line.cpp line.h \
+	solver_matpower.cpp solver_matpower.h \
 	# NEWCLASS 
 # DO NOT EDIT THE PREVIOUS LINE
 
