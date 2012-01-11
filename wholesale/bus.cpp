@@ -49,9 +49,25 @@ bus::bus(MODULE *module)
 		oclass = gl_register_class(module,"bus",sizeof(bus),passconfig);
 		if (oclass==NULL)
 			GL_THROW("unable to register object class implemented by %s", __FILE__);
-
+                
+                // attributes of bus class. the names follow the MATPOWER Bus Data structure
 		if (gl_publish_variable(oclass,
-	  	     PT_double, "length[ft]",PADDR(length),
+                        PT_int16, "BUS_I", PADDR(BUS_I),        // bus number
+                        PT_int8, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
+                                                                // 1 = PQ, 2= PV
+                                                                // 3 = ref, 4 = isolated
+                        PT_double, "PD[MW]", PADDR(PD),         // real power demand
+                        PT_double, "QD[MVAr]", PADDR(PD),       // reactive power demand
+                        PT_double, "GS[MW]", PADDR(PD),         // shunt conductance
+                        PT_dobule, "BS[MVAr]", PADDR(PD),       // shunt susceptance
+                        PT_int16, "BUS_AREA", PADDR(BUS_AREA),  // area number
+                        PT_double, "VM", PADDR(VM),             // voltage magnitude
+                        PT_double, "VA", PADDR(VA),             // voltage angle
+                        PT_double, "BASE_KV[kV]", PADDR(BASE_KV),   // base voltage
+                        PT_int16, "ZONE", PADDR(ZONE),          // lose zone
+                        PT_double, "VMAX", PADDR(VMAX),         // maximum voltage magnitude
+                        PT_double, "VMIN", PADDR(VMIN),         // minimum voltage magnitude
+                        //PT_double, "length[ft]",PADDR(length),
 		     /* TODO: add your published properties here */
 		    NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
@@ -87,6 +103,9 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
+        
+        //***
+        // Call solver_matpower
 	solver_matpower();
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
