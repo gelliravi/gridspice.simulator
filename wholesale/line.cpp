@@ -52,8 +52,23 @@ line::line(MODULE *module)
 	GL_THROW("unable to register object class implemented by %s", __FILE__);
       
       if (gl_publish_variable(oclass,
-		          PT_complex, "power_in[VA]", PADDR(power_in),
-			      NULL)<1 && errno) GL_THROW("unable to publish properties in %s",__FILE__);
+              PT_int16, "F_BUS", PADDR(F_BUS),          // "from" bus number
+              PT_int16, "T_BUS", PADDR(T_BUS),          // "to" bus number
+              PT_double, "BR_R", PADDR(BR_R),           // resistance (p.u.)
+              PT_double, "BR_X", PADDR(BR_X),           // reactance (p.u.)
+              PT_double, "BR_B", PADDR(BR_B),           // total line charging susceptance (p.u.)
+              PT_double, "RATE_A", PADDR(RATE_A),       // MVA rating A (long term rating)
+              PT_double, "RATE_B", PADDR(RATE_B),       // MVA rating B (short term rating)
+              PT_double, "RATE_C", PADDR(RATE_C),       // MVA rating C (emergency rating)
+              PT_double, "TAP", PADDR(TAP),             // transformer off nominal turns ratio
+                                                        // ( taps at "from" bus, impedance at "to"
+                                                        // bus, i.e. if r=x=0, tap = \frac{|V_f|}{|V_t|}
+              PT_double, "SHIFT", PADDR(SHIFT),         // transformer phase shift angle (degrees)
+              PT_int8, "BR_STATUS", PADDR(BR_STATUS),   // initial branch status, 1 = in-service,0=out-of-service
+              PT_double, "ANGMIN", PADDR(ANGMIN),       // minimum angle difference, \theta_f - \theta_t (degrees)
+              PT_double, "ANGMAX", PADDR(ANGMAX),       // maximum angle difference, \theta_f - \theta_t (degrees)
+           
+              NULL)<1 && errno) GL_THROW("unable to publish properties in %s",__FILE__);
       defaults = this;
       memset(this,0,sizeof(line));
       /* TODO: set the default values of all properties here */
