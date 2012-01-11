@@ -4,6 +4,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	bus.cpp bus.h \
 	line.cpp line.h \
 	solver_matpower.cpp solver_matpower.h \
+	gen.cpp gen.h \
 	# NEWCLASS 
 # DO NOT EDIT THE PREVIOUS LINE
 

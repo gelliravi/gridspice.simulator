@@ -10,6 +10,7 @@
 #include "bus.h"
 #include "line.h"
 #include "solver_matpower.h"
+#include "gen.h"
 //NEWCLASSINC
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
