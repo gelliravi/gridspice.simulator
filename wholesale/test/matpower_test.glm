@@ -178,7 +178,7 @@ object gen{
         RAMP_30     0MW;
         RAMP_Q      0;
         APF         0;
-}
+};
 
 object gen{
         GEN_BUS     2;
@@ -202,7 +202,7 @@ object gen{
         RAMP_30     0MW;
         RAMP_Q      0;
         APF         0;
-}
+};
 
 object gen{
         GEN_BUS     3;
@@ -242,7 +242,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       4;
@@ -258,7 +258,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       5;
@@ -274,7 +274,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       3;
@@ -306,7 +306,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       7;
@@ -322,7 +322,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       8;
@@ -338,7 +338,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       8;
@@ -354,7 +354,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object line{
 	F_BUS       9;
@@ -370,7 +370,7 @@ object line{
         BR_STATUS   1;
         ANGMIN      -360;
         ANGMAX      360;
-}
+};
 
 object gen_cost{
         MODEL       2;
