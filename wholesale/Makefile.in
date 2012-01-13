@@ -61,7 +61,8 @@ LTLIBRARIES = $(pkglib_LTLIBRARIES)
 wholesale_la_LIBADD =
 am_wholesale_la_OBJECTS = wholesale_la-init.lo wholesale_la-main.lo \
 	wholesale_la-solver_matpower.lo wholesale_la-bus.lo \
-	wholesale_la-line.lo wholesale_la-solver_matpower.lo
+	wholesale_la-line.lo wholesale_la-solver_matpower.lo \
+	wholesale_la-gen.lo wholesale_la-gen_cost.lo
 wholesale_la_OBJECTS = $(am_wholesale_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/core
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -271,6 +272,8 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	bus.cpp bus.h \
 	line.cpp line.h \
 	solver_matpower.cpp solver_matpower.h \
+	gen.cpp gen.h \
+	gen_cost.cpp gen_cost.h \
 	# NEWCLASS 
 
 # DO NOT EDIT THE PREVIOUS LINE
@@ -348,6 +351,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-bus.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-gen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-gen_cost.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-init.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-line.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-main.Plo@am__quote@
@@ -408,6 +413,20 @@ wholesale_la-line.lo: line.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='line.cpp' object='wholesale_la-line.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-line.lo `test -f 'line.cpp' || echo '$(srcdir)/'`line.cpp
+
+wholesale_la-gen.lo: gen.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-gen.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-gen.Tpo" -c -o wholesale_la-gen.lo `test -f 'gen.cpp' || echo '$(srcdir)/'`gen.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wholesale_la-gen.Tpo" "$(DEPDIR)/wholesale_la-gen.Plo"; else rm -f "$(DEPDIR)/wholesale_la-gen.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='gen.cpp' object='wholesale_la-gen.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-gen.lo `test -f 'gen.cpp' || echo '$(srcdir)/'`gen.cpp
+
+wholesale_la-gen_cost.lo: gen_cost.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-gen_cost.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-gen_cost.Tpo" -c -o wholesale_la-gen_cost.lo `test -f 'gen_cost.cpp' || echo '$(srcdir)/'`gen_cost.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wholesale_la-gen_cost.Tpo" "$(DEPDIR)/wholesale_la-gen_cost.Plo"; else rm -f "$(DEPDIR)/wholesale_la-gen_cost.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='gen_cost.cpp' object='wholesale_la-gen_cost.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-gen_cost.lo `test -f 'gen_cost.cpp' || echo '$(srcdir)/'`gen_cost.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
