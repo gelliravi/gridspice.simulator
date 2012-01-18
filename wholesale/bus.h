@@ -11,6 +11,7 @@
 
 #include <stdarg.h>
 #include "gridlabd.h"
+#include "wholesale.h"
 
 class bus {
 private:
@@ -19,6 +20,20 @@ protected:
 	/* TODO: put unpublished but inherited variables */
 public:
 	/* TODO: put published variables here */
+	//double length;
+	int 	BUS_I;
+	short	BUS_TYPE;
+	double 	PD;
+	double 	QD;
+	double 	GS;
+	double 	BS;
+	int	BUS_AREA;
+	double 	VM;
+	double 	VA;
+	double	BASE_KV;
+	int	ZONE;
+	double 	VMAX;
+	double 	VMIN; 
 public:
 	/* required implementations */
 	bus(MODULE *module);
@@ -29,12 +44,15 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 public:
 	static CLASS *oclass;
-	static bus *defaults;
-	double length;
-#ifdef OPTIONAL
-	static CLASS *pclass; /**< defines the parent class */
-	TIMESTAMP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-#endif
+	//static bus *defaults;
+
+	
+//#ifdef OPTIONAL
+//	static CLASS *pclass; /**< defines the parent class */
+//	
+//	TIMESTAMP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
+//#endif
+
 };
 
 #endif
