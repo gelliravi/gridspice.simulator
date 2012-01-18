@@ -53,13 +53,13 @@ bus::bus(MODULE *module)
                 // attributes of bus class. the names follow the MATPOWER Bus Data structure
 		if (gl_publish_variable(oclass,
                         PT_int16, "BUS_I", PADDR(BUS_I),        // bus number
-                        PT_int8, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
+                        PT_int16, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
                                                                 // 1 = PQ, 2= PV
                                                                 // 3 = ref, 4 = isolated
                         PT_double, "PD[MW]", PADDR(PD),         // real power demand
                         PT_double, "QD[MVAr]", PADDR(PD),       // reactive power demand
                         PT_double, "GS[MW]", PADDR(PD),         // shunt conductance
-                        PT_dobule, "BS[MVAr]", PADDR(PD),       // shunt susceptance
+                        PT_double, "BS[MVAr]", PADDR(PD),       // shunt susceptance
                         PT_int16, "BUS_AREA", PADDR(BUS_AREA),  // area number
                         PT_double, "VM", PADDR(VM),             // voltage magnitude
                         PT_double, "VA", PADDR(VA),             // voltage angle

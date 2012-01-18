@@ -22,7 +22,7 @@ public:
 	/* TODO: put published variables here */
 	//double length;
 	int 	BUS_I;
-	short	BUS_TYPE;
+	int	BUS_TYPE;
 	double 	PD;
 	double 	QD;
 	double 	GS;
@@ -44,7 +44,8 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 public:
 	static CLASS *oclass;
-	//static bus *defaults;
+	static CLASS *pclass;
+	static bus *defaults;
 
 	
 //#ifdef OPTIONAL

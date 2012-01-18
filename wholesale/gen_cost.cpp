@@ -52,12 +52,12 @@ gen_cost::gen_cost(MODULE *module)
 
 		if (gl_publish_variable(oclass,
 			/* TODO: add your published properties here */
-                        PT_int8, "MODEL", PADDR(MODEL),         // cost model
+                        PT_int16, "MODEL", PADDR(MODEL),         // cost model
                                                                 // 1 = piecewise linear
                                                                 // 2 = polynomial
                         PT_double, "STARTUP", PADDR(STARTUP),   // start up cost in US dollars
                         PT_double, "SHUTDOWN", PADDR(SHUTDOWN), // shutdown cost in US dollars
-                        PT_int8, "NCOST", PADDR(NCOST),         // number of cost coeff for poly cost function
+                        PT_int16, "NCOST", PADDR(NCOST),         // number of cost coeff for poly cost function
                                                                 // or number of data points for piecewise linear
                         /*Only support model 2 right now -- LYZ @ Jan 11th, 2012*/
                         PT_double, "COST", PADDR(COST), PT_SIZE, NCOST+1,	// n+1 coeff of n-th order polynomial cost,

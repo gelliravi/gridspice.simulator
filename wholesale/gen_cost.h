@@ -12,6 +12,8 @@
 #include <stdarg.h>
 #include "gridlabd.h"
 
+#define MAX_NODE 10000
+
 class gen_cost {
 private:
 	/* TODO: put private variables here */
@@ -19,6 +21,12 @@ protected:
 	/* TODO: put unpublished but inherited variables */
 public:
 	/* TODO: put published variables here */
+	int 	MODEL;
+	double	STARTUP;
+	double	SHUTDOWN;
+	int	NCOST;
+	double 	COST[MAX_NODE];	//currently, we define a large enough size. We need to modify it to a dynamic size in the future. 
+// Open ticket: Issue 4 @Yizheng
 public:
 	/* required implementations */
 	gen_cost(MODULE *module);
