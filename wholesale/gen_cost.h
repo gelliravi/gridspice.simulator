@@ -11,6 +11,8 @@
 
 #include <stdarg.h>
 #include "gridlabd.h"
+#include <string>
+using namespace std;
 
 #define MAX_NODE 10000
 
@@ -25,7 +27,7 @@ public:
 	double	STARTUP;
 	double	SHUTDOWN;
 	int	NCOST;
-	double 	COST[MAX_NODE];	//currently, we define a large enough size. We need to modify it to a dynamic size in the future. 
+	char	COST[MAX_NODE];	//currently, we define a large enough size. We need to modify it to a dynamic size in the future. 
 // Open ticket: Issue 4 @Yizheng
 public:
 	/* required implementations */
