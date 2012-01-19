@@ -14,7 +14,7 @@ inline mxArray* initArray(double rdata[], int nRow, int nColumn);
 
 
 
-extern int solver_matpower();
+extern inline int solver_matpower();
 
 
 #endif

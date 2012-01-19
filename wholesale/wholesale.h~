@@ -5,13 +5,9 @@
 
 #include <stdarg.h>
 #include "gridlabd.h"
-#include "matrix.h"
-#include "libopf.h"
 
 /*** DO NOT DELETE THE NEXT LINE ***/
 //NEWCLASSINC
-inline mxArray* initArray(double rdata[], int nRow, int nColumn);
-extern int solver_matpower(void); 
 
 /* optional exports */
 #ifdef OPTIONAL

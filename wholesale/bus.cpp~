@@ -16,9 +16,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-//#include "solver_matpower.h"
+#include "solver_matpower.h"
 #include "bus.h"
-//#include "wholesale.h"
 
 CLASS *bus::oclass = NULL;
 bus *bus::defaults = NULL;

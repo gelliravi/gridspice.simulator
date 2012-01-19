@@ -60,9 +60,9 @@ pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 wholesale_la_LIBADD =
 am_wholesale_la_OBJECTS = wholesale_la-init.lo wholesale_la-main.lo \
-	wholesale_la-wholesale.lo wholesale_la-bus.lo \
-	wholesale_la-line.lo wholesale_la-gen.lo \
-	wholesale_la-gen_cost.lo
+	wholesale_la-solver_matpower.lo wholesale_la-bus.lo \
+	wholesale_la-line.lo wholesale_la-solver_matpower.lo \
+	wholesale_la-gen.lo wholesale_la-gen_cost.lo
 wholesale_la_OBJECTS = $(am_wholesale_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/core
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -268,9 +268,10 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 pkglib_LTLIBRARIES = wholesale.la
 wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
-	wholesale.cpp include/mclmcrrt.h include/mclcppclass.h\
+	solver_matpower.cpp solver_matpower.h include/mclmcrrt.h include/mclcppclass.h\
 	bus.cpp bus.h \
 	line.cpp line.h \
+	solver_matpower.cpp solver_matpower.h \
 	gen.cpp gen.h \
 	gen_cost.cpp gen_cost.h \
 	# NEWCLASS 
@@ -355,7 +356,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-init.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-line.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-main.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-wholesale.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-solver_matpower.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -392,12 +393,12 @@ wholesale_la-main.lo: main.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-main.lo `test -f 'main.cpp' || echo '$(srcdir)/'`main.cpp
 
-wholesale_la-wholesale.lo: wholesale.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-wholesale.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-wholesale.Tpo" -c -o wholesale_la-wholesale.lo `test -f 'wholesale.cpp' || echo '$(srcdir)/'`wholesale.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wholesale_la-wholesale.Tpo" "$(DEPDIR)/wholesale_la-wholesale.Plo"; else rm -f "$(DEPDIR)/wholesale_la-wholesale.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='wholesale.cpp' object='wholesale_la-wholesale.lo' libtool=yes @AMDEPBACKSLASH@
+wholesale_la-solver_matpower.lo: solver_matpower.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-solver_matpower.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-solver_matpower.Tpo" -c -o wholesale_la-solver_matpower.lo `test -f 'solver_matpower.cpp' || echo '$(srcdir)/'`solver_matpower.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wholesale_la-solver_matpower.Tpo" "$(DEPDIR)/wholesale_la-solver_matpower.Plo"; else rm -f "$(DEPDIR)/wholesale_la-solver_matpower.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='solver_matpower.cpp' object='wholesale_la-solver_matpower.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-wholesale.lo `test -f 'wholesale.cpp' || echo '$(srcdir)/'`wholesale.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-solver_matpower.lo `test -f 'solver_matpower.cpp' || echo '$(srcdir)/'`solver_matpower.cpp
 
 wholesale_la-bus.lo: bus.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-bus.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-bus.Tpo" -c -o wholesale_la-bus.lo `test -f 'bus.cpp' || echo '$(srcdir)/'`bus.cpp; \

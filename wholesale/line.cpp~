@@ -64,7 +64,7 @@ line::line(MODULE *module)
                                                         // ( taps at "from" bus, impedance at "to"
                                                         // bus, i.e. if r=x=0, tap = \frac{|V_f|}{|V_t|}
               PT_double, "SHIFT", PADDR(SHIFT),         // transformer phase shift angle (degrees)
-              PT_int16,	 "BR_STATUS", PADDR(BR_STATUS),   // initial branch status, 1 = in-service,0=out-of-service
+              PT_bool, 	"BR_STATUS", PADDR(BR_STATUS),   // initial branch status, 1 = in-service,0=out-of-service
               PT_double, "ANGMIN", PADDR(ANGMIN),       // minimum angle difference, \theta_f - \theta_t (degrees)
               PT_double, "ANGMAX", PADDR(ANGMAX),       // maximum angle difference, \theta_f - \theta_t (degrees)
            

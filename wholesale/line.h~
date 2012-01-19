@@ -34,7 +34,7 @@ public:
 	double 	RATE_C;
 	double 	TAP;
 	double 	SHIFT;
-	int	BR_STATUS;
+	bool	BR_STATUS;
 	double	ANGMIN;
 	double 	ANGMAX;
 public:

@@ -190,7 +190,8 @@ GLD_GET_NPROCS
 #GCC_CT_FEATURES
 
 # DO NOT EDIT THE FOLLOWING LINE
-AC_CONFIG_FILES([./Makefile wholesale/Makefile \
+AC_CONFIG_FILES([./Makefile
+        wholesale/Makefile \
 	core/Makefile \
 	core/rt/Makefile \
 	assert/Makefile \

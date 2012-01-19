@@ -15,10 +15,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include "wholesale.h"
 //#include "libopf.h"
 //#include <stdlib.h>
 //#include "matrix.h"
-#include "solver_matpower.h"
+//#include "solver_matpower.h"
 
 mxArray* initArray(double rdata[], int nRow, int nColumn) 
 {

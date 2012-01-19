@@ -29,15 +29,14 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 #endif
 
 	/*** DO NOT EDIT NEXT LINE ***/
-	
+	new line(module);
 	new bus(module);
-	new line(module);	
 	new gen(module);
 	new gen_cost(module);
 	
 	/* always return the first class registered */
 	/* TODO this module will not compile until a class has been defined */
-	return bus::oclass;
+	return line::oclass;
 }
 
 

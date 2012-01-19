@@ -130,8 +130,6 @@ int solver_matpower()
 
 	mlxOpf(0, plhs, 6, prhs);
 
-	return 0;
-
 }
 
 
