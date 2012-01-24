@@ -1,13 +1,36 @@
+/*
+ * Creates a connection to a database of Customer Power Logs, based
+ * on the customer's id. 
+ *
+ * You MUST call init_connection to initialize the connection to the db
+ * before you create an instance of db_access
+ */
+
+#ifndef DB_ACCESS_H
+#define DB_ACCESS_H
+
 #include <iostream>
 #include "timestamp.h"
 
-//typedef struct DATETIME;
 using namespace std;
 
-bool db_is_valid_id(string customer_id);
+class db_access 
+{
+public:
 
-int db_get_earliest_date(string customer_id, DATETIME &dt);
+    db_access(string cust_id);
+    int get_earliest_date(DATETIME &dt);
+    int get_latest_date(DATETIME &dt); 
+    double get_power_usage(DATETIME &dt);
 
-int db_get_latest_date(string customer_id, DATETIME &dt);
+    static void init_connection(const char *db = 0, 
+                                const char *server = 0,
+                                const char *user = 0,
+                                const char *password = 0,
+                                unsigned int port = 0);
 
-double db_get_power_usage(string customer_id, DATETIME &dt); 
+private:
+    string customer_id;
+};
+
+#endif

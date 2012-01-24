@@ -8,6 +8,7 @@
 
 #include "smartmeter.h"
 #include "direct_data.h"
+#include "db_access.h"
 
 //NEWCLASSINC
 
@@ -21,6 +22,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	}
 
 
+    db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
 	gl_global_create("smartmeter::test_global", PT_double, &test_global, NULL);
 
 	/* TODO: use gl_global_setvar, gl_global_getvar, and gl_global_find for access */

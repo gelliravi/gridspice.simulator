@@ -18,7 +18,6 @@
 #include <errno.h>
 
 #include "direct_data.h"
-#include "db_access.h"
 
 CLASS *direct_data::oclass = NULL;
 direct_data *direct_data::defaults = NULL;
@@ -78,10 +77,7 @@ int direct_data::create(void)
 /* Object initialization is called once after all object have been created */
 int direct_data::init(OBJECT *parent)
 {
-    if(!db_is_valid_id(customer_id)) {
-        gl_error("invalid customer id");
-        return 0;
-    }
+    db = new db_access(customer_id);
 
     DATETIME earliest_date, latest_date;
     
@@ -91,8 +87,8 @@ int direct_data::init(OBJECT *parent)
     gl_localtime(dummy_timestamp, &latest_date);
 
     // populate the DATETIME objects with real values 
-    db_get_earliest_date(customer_id, earliest_date);
-    db_get_latest_date(customer_id, latest_date);
+    db->get_earliest_date(earliest_date);
+    db->get_latest_date(latest_date);
     earliest_time = gl_mktime(&earliest_date);
     latest_time = gl_mktime(&latest_date);
     return 1;
@@ -116,7 +112,7 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
         DATETIME dt;
         gl_localtime(t1, &dt);
         
-        current_load = db_get_power_usage(customer_id, dt);
+        current_load = db->get_power_usage(dt);
         std::cout << "On " << dt.year << "/" << dt.month << "/" << dt.day
               << " at " << dt.hour << ":" << dt.minute << ", " 
               << customer_id  << " used " << current_load 

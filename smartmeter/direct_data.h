@@ -11,12 +11,14 @@
 
 #include <stdarg.h>
 #include "gridlabd.h"
+#include "db_access.h"
 
 class direct_data {
 private:
 	/* TODO: put private variables here */
     TIMESTAMP earliest_time;
     TIMESTAMP latest_time;
+    db_access *db;
 protected:
 	/* TODO: put unpublished but inherited variables */
 public:
