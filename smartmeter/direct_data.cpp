@@ -54,15 +54,14 @@ direct_data::direct_data(MODULE *module)
         }
 
 		if (gl_publish_variable(oclass,
-            PT_char32, "customer_id", PADDR(customer_id),
             PT_double, "current_load", PADDR(current_load),
+            PT_char32, "customer_id", PADDR(customer_id),
 			NULL) < 1) {
             GL_THROW("unable to publish properties in %s",__FILE__);
         }
 		defaults = this;
 		memset(this, 0, sizeof(direct_data));
-        // now set the defaults
-        current_load = 0; 
+        // set defaults here if needed
 	}
 }
 
