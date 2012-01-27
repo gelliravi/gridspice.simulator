@@ -104,10 +104,20 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
+
+	OBJECT *temp_obj = NULL;
+	bus *list_bus;
+	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
+	temp_obj = gl_find_next(bus_list,temp_obj);
+	list_bus = OBJECTDATA(temp_obj,bus);
+	printf("%d\n",list_bus->BUS_I);
+	printf("This is BUS_I\n");
         
         //***
         // Call solver_matpower
-	int a = solver_matpower();
+	//int a = solver_matpower();
+	//***
+
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
