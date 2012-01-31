@@ -60,7 +60,7 @@ int solver_matpower()
 	
 	printf("========Getting Data=============\n");
 
-	
+	// Get Bus objects
 	OBJECT *temp_obj = NULL;
 	bus *list_bus;
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
@@ -70,11 +70,9 @@ int solver_matpower()
 		temp_obj = gl_find_next(bus_list,temp_obj);
 		list_bus = OBJECTDATA(temp_obj,bus);
 		vec_bus.push_back(*list_bus);
-		//printf("%d\n",list_bus->BUS_TYPE);
         };
-        //printf("Total number: %d\n",vec_bus.size());
-	//printf("=============BUS=============\n");
 
+	// Get Generator objects
 	gen *list_gen;
 	FINDLIST *gen_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen",FT_END);
 	temp_obj = NULL;
@@ -84,11 +82,9 @@ int solver_matpower()
 		temp_obj = gl_find_next(gen_list,temp_obj);
 		list_gen = OBJECTDATA(temp_obj,gen);
 		vec_gen.push_back(*list_gen);
-		//printf("%d\n",list_gen->GEN_BUS);
         };
-        
-	//printf("=============GEN=============\n");
 
+	// Get Line/Branch Objects
 	line *list_line;
 	FINDLIST *line_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"line",FT_END);
 	temp_obj = NULL;
@@ -98,11 +94,9 @@ int solver_matpower()
 		temp_obj = gl_find_next(line_list,temp_obj);
 		list_line = OBJECTDATA(temp_obj,line);
 		vec_branch.push_back(*list_line);
-		//printf("from %d to %d \n",list_line->F_BUS,list_line->T_BUS);
 	}
 
-	//printf("=============LINE============\n");
-
+	// Get Area Objects
 	areas *list_areas;
 	FINDLIST *areas_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"areas",FT_END);
 	temp_obj = NULL;
@@ -113,8 +107,9 @@ int solver_matpower()
 		list_areas = OBJECTDATA(temp_obj,areas);
 		vec_areas.push_back(*list_areas);
 	}
-	//printf("=============AREA===========\n");
 
+	
+	// Get Generator Cost objects
 	gen_cost *list_gen_cost;
 	FINDLIST *gen_cost_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen_cost",FT_END);
 	temp_obj = NULL;
@@ -124,12 +119,11 @@ int solver_matpower()
 		temp_obj = gl_find_next(gen_cost_list,temp_obj);
 		list_gen_cost = OBJECTDATA(temp_obj,gen_cost);
 		vec_gencost.push_back(*list_gen_cost);
-		//printf("model %d\n",list_gen_cost->MODEL);
+
 	}
 
-	//printf("===========GEN_COST==========\n");
 
-	// get the size
+	// Get the size of each class
 	nbus = vec_bus.size();
 	ngen = vec_gen.size();
 	nbranch = vec_branch.size();
@@ -154,7 +148,7 @@ int solver_matpower()
 	
 
 	
-	// insert data for rbus
+	// insert bus data for rbus
 	vector<bus>::const_iterator iter_bus = vec_bus.begin();
 	if (nbus > 1)
 	{
@@ -177,14 +171,6 @@ int solver_matpower()
 		}
 	}
 
-/*	
-	for (unsigned int i = 0; i < 117; i++)
-	{
-		printf("%f ",rbus[i]);
-		if (((i+1) % 9) == 0)
-			printf("\n");
-	}
-*/
 	
 	// insert data for rgen
 	vector<gen>::const_iterator iter_gen = vec_gen.begin();
@@ -215,14 +201,6 @@ int solver_matpower()
 	}	
 
 
-/*
-	for (unsigned int i = 0; i < 60; i++)
-	{
-		printf("%f ",rgen[i]);
-		if ((i+1)%3 == 0)
-			printf("\n");
-	}
-*/
 
 	// insert data for rbranch
 	vector<line>::const_iterator iter_branch = vec_branch.begin();
@@ -243,14 +221,7 @@ int solver_matpower()
 		rbranch[i+12*nbranch] = iter_branch->ANGMAX;
 		iter_branch++;
 	}
-/*
-	for (unsigned int i = 0; i < 117; i++)
-	{
-		printf("%f ",rbranch[i]);
-		if (((i+1) % 9) == 0)
-			printf("\n");
-	}
-*/
+
 	
 	// insert data for rareas
 	vector<areas>::const_iterator iter_areas = vec_areas.begin();
@@ -260,12 +231,8 @@ int solver_matpower()
 		rareas[i+1*nareas] = (double)iter_areas->REFBUS;
 		iter_areas++;
 	} 
-/*	
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		printf("%f",rareas[i]);
-	}
-*/
+
+
 	// insert data for rgencost
 	vector<gen_cost>::const_iterator iter_gencost = vec_gencost.begin();
 
@@ -274,17 +241,6 @@ int solver_matpower()
 	{
 		if (iter_gencost->NCOST > max_order)
 			max_order = iter_gencost->NCOST;
-//		printf("%s\n",iter_gencost->COST);
-/*		
-		string double_string(iter_gencost->COST);
-		vector<string> v;
-		v = split(double_string,',');
-		printf("convert\n");
-		for (unsigned int j =0; j<v.size();j++)
-		{
-			printf("%f ",atof(v[j].c_str()));
-		}
-*/
 		iter_gencost++;
 		
 	}
@@ -312,85 +268,18 @@ int solver_matpower()
 		}
 		iter_gencost++;
 	}
-/*
-	for (unsigned int i = 0; i < 21; i++)
-	{
-		printf("%f ",rgencost[i]);
-		if ((i+1)%ngencost == 0)
-			printf("\n");
-	}
-*/
+
+	// Run the Solver function
 	printf("Running Test\n");
         libopfInitialize();
 	mxArray* baseMVA = mxCreateDoubleMatrix(1,1,mxREAL);
 	*mxGetPr(baseMVA) = 100.0;
-/*
-	double rbus[117] = {1,2,3,4,5,6,7,8,9,
-		3,2,2,1,1,1,1,1,1,
-		0,0,0,0,90,0,100,0,125,
-		0,0,0,0,30,0,35,0,50,
-		0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,
-		1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,
-		0,0,0,0,0,0,0,0,0,
-		345,345,345,345,345,345,345,345,345,
-		1,1,1,1,1,1,1,1,1,
-		1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,
-		0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9}; 
-*/
+
+	// change to MATLAB MAT format
 	mxArray* bus = initArray(rbus, nbus, BUS_ATTR);	
-/*
-	double rgen[54] = {1,2,3,
-			0,163,85,
-			0,0,0,
-			300,300,300,
-			-300,-300,-300,
-			1,1,1,
-			100,100,100,
-			1,1,1,
-			250,300,270,
-			10,10,10,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0};
-
-*/
 	mxArray* gen = initArray(rgen, ngen, GEN_ATTR);
-/*
-	double rbranch[117] = {1,4,5,3,6,7,8,8,9,
-		4,5,6,6,7,8,2,9,4,
-		0,0.017,0.039,0,0.0119,0.0085,0,0.032,0.01,
-		0.0576,0.092,0.17,0.0586,0.1008,0.072,0.0625,0.161,0.085,
-		0,0.158,0.358,0,0.209,0.149,0,0.306,0.176,
-		250,250,150,300,150,250,250,250,250,
-		250,250,150,300,150,250,250,250,250,
-		250,250,150,300,150,250,250,250,250,
-		0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,
-		1,1,1,1,1,1,1,1,1,
-		-360,-360,-360,-360,-360,-360,-360,-360,-360,
-		360,360,360,360,360,360,360,360,360};
-*/
 	mxArray* branch = initArray(rbranch, nbranch, BRANCH_ATTR);
-
-/*
-	double rgencost[21] = {2,2,2,
-			1500,2000,3000,
-			0,0,0,
-			3,3,3,
-			0.11,0.085,0.1225,
-			5,1.2,1,
-			150,600,335};
-*/
 	mxArray* gencost = initArray(rgencost, ngencost, GENCOST_ATTR+max_order);
-
-	//double rareas[2] = {1, 2};
 	mxArray* areas = initArray(rareas, nareas, AREA_ATTR);
 
 
