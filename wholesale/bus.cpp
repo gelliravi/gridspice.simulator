@@ -18,7 +18,10 @@
 #include <errno.h>
 //#include "solver_matpower.h"
 #include "bus.h"
-//#include "wholesale.h"
+#include "gen.h"
+#include "line.h"
+#include "gen_cost.h"
+#include "wholesale.h"
 
 CLASS *bus::oclass = NULL;
 bus *bus::defaults = NULL;
@@ -105,18 +108,139 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 
+	
+	unsigned int nbus = 0;
+	unsigned int ngen = 0;
+	unsigned int nbranch = 0;
+	unsigned int ngencost = 0;
+	unsigned int nareas = 0;
+
+	
+	// collect bus data
+		
+/*
 	OBJECT *temp_obj = NULL;
 	bus *list_bus;
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
-	temp_obj = gl_find_next(bus_list,temp_obj);
-	list_bus = OBJECTDATA(temp_obj,bus);
-	printf("%d\n",list_bus->BUS_I);
-	printf("This is BUS_I\n");
+
+	while (gl_find_next(bus_list,temp_obj)!=NULL)
+	{
+		temp_obj = gl_find_next(bus_list,temp_obj);
+		list_bus = OBJECTDATA(temp_obj,bus);
+		//vec_bus.push_back(OBJECTDATA(temp_obj,bus));
+		printf("%d\n",list_bus->BUS_TYPE);
+        };
+        //printf("Total number: %d\n",vec_bus.size());
+	printf("=============BUS=============\n");
+
+	gen *list_gen;
+	FINDLIST *gen_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen",FT_END);
+	temp_obj = NULL;
+	
+	while (gl_find_next(gen_list,temp_obj)!=NULL)
+	{
+		temp_obj = gl_find_next(gen_list,temp_obj);
+		list_gen = OBJECTDATA(temp_obj,gen);
+		printf("%d\n",list_gen->GEN_BUS);
+        };
         
-        //***
+	printf("=============GEN=============\n");
+
+	line *list_line;
+	FINDLIST *line_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"line",FT_END);
+	temp_obj = NULL;
+
+	while (gl_find_next(line_list,temp_obj)!=NULL)	
+	{
+		temp_obj = gl_find_next(line_list,temp_obj);
+		list_line = OBJECTDATA(temp_obj,line);
+		printf("from %d to %d \n",list_line->F_BUS,list_line->T_BUS);
+	}
+
+	printf("=============LINE============\n");
+
+	gen_cost *list_gen_cost;
+	FINDLIST *gen_cost_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen_cost",FT_END);
+	temp_obj = NULL;
+
+	while (gl_find_next(gen_cost_list,temp_obj)!=NULL)
+	{
+		temp_obj = gl_find_next(gen_cost_list,temp_obj);
+		list_gen_cost = OBJECTDATA(temp_obj,gen_cost);
+		printf("model %d\n",list_gen_cost->MODEL);
+	}
+
+	printf("===========GEN_COST==========\n");
+	
+	
         // Call solver_matpower
-	//int a = solver_matpower();
-	//***
+
+	double rbus[117] = {1,2,3,4,5,6,7,8,9,
+		3,2,2,1,1,1,1,1,1,
+		0,0,0,0,90,0,100,0,125,
+		0,0,0,0,30,0,35,0,50,
+		0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,
+		1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,
+		0,0,0,0,0,0,0,0,0,
+		345,345,345,345,345,345,345,345,345,
+		1,1,1,1,1,1,1,1,1,
+		1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1,
+		0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9}; 
+	
+	double rgen[54] = {1,2,3,
+			0,163,85,
+			0,0,0,
+			300,300,300,
+			-300,-300,-300,
+			1,1,1,
+			100,100,100,
+			1,1,1,
+			250,300,270,
+			10,10,10,
+			0,0,0,
+			0,0,0,
+			0,0,0,
+			0,0,0,
+			0,0,0,
+			0,0,0,
+			0,0,0,
+			0,0,0};
+	
+	double rbranch[117] = {1,4,5,3,6,7,8,8,9,
+		4,5,6,6,7,8,2,9,4,
+		0,0.017,0.039,0,0.0119,0.0085,0,0.032,0.01,
+		0.0576,0.092,0.17,0.0586,0.1008,0.072,0.0625,0.161,0.085,
+		0,0.158,0.358,0,0.209,0.149,0,0.306,0.176,
+		250,250,150,300,150,250,250,250,250,
+		250,250,150,300,150,250,250,250,250,
+		250,250,150,300,150,250,250,250,250,
+		0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,
+		1,1,1,1,1,1,1,1,1,
+		-360,-360,-360,-360,-360,-360,-360,-360,-360,
+		360,360,360,360,360,360,360,360,360};
+
+	double rgencost[21] = {2,2,2,
+			1500,2000,3000,
+			0,0,0,
+			3,3,3,
+			0.11,0.085,0.1225,
+			5,1.2,1,
+			150,600,335};
+
+	double rareas[2] = {1, 2};
+
+	
+	nbus = 9;
+	ngen = 3;
+	nbranch = 9;
+	ngencost = 3;
+	nareas = 1;	
+*/
+	//int a = solver_matpower(rbus,nbus,rgen,ngen,rbranch,nbranch,rgencost,ngencost,rareas,nareas);
+	int a = solver_matpower();
 
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */

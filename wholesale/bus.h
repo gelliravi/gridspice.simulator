@@ -12,9 +12,7 @@
 #include <stdarg.h>
 #include "gridlabd.h"
 #include "wholesale.h"
-//#include "sovler_matpower.h"
 
-//extern int sovler_matpower();
 
 class bus {
 private:
@@ -24,6 +22,10 @@ protected:
 public:
 	/* TODO: put published variables here */
 	//double length;
+	static CLASS *oclass;
+	static bus *defaults;
+	
+	//variable
 	int 	BUS_I;
 	int	BUS_TYPE;
 	double 	PD;
@@ -45,17 +47,14 @@ public:
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
-public:
-	static CLASS *oclass;
-	static CLASS *pclass;
-	static bus *defaults;
+
 
 	
-//#ifdef OPTIONAL
-//	static CLASS *pclass; /**< defines the parent class */
-//	
-//	TIMESTAMP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-//#endif
+#ifdef OPTIONAL
+	static CLASS *pclass; /**< defines the parent class */
+	
+	TIMESTAMP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
+#endif
 
 };
 

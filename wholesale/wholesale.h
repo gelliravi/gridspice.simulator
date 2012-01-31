@@ -8,10 +8,22 @@
 #include "matrix.h"
 #include "libopf.h"
 
+#ifndef ATTR_NUM
+#define BUS_ATTR 13
+#define GEN_ATTR 18
+#define BRANCH_ATTR 13
+#define GENCOST_ATTR 7
+#define AREA_ATTR 2
+#endif
+
 /*** DO NOT DELETE THE NEXT LINE ***/
 //NEWCLASSINC
 inline mxArray* initArray(double rdata[], int nRow, int nColumn);
-extern int solver_matpower(void); 
+//int solver_matpower(double *rbus, unsigned int nbus, double *rgen, unsigned int ngen, 
+//	double *rbranch, unsigned int nbranch, double *rgencost, unsigned int ngencost,
+//	double *rareas,	unsigned int nareas);
+
+int solver_matpower();
 
 /* optional exports */
 #ifdef OPTIONAL
