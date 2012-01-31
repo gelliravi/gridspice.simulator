@@ -8,11 +8,17 @@
 #include "matrix.h"
 #include "libopf.h"
 
+#include <vector>
+using std::vector;
+
+#include <string>
+using std::string;
+
 #ifndef ATTR_NUM
 #define BUS_ATTR 13
-#define GEN_ATTR 18
+#define GEN_ATTR 21
 #define BRANCH_ATTR 13
-#define GENCOST_ATTR 7
+#define GENCOST_ATTR 4
 #define AREA_ATTR 2
 #endif
 
@@ -24,6 +30,8 @@ inline mxArray* initArray(double rdata[], int nRow, int nColumn);
 //	double *rareas,	unsigned int nareas);
 
 int solver_matpower();
+
+inline vector<string> split(const string s, char c);
 
 /* optional exports */
 #ifdef OPTIONAL

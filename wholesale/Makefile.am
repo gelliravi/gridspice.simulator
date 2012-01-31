@@ -5,6 +5,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	line.cpp line.h \
 	gen.cpp gen.h \
 	gen_cost.cpp gen_cost.h \
+	areas.cpp areas.h \
 	# NEWCLASS 
 # DO NOT EDIT THE PREVIOUS LINE
 

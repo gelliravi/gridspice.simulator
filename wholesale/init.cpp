@@ -9,9 +9,10 @@
 #include "wholesale.h"
 #include "bus.h"
 #include "line.h"
-#include "solver_matpower.h"
+//#include "solver_matpower.h"
 #include "gen.h"
 #include "gen_cost.h"
+#include "areas.h"
 //NEWCLASSINC
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
@@ -34,6 +35,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new line(module);	
 	new gen(module);
 	new gen_cost(module);
+	new areas(module);
 	
 	/* always return the first class registered */
 	/* TODO this module will not compile until a class has been defined */

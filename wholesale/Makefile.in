@@ -62,7 +62,7 @@ wholesale_la_LIBADD =
 am_wholesale_la_OBJECTS = wholesale_la-init.lo wholesale_la-main.lo \
 	wholesale_la-wholesale.lo wholesale_la-bus.lo \
 	wholesale_la-line.lo wholesale_la-gen.lo \
-	wholesale_la-gen_cost.lo
+	wholesale_la-gen_cost.lo wholesale_la-areas.lo
 wholesale_la_OBJECTS = $(am_wholesale_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/core
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -273,6 +273,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	line.cpp line.h \
 	gen.cpp gen.h \
 	gen_cost.cpp gen_cost.h \
+	areas.cpp areas.h \
 	# NEWCLASS 
 
 # DO NOT EDIT THE PREVIOUS LINE
@@ -349,6 +350,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-areas.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-bus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-gen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wholesale_la-gen_cost.Plo@am__quote@
@@ -426,6 +428,13 @@ wholesale_la-gen_cost.lo: gen_cost.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='gen_cost.cpp' object='wholesale_la-gen_cost.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-gen_cost.lo `test -f 'gen_cost.cpp' || echo '$(srcdir)/'`gen_cost.cpp
+
+wholesale_la-areas.lo: areas.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-areas.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-areas.Tpo" -c -o wholesale_la-areas.lo `test -f 'areas.cpp' || echo '$(srcdir)/'`areas.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/wholesale_la-areas.Tpo" "$(DEPDIR)/wholesale_la-areas.Plo"; else rm -f "$(DEPDIR)/wholesale_la-areas.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='areas.cpp' object='wholesale_la-areas.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-areas.lo `test -f 'areas.cpp' || echo '$(srcdir)/'`areas.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

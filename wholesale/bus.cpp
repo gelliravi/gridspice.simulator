@@ -61,9 +61,9 @@ bus::bus(MODULE *module)
                                                                 // 1 = PQ, 2= PV
                                                                 // 3 = ref, 4 = isolated
                         PT_double, "PD[MW]", PADDR(PD),         // real power demand
-                        PT_double, "QD[MVAr]", PADDR(PD),       // reactive power demand
-                        PT_double, "GS[MW]", PADDR(PD),         // shunt conductance
-                        PT_double, "BS[MVAr]", PADDR(PD),       // shunt susceptance
+                        PT_double, "QD[MVAr]", PADDR(QD),       // reactive power demand
+                        PT_double, "GS[MW]", PADDR(GS),         // shunt conductance
+                        PT_double, "BS[MVAr]", PADDR(BS),       // shunt susceptance
                         PT_int16, "BUS_AREA", PADDR(BUS_AREA),  // area number
                         PT_double, "VM", PADDR(VM),             // voltage magnitude
                         PT_double, "VA", PADDR(VA),             // voltage angle
