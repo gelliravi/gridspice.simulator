@@ -82,7 +82,8 @@ int direct_data::init(OBJECT *parent)
         char *host = (db_host == "") ? 0 : db_host;
         char *user = (db_user == "") ? 0 : db_user;
         char *pwd = (db_pwd == "") ? 0 : db_pwd;
-        db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
+        db_access::init_connection(name, host, user, pwd, 
+            (unsigned int) db_port);
     }
     db = new db_access(customer_id);
 
