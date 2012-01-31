@@ -23,6 +23,7 @@ public:
     int get_latest_date(DATETIME &dt); 
     double get_power_usage(DATETIME &dt);
 
+    static bool is_connected();
     static void init_connection(const char *db = 0, 
                                 const char *server = 0,
                                 const char *user = 0,

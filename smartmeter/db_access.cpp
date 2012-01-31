@@ -8,14 +8,21 @@ static mysqlpp::Connection conn(true);
 /* static helper functions */
 static void store_in_datetime(mysqlpp::DateTime date, DATETIME &dt);
 
+bool db_access::is_connected()
+{
+    return conn.connected();
+}
+
 void db_access::init_connection(const char *db, const char *server,
                                 const char *user, const char *password,
-                                unsigned int port) {
+                                unsigned int port) 
+{
     conn.connect(db, server, user, password, port);
 }
                      
 
-db_access::db_access(string cust_id) {
+db_access::db_access(string cust_id) 
+{
     customer_id = cust_id;
     mysqlpp::Query query = conn.query();
     query << "select CUSTID from masterload_all where CUSTID = "
@@ -26,7 +33,8 @@ db_access::db_access(string cust_id) {
     }
 }
 
-int db_access::get_earliest_date(DATETIME &dt) {
+int db_access::get_earliest_date(DATETIME &dt) 
+{
     mysqlpp::Query query = conn.query();
     query << "select min(DATE_) from masterload_all where CUSTID = "
           << mysqlpp::quote << customer_id;
@@ -39,7 +47,8 @@ int db_access::get_earliest_date(DATETIME &dt) {
     return 0;
 }
 
-int db_access::get_latest_date(DATETIME &dt) {
+int db_access::get_latest_date(DATETIME &dt) 
+{
     mysqlpp::Query query = conn.query();
     query << "select max(DATE_) from masterload_all where CUSTID = "
           << mysqlpp::quote << customer_id;
@@ -52,7 +61,8 @@ int db_access::get_latest_date(DATETIME &dt) {
     return 0;
 }
 
-double db_access::get_power_usage(DATETIME &dt) {
+double db_access::get_power_usage(DATETIME &dt) 
+{
     stringstream date_builder;
     date_builder << dt.year << "-" << dt.month << "-" << dt.day;
     string date_field = date_builder.str();
@@ -76,7 +86,8 @@ double db_access::get_power_usage(DATETIME &dt) {
     }
 }
 
-void store_in_datetime(mysqlpp::DateTime date, DATETIME &dt) {
+void store_in_datetime(mysqlpp::DateTime date, DATETIME &dt) 
+{
     dt.day = date.day(); 
     dt.month = date.month();
     dt.year = date.year();

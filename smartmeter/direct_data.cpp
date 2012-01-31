@@ -76,6 +76,14 @@ int direct_data::create(void)
 /* Object initialization is called once after all object have been created */
 int direct_data::init(OBJECT *parent)
 {
+    if (!db_access::is_connected()) {
+        extern char256 db_name, db_host, db_user, db_pwd, db_port;
+        char *name = (db_name == "") ? 0 : db_name;
+        char *host = (db_host == "") ? 0 : db_host;
+        char *user = (db_user == "") ? 0 : db_user;
+        char *pwd = (db_pwd == "") ? 0 : db_pwd;
+        db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
+    }
     //extern char256 vikas_test;
     //std::cout << "vikas is " << vikas_test << std::endl;
     db = new db_access(customer_id);

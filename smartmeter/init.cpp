@@ -12,7 +12,12 @@
 
 //NEWCLASSINC
 
-double test_global;
+char256 db_name = "";
+char256 db_host = "";
+char256 db_user = "";
+char256 db_pwd = "";
+int16 db_port = 0;
+
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {
 	if (set_callback(fntable)==NULL)
@@ -22,9 +27,12 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	}
 
 
-    db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
-	gl_global_create("smartmeter::test_global", PT_double, &test_global, NULL);
-
+    gl_global_create("smartmeter::db_name", PT_char256, &db_name, NULL);
+	gl_global_create("smartmeter::db_host", PT_char256, &db_host, NULL);
+    gl_global_create("smartmeter::db_user", PT_char256, &db_user, NULL);
+    gl_global_create("smartmeter::db_pwd", PT_char256, &db_pwd, NULL);
+    gl_global_create("smartmeter::db_port", PT_int16, &db_port, NULL);
+    //db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
 	/* TODO: use gl_global_setvar, gl_global_getvar, and gl_global_find for access */
 
 	/*** DO NOT EDIT NEXT LINE ***/
