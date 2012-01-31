@@ -32,7 +32,6 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
     gl_global_create("smartmeter::db_user", PT_char256, &db_user, NULL);
     gl_global_create("smartmeter::db_pwd", PT_char256, &db_pwd, NULL);
     gl_global_create("smartmeter::db_port", PT_int16, &db_port, NULL);
-    //db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
 	/* TODO: use gl_global_setvar, gl_global_getvar, and gl_global_find for access */
 
 	/*** DO NOT EDIT NEXT LINE ***/

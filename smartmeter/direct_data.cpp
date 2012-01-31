@@ -84,8 +84,6 @@ int direct_data::init(OBJECT *parent)
         char *pwd = (db_pwd == "") ? 0 : db_pwd;
         db_access::init_connection("lidb", 0, "lidb_user", "smartgrid!!", 0);
     }
-    //extern char256 vikas_test;
-    //std::cout << "vikas is " << vikas_test << std::endl;
     db = new db_access(customer_id);
 
     DATETIME earliest_date, latest_date;
