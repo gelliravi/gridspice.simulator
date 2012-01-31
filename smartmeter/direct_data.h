@@ -22,7 +22,7 @@ private:
 protected:
 	/* TODO: put unpublished but inherited variables */
 public:
-    double current_load;
+    complex current_power;
     char32 customer_id;
 	/* TODO: put published variables here */
 public:

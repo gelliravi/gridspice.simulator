@@ -54,7 +54,7 @@ direct_data::direct_data(MODULE *module)
         }
 
 		if (gl_publish_variable(oclass,
-            PT_double, "current_load", PADDR(current_load),
+            PT_complex, "current_power", PADDR(current_power),
             PT_char32, "customer_id", PADDR(customer_id),
 			NULL) < 1) {
             GL_THROW("unable to publish properties in %s",__FILE__);
@@ -76,6 +76,8 @@ int direct_data::create(void)
 /* Object initialization is called once after all object have been created */
 int direct_data::init(OBJECT *parent)
 {
+    //extern char256 vikas_test;
+    //std::cout << "vikas is " << vikas_test << std::endl;
     db = new db_access(customer_id);
 
     DATETIME earliest_date, latest_date;
@@ -111,11 +113,7 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
         DATETIME dt;
         gl_localtime(t1, &dt);
         
-        current_load = db->get_power_usage(dt);
-        std::cout << "On " << dt.year << "/" << dt.month << "/" << dt.day
-              << " at " << dt.hour << ":" << dt.minute << ", " 
-              << customer_id  << " used " << current_load 
-              << " kw" << std::endl;
+        current_power = db->get_power_usage(dt);
         // increment time by INTERVAL_SIZE (in minutes) * 60 to get seconds
         to_return = t1 + (INTERVAL_SIZE * 60);
     }
