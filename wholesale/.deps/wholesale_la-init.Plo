@@ -119,7 +119,7 @@ wholesale_la-init.lo: init.cpp /usr/include/stdlib.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_vector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_bvector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/vector.tcc \
-  bus.h line.h gen.h gen_cost.h areas.h
+  bus.h line.h gen.h gen_cost.h areas.h baseMVA.h
 
 /usr/include/stdlib.h:
 
@@ -480,3 +480,5 @@ gen.h:
 gen_cost.h:
 
 areas.h:
+
+baseMVA.h:

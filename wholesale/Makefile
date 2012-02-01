@@ -62,7 +62,8 @@ wholesale_la_LIBADD =
 am_wholesale_la_OBJECTS = wholesale_la-init.lo wholesale_la-main.lo \
 	wholesale_la-wholesale.lo wholesale_la-bus.lo \
 	wholesale_la-line.lo wholesale_la-gen.lo \
-	wholesale_la-gen_cost.lo wholesale_la-areas.lo
+	wholesale_la-gen_cost.lo wholesale_la-areas.lo \
+	wholesale_la-baseMVA.lo
 wholesale_la_OBJECTS = $(am_wholesale_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/core
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -274,6 +275,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	gen.cpp gen.h \
 	gen_cost.cpp gen_cost.h \
 	areas.cpp areas.h \
+	baseMVA.cpp baseMVA.h \
 	# NEWCLASS 
 
 # DO NOT EDIT THE PREVIOUS LINE
@@ -351,6 +353,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/wholesale_la-areas.Plo
+include ./$(DEPDIR)/wholesale_la-baseMVA.Plo
 include ./$(DEPDIR)/wholesale_la-bus.Plo
 include ./$(DEPDIR)/wholesale_la-gen.Plo
 include ./$(DEPDIR)/wholesale_la-gen_cost.Plo
@@ -435,6 +438,13 @@ wholesale_la-areas.lo: areas.cpp
 #	source='areas.cpp' object='wholesale_la-areas.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-areas.lo `test -f 'areas.cpp' || echo '$(srcdir)/'`areas.cpp
+
+wholesale_la-baseMVA.lo: baseMVA.cpp
+	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-baseMVA.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-baseMVA.Tpo" -c -o wholesale_la-baseMVA.lo `test -f 'baseMVA.cpp' || echo '$(srcdir)/'`baseMVA.cpp; \
+	then mv -f "$(DEPDIR)/wholesale_la-baseMVA.Tpo" "$(DEPDIR)/wholesale_la-baseMVA.Plo"; else rm -f "$(DEPDIR)/wholesale_la-baseMVA.Tpo"; exit 1; fi
+#	source='baseMVA.cpp' object='wholesale_la-baseMVA.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-baseMVA.lo `test -f 'baseMVA.cpp' || echo '$(srcdir)/'`baseMVA.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

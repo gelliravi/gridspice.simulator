@@ -20,6 +20,7 @@ using std::string;
 #define BRANCH_ATTR 13
 #define GENCOST_ATTR 4
 #define AREA_ATTR 2
+#define BASEMVA_ATTR 1
 #endif
 
 /*** DO NOT DELETE THE NEXT LINE ***/

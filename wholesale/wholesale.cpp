@@ -21,6 +21,7 @@
 #include "line.h"
 #include "gen_cost.h"
 #include "areas.h"
+#include "baseMVA.h"
 
 
 
@@ -49,12 +50,14 @@ int solver_matpower()
 	unsigned int nbranch = 0;
 	unsigned int ngencost = 0;
 	unsigned int nareas = 0;
+	unsigned int nbaseMVA = 0;
 
 	vector<bus> vec_bus;
 	vector<gen> vec_gen;
 	vector<line> vec_branch;
 	vector<areas> vec_areas;
-	vector<gen_cost> vec_gencost;	
+	vector<gen_cost> vec_gencost;
+	vector<baseMVA> vec_baseMVA;	
 
 
 	
@@ -121,7 +124,14 @@ int solver_matpower()
 		vec_gencost.push_back(*list_gen_cost);
 
 	}
-
+	
+	// Get Base Information object
+	baseMVA *list_baseMVA;
+	FINDLIST *baseMVA_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"baseMVA",FT_END);
+	temp_obj = NULL;
+	temp_obj = gl_find_next(baseMVA_list,temp_obj);
+	list_baseMVA = OBJECTDATA(temp_obj,baseMVA);
+	vec_baseMVA.push_back(*list_baseMVA);
 
 	// Get the size of each class
 	nbus = vec_bus.size();
@@ -129,6 +139,7 @@ int solver_matpower()
 	nbranch = vec_branch.size();
 	ngencost = vec_gencost.size();
 	nareas = vec_areas.size();
+	nbaseMVA = vec_baseMVA.size();
 
 	// create arrays for input and allocate memory
 	double *rbus;
@@ -142,6 +153,8 @@ int solver_matpower()
 
 	double *rareas;
 	rareas = (double *) calloc(nareas*AREA_ATTR,sizeof(double));
+
+	double rbaseMVA;
 
 	double *rgencost; // allocation of memory is in the following part
 	
@@ -232,6 +245,10 @@ int solver_matpower()
 		iter_areas++;
 	} 
 
+	// insert data for rbaseMVA
+	vector<baseMVA>::const_iterator iter_baseMVA = vec_baseMVA.begin();
+	rbaseMVA = iter_baseMVA->BASEMVA;
+
 
 	// insert data for rgencost
 	vector<gen_cost>::const_iterator iter_gencost = vec_gencost.begin();
@@ -272,8 +289,9 @@ int solver_matpower()
 	// Run the Solver function
 	printf("Running Test\n");
         libopfInitialize();
-	mxArray* baseMVA = mxCreateDoubleMatrix(1,1,mxREAL);
-	*mxGetPr(baseMVA) = 100.0;
+	//mxArray* basemva = initArray(rbaseMVA,nbaseMVA,BASEMVA_ATTR);
+	mxArray* basemva = mxCreateDoubleMatrix(1,1,mxREAL);
+	*mxGetPr(basemva) = rbaseMVA;
 
 	// change to MATLAB MAT format
 	mxArray* bus = initArray(rbus, nbus, BUS_ATTR);	
@@ -299,14 +317,14 @@ int solver_matpower()
 	plhs[3] = f;
 	plhs[4] = success;
 
-	prhs[0] = baseMVA;
+	prhs[0] = basemva;
 	prhs[1] = bus;
 	prhs[2] = gen;
 	prhs[3] = branch;
 	prhs[4] = areas;
 	prhs[5] = gencost;
 
-	mlxOpf(0, plhs, 6, prhs);
+	mlxOpf(5, plhs, 6, prhs); // cout if first parameter is 0;
 
 	return 0;
 
