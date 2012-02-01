@@ -6,6 +6,7 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	gen.cpp gen.h \
 	gen_cost.cpp gen_cost.h \
 	areas.cpp areas.h \
+	baseMVA.cpp baseMVA.h \
 	# NEWCLASS 
 # DO NOT EDIT THE PREVIOUS LINE
 
