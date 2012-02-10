@@ -19,10 +19,14 @@ private:
     TIMESTAMP earliest_time;
     TIMESTAMP latest_time;
     db_access *db;
+    complex *pPower; // pointer to power in parent object
+    complex *pShunt; // pointer to shunt in parent object
+    complex *pLine_I; // pointer to current in parent object
+    complex *pVoltage; // pointer to voltage in parent object
+    complex *get_complex(OBJECT *obj, char *name);
 protected:
 	/* TODO: put unpublished but inherited variables */
 public:
-    complex current_power;
     char32 customer_id;
 	/* TODO: put published variables here */
 public:

@@ -13,11 +13,13 @@
 
  **/
 
+#include "direct_data.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-
-#include "direct_data.h"
+#include "gridlabd.h"
+#include "lock.h"
 
 CLASS *direct_data::oclass = NULL;
 direct_data *direct_data::defaults = NULL;
@@ -54,7 +56,6 @@ direct_data::direct_data(MODULE *module)
         }
 
 		if (gl_publish_variable(oclass,
-            PT_complex, "current_power", PADDR(current_power),
             PT_char32, "customer_id", PADDR(customer_id),
 			NULL) < 1) {
             GL_THROW("unable to publish properties in %s",__FILE__);
@@ -71,6 +72,15 @@ int direct_data::create(void)
 	memcpy(this,defaults,sizeof(direct_data));
 	/* TODO: set the context-free initial value of properties, such as random distributions */
 	return 1; /* return 1 on success, 0 on failure */
+}
+
+// taken from house_e.cpp in residential module
+complex *direct_data::get_complex(OBJECT *obj, char *name)
+{
+	PROPERTY *p = gl_get_property(obj, name);
+	if (p == NULL || p->ptype != PT_complex)
+		return NULL;
+	return (complex *) GETADDR(obj,p);
 }
 
 /* Object initialization is called once after all object have been created */
@@ -99,6 +109,36 @@ int direct_data::init(OBJECT *parent)
     db->get_latest_date(latest_date);
     earliest_time = gl_mktime(&earliest_date);
     latest_time = gl_mktime(&latest_date);
+
+    OBJECT *obj = OBJECTHDR(this);
+	if (parent != NULL && (gl_object_isa(parent,"triplex_meter", "powerflow") 
+        || gl_object_isa(obj->parent, "triplex_node", "powerflow"))) {
+
+        // link pPower to parent object
+        pPower = get_complex(parent, "power_1");
+        if (pPower == NULL) {
+            GL_THROW("parent of direct_data doesn't implement power_1 field!");
+        }
+
+        // link shunt to parent object
+        pShunt = get_complex(parent, "shunt_1");
+        if (pShunt == NULL) {
+            GL_THROW("parent of direct_data doesn't implement shunt_1 field!");
+        }
+
+        // link shunt to parent object
+        pLine_I = get_complex(parent, "residential_nominal_current_1");
+        if (pLine_I == NULL) {
+            GL_THROW("parent of direct_data doesn't implement residential_nominal_current_1 field!");
+        }
+
+        // link pVoltage to parent object
+        pVoltage = get_complex(parent, "voltage_12");
+        if (pLine_I == NULL) {
+            GL_THROW("parent of direct_data doesn't implement voltage_12field!");
+        }
+
+    }
     return 1;
 }
 
@@ -120,9 +160,33 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
         DATETIME dt;
         gl_localtime(t1, &dt);
         
-        current_power = db->get_power_usage(dt);
         // increment time by INTERVAL_SIZE (in minutes) * 60 to get seconds
         to_return = t1 + (INTERVAL_SIZE * 60);
+
+        complex current_power = db->get_power_usage(dt);
+        complex voltage = *pVoltage; // volts
+        complex current = current_power / voltage;
+        complex resistance = voltage / current;
+        complex shunt = ((complex) 1) / resistance; // shunt = admittance
+
+        OBJECT *obj = OBJECTHDR(this);
+        if (obj->parent != NULL) {
+            LOCK_OBJECT(obj->parent);
+
+            pPower[0] = current_power;
+            pPower[1] = current_power;
+            pPower[2] = current_power;
+            
+            pLine_I[0] = current;
+            pLine_I[1] = current;
+            pLine_I[2] = current;
+
+            pShunt[0] = shunt;
+            pShunt[1] = shunt;
+            pShunt[2] = shunt;
+
+            UNLOCK_OBJECT(obj->parent);
+        }
     }
     return to_return;
 }
