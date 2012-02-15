@@ -8,12 +8,13 @@
 
 #include "wholesale.h"
 #include "bus.h"
-#include "line.h"
+//#include "line.h"
 //#include "solver_matpower.h"
 #include "gen.h"
 #include "gen_cost.h"
 #include "areas.h"
 #include "baseMVA.h"
+#include "branch.h"
 //NEWCLASSINC
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
@@ -33,7 +34,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	/*** DO NOT EDIT NEXT LINE ***/
 	
 	new bus(module);
-	new line(module);	
+	//new line(module);	
+	new branch(module);
 	new gen(module);
 	new gen_cost(module);
 	new areas(module);

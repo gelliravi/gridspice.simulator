@@ -65,6 +65,7 @@ object node {
 	voltage_B 37500-120d;
 	voltage_C 37500+120d;
 }
+
 object transformer {
 	name Feeder;
 	configuration Feeder_2000kVA;
@@ -72,6 +73,7 @@ object transformer {
 	to MainBus;
 	phases ABCN;
 }
+
 object node {
 	name MainBus;
 	phases ABCN;

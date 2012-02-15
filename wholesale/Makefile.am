@@ -2,11 +2,11 @@ pkglib_LTLIBRARIES = wholesale.la
 wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	wholesale.cpp include/mclmcrrt.h include/mclcppclass.h\
 	bus.cpp bus.h \
-	line.cpp line.h \
 	gen.cpp gen.h \
 	gen_cost.cpp gen_cost.h \
 	areas.cpp areas.h \
 	baseMVA.cpp baseMVA.h \
+	branch.cpp branch.h \
 	# NEWCLASS 
 # DO NOT EDIT THE PREVIOUS LINE
 

@@ -118,7 +118,7 @@ wholesale_la-wholesale.lo: wholesale.cpp /usr/include/stdlib.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_vector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_bvector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/vector.tcc \
-  bus.h gen.h line.h gen_cost.h areas.h baseMVA.h
+  bus.h gen.h branch.h gen_cost.h areas.h baseMVA.h
 
 /usr/include/stdlib.h:
 
@@ -474,7 +474,7 @@ bus.h:
 
 gen.h:
 
-line.h:
+branch.h:
 
 gen_cost.h:
 

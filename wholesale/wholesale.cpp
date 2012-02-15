@@ -18,7 +18,7 @@
 #include "wholesale.h"
 #include "bus.h"
 #include "gen.h"
-#include "line.h"
+#include "branch.h"
 #include "gen_cost.h"
 #include "areas.h"
 #include "baseMVA.h"
@@ -54,7 +54,7 @@ int solver_matpower()
 
 	vector<bus> vec_bus;
 	vector<gen> vec_gen;
-	vector<line> vec_branch;
+	vector<branch> vec_branch;
 	vector<areas> vec_areas;
 	vector<gen_cost> vec_gencost;
 	vector<baseMVA> vec_baseMVA;	
@@ -88,15 +88,15 @@ int solver_matpower()
         };
 
 	// Get Line/Branch Objects
-	line *list_line;
-	FINDLIST *line_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"line",FT_END);
+	branch *list_branch;
+	FINDLIST *branch_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"branch",FT_END);
 	temp_obj = NULL;
 
-	while (gl_find_next(line_list,temp_obj)!=NULL)	
+	while (gl_find_next(branch_list,temp_obj)!=NULL)	
 	{
-		temp_obj = gl_find_next(line_list,temp_obj);
-		list_line = OBJECTDATA(temp_obj,line);
-		vec_branch.push_back(*list_line);
+		temp_obj = gl_find_next(branch_list,temp_obj);
+		list_branch = OBJECTDATA(temp_obj,branch);
+		vec_branch.push_back(*list_branch);
 	}
 
 	// Get Area Objects
@@ -216,7 +216,7 @@ int solver_matpower()
 
 
 	// insert data for rbranch
-	vector<line>::const_iterator iter_branch = vec_branch.begin();
+	vector<branch>::const_iterator iter_branch = vec_branch.begin();
 	for (unsigned int i = 0; i < nbranch; i++)
 	{
 		rbranch[i+0*nbranch] = (double)iter_branch->F_BUS;

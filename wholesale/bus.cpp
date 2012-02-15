@@ -23,6 +23,9 @@
 #include "gen_cost.h"
 #include "wholesale.h"
 
+#include "../powerflow/transformer.h"
+#include "../powerflow/link.h"
+
 CLASS *bus::oclass = NULL;
 bus *bus::defaults = NULL;
 
@@ -59,7 +62,7 @@ bus::bus(MODULE *module)
                         PT_int16, "BUS_I", PADDR(BUS_I),        // bus number
                         PT_int16, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
                                                                 // 1 = PQ, 2= PV
-                                                                // 3 = ref, 4 = isolated
+                                                                // 3 = ref, 4 = isolated (feeder)
                         PT_double, "PD[MW]", PADDR(PD),         // real power demand
                         PT_double, "QD[MVAr]", PADDR(QD),       // reactive power demand
                         PT_double, "GS[MW]", PADDR(GS),         // shunt conductance
@@ -92,6 +95,13 @@ int bus::create(void)
 int bus::init(OBJECT *parent)
 {
 	/* TODO: set the context-dependent initial value of properties */
+	if (parent != NULL)
+	{
+		transformer *feeder;
+		feeder = OBJECTDATA(parent,transformer);
+		printf("Real power %f, Imag power %f\n",feeder->power_out.Re(),feeder->power_out.Im());		
+	}
+
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -110,10 +120,22 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 	OBJECT *obj = OBJECTHDR(this);
 	bus *tempbus;
 	
-	tempbus = OBJECTDATA(obj,bus);	
+	tempbus = OBJECTDATA(obj,bus);
 
+	/*
+	if (tempbus->BUS_TYPE==4)
+	{
+		//tempbus->PD = power_out.Re();
+		//tempbus->QD = power_out.Im();
+		printf("Feeder %d\n",tempbus->BUS_I);
+	}
+*/
 	if (tempbus->BUS_TYPE == 3) //ref bus
+	{
+		//printf("Bus number %d\n", tempbus->BUS_I);
 		int a = solver_matpower();
+	}
+		
 
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
