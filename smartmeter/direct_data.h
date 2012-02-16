@@ -24,10 +24,13 @@ private:
     complex *pLine_I; // pointer to current in parent object
     complex *pVoltage; // pointer to voltage in parent object
     complex *get_complex(OBJECT *obj, char *name);
+    void update_day_ahead_forecast(TIMESTAMP t);
 protected:
 	/* TODO: put unpublished but inherited variables */
 public:
     char32 customer_id;
+    complex current_load;
+    complex forecasted_load[96];
 	/* TODO: put published variables here */
 public:
 	/* required implementations */
