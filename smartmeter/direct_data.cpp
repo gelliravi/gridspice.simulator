@@ -147,11 +147,24 @@ int direct_data::init(OBJECT *parent)
 
 void direct_data::update_day_ahead_forecast(TIMESTAMP t)
 {
+    TIMESTAMP yesterday = t - (24 * 60 * 60);
     for (int i = 0; i < 96; i++) {
-        TIMESTAMP temp = t + (i * 15 * 60); // increment by 15 minutes
+        // TODO add error checking
+        TIMESTAMP temp = yesterday + (i * 15 * 60); // increment by 15 minutes
         DATETIME dt;
         gl_localtime(temp, &dt);
-        forecasted_load[i] = db->get_power_usage(dt);
+        double predicted_load = db->get_power_usage(dt);
+        double noise = 0.5 * predicted_load;
+        /* generate a random number between 0  and 1 (inclusive).
+           if 1, then add noise. if 0, then subtract noise
+        */
+        int random_number = rand() % 2;
+        if (random_number == 1) {
+            predicted_load += noise;
+        } else {
+            predicted_load -= noise;
+        }
+        forecasted_load[i] = predicted_load;
     }
 }
 
@@ -167,29 +180,31 @@ TIMESTAMP direct_data::presync(TIMESTAMP t0, TIMESTAMP t1)
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-    // first check if we need to update forecast for next day
-    DATETIME dt0, dt1;
-    gl_localtime(t0, &dt0);
-    gl_localtime(t1, &dt1);
-    if (dt0.day != dt1.day) { // we're transitioning to a new day in the system
-        // update forecast array for next day forecast
-        DATETIME next_day = dt1; 
-
-        // set datetime to 00:00 hours
-        next_day.hour = 0;
-        next_day.microsecond = 0;
-        next_day.minute = 0;
-        next_day.second = 0;
-
-        TIMESTAMP tomorrow = gl_mktime(&next_day);       
-        update_day_ahead_forecast(tomorrow);
-    }
-
     // update load at system for current time
     TIMESTAMP to_return = TS_NEVER;
+
     if (t1 < earliest_time) {
         to_return = earliest_time;
     } else if (t1 <= latest_time) {
+
+        // first check if we need to update forecast for next day
+        DATETIME dt0, dt1;
+        gl_localtime(t0, &dt0);
+        gl_localtime(t1, &dt1);
+        if (dt0.day != dt1.day) { // we're transitioning to a new day in the system
+            // update forecast array for next day forecast
+            DATETIME next_day = dt1; 
+
+            // set datetime to 00:00 hours
+            next_day.hour = 0;
+            next_day.microsecond = 0;
+            next_day.minute = 0;
+            next_day.second = 0;
+
+            TIMESTAMP tomorrow = gl_mktime(&next_day);       
+            update_day_ahead_forecast(tomorrow);
+        }
+
         // increment time by INTERVAL_SIZE (in minutes) * 60 to get seconds
         to_return = t1 + (INTERVAL_SIZE * 60);
 
