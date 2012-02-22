@@ -228,7 +228,7 @@ object gen{
         APF         0;
 }
 
-object line{
+object branch{
 	F_BUS       1;
         T_BUS       4;
         BR_R        0;
@@ -244,7 +244,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       4;
         T_BUS       5;
         BR_R        0.017;
@@ -260,7 +260,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       5;
         T_BUS       6;
         BR_R        0.039;
@@ -276,7 +276,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       3;
         T_BUS       6;
         BR_R        0;
@@ -292,7 +292,7 @@ object line{
         ANGMAX      360;
 }
 
-object line{
+object branch{
 	F_BUS       6;
         T_BUS       7;
         BR_R        0.0119;
@@ -308,7 +308,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       7;
         T_BUS       8;
         BR_R        0.0085;
@@ -324,7 +324,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       8;
         T_BUS       2;
         BR_R        0;
@@ -340,7 +340,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       8;
         T_BUS       9;
         BR_R        0.032;
@@ -356,7 +356,7 @@ object line{
         ANGMAX      360;
 };
 
-object line{
+object branch{
 	F_BUS       9;
         T_BUS       4;
         BR_R        0.01;
@@ -395,3 +395,12 @@ object gen_cost{
         NCOST       3;
         COST        0.1225,1,335;
 };
+
+object baseMVA{
+	BASEMVA	    100;
+};
+
+object areas{
+	AREA	     1;
+	REFBUS	     2;
+}
