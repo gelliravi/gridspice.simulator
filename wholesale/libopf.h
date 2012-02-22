@@ -1,8 +1,8 @@
 //
-// MATLAB Compiler: 4.15 (R2011a)
-// Date: Tue Jun 14 21:16:06 2011
-// Arguments: "-B" "macro_default" "-B" "cpplib:libopf" "-W" "cpplib:libopf"
-// "-T" "link:lib" "opf.m" "-d" "lib" 
+// MATLAB Compiler: 4.16 (R2011b)
+// Date: Tue Feb 21 22:47:35 2012
+// Arguments: "-B" "macro_default" "-W" "cpplib:libopf" "-T" "link:lib"
+// "../opf.m" 
 //
 
 #ifndef __libopf_h
