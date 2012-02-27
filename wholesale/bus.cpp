@@ -23,8 +23,8 @@
 #include "gen_cost.h"
 #include "wholesale.h"
 
-#include "../powerflow/transformer.h"
-#include "../powerflow/link.h"
+#include "../powerflow/node.h"
+
 
 CLASS *bus::oclass = NULL;
 bus *bus::defaults = NULL;
@@ -74,6 +74,8 @@ bus::bus(MODULE *module)
                         PT_int16, "ZONE", PADDR(ZONE),          // lose zone
                         PT_double, "VMAX", PADDR(VMAX),         // maximum voltage magnitude
                         PT_double, "VMIN", PADDR(VMIN),         // minimum voltage magnitude
+			PT_int16, "IFHEADER", PADDR(ifheader),	// if connected with distribution network
+			PT_char1024, "HEADER", PADDR(header_name), // the name of header node of distribution network
                         //PT_double, "length[ft]",PADDR(length),
 		     /* TODO: add your published properties here */
 		    NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
@@ -88,6 +90,7 @@ int bus::create(void)
 {
 	memcpy(this,defaults,sizeof(bus));
 	/* TODO: set the context-free initial value of properties, such as random distributions */
+	
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -95,12 +98,6 @@ int bus::create(void)
 int bus::init(OBJECT *parent)
 {
 	/* TODO: set the context-dependent initial value of properties */
-	if (parent != NULL)
-	{
-		transformer *feeder;
-		feeder = OBJECTDATA(parent,transformer);
-		printf("Real power %f, Imag power %f\n",feeder->power_out.Re(),feeder->power_out.Im());		
-	}
 
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -121,19 +118,61 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 	bus *tempbus;
 	
 	tempbus = OBJECTDATA(obj,bus);
+	unsigned int bus_num = tempbus->BUS_I;
+	
 
-	/*
-	if (tempbus->BUS_TYPE==4)
+	if (tempbus->ifheader == 1)
 	{
-		//tempbus->PD = power_out.Re();
-		//tempbus->QD = power_out.Im();
-		printf("Feeder %d\n",tempbus->BUS_I);
-	}
-*/
+		//gl_warning("Start to work with feeder\n");
+		//printf("This is node %d\n",bus_num);
+		// Find the object
+		OBJECT *node_head = gl_get_object(tempbus->header_name);
+		//printf("find the object\n");
+
+		//Lock the object
+		LOCK_OBJECT(node_head);
+		//printf("lock the object\n");
+
+		//get the power value
+		node *head_node;
+		head_node = OBJECTDATA(node_head,node);
+		complex power_out = head_node->powerA;
+		//printf("voltage A %f+j%f\n",head_node->voltageA.Re(),head_node->voltageA.Im());
+
+		// update the object
+		tempbus->PD += power_out.Re();
+		tempbus->QD += power_out.Im();
+		
+
+		// running the OPF
+		if (solver_matpower() == 1)
+		{
+			GL_THROW("OPF Failed at bus for distributon network");
+		}
+		
+		// update the voltage
+	
+		// voltage A
+		head_node->voltageA.SetPolar(tempbus->VM,tempbus->VA+0*PI/180);
+
+		// voltage B
+		head_node->voltageB.SetPolar(tempbus->VM,tempbus->VA+120*PI/180);
+
+		// voltage C
+		head_node->voltageC.SetPolar(tempbus->VM,tempbus->VA+240*PI/180);
+	
+		UNLOCK_OBJECT(node_head);
+
+	}	
+	
+
 	if (tempbus->BUS_TYPE == 3) //ref bus
 	{
 		//printf("Bus number %d\n", tempbus->BUS_I);
-		int a = solver_matpower();
+		if (solver_matpower() == 1)
+		{
+			GL_THROW("OPF Failed at bus");
+		}
 	}
 		
 

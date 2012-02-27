@@ -248,7 +248,7 @@ object branch{
 	F_BUS       4;
         T_BUS       5;
         BR_R        0.017;
-        BR_X        0.092;
+        BR_X        0;
         BR_B        0.158;
         RATE_A      250;
         RATE_B      250;
@@ -264,7 +264,7 @@ object branch{
 	F_BUS       5;
         T_BUS       6;
         BR_R        0.039;
-        BR_X        0.17;
+        BR_X        0.017;
         BR_B        0.358;
         RATE_A      150;
         RATE_B      150;
@@ -402,5 +402,5 @@ object baseMVA{
 
 object areas{
 	AREA	     1;
-	REFBUS	     5;
+	REFBUS	     2;
 }

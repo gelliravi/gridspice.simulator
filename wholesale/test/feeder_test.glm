@@ -1,6 +1,23 @@
 //Input feeder information for IEEE 13 node with different cases.
 //Started on 10/21/09. This version created 15-Oct-2010 14:08:40.
 
+
+// setup GridLAB-D for a standard run
+//#define NHOUSES=1
+//#define ALLOW_TOU
+//#define ALLOW_RTP
+//#define USE_SHAPES
+//#define USE_COLLECTORS
+#define MAXDATA=1000
+#define INTERVAL=3600
+
+
+#set debugger=0		// 1 to enable model debugger
+#set skipsafe=0		// number of ticks to allow objects to safely skip on sync (0 disables skipsafe)
+#set threadcount=1	// 0 uses all available processors
+#set debug=0		// 1 enables debug output
+#set verbose=0		// 1 enables verbose output
+
 clock {
      timezone PST+8PDT;
      starttime '2000-01-01 00:00:00';
@@ -248,7 +265,7 @@ object branch{
 	F_BUS       4;
         T_BUS       5;
         BR_R        0.017;
-        BR_X        0.092;
+        BR_X        0;
         BR_B        0.158;
         RATE_A      250;
         RATE_B      250;
@@ -264,7 +281,7 @@ object branch{
 	F_BUS       5;
         T_BUS       6;
         BR_R        0.039;
-        BR_X        0.17;
+        BR_X        0.017;
         BR_B        0.358;
         RATE_A      150;
         RATE_B      150;
@@ -402,5 +419,33 @@ object baseMVA{
 
 object areas{
 	AREA	     1;
-	REFBUS	     5;
+	REFBUS	     2;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// setup up the power distribution system
+module powerflow;
+
+#include "olypen_library.glm"
+object node {
+	name SupplyBus;
+	phases ABCN;
+	nominal_voltage 37500;
+	voltage_A 37500+0d;
+	voltage_B 37500-120d;
+	voltage_C 37500+120d;
+}
+
+object transformer {
+	name Feeder;
+	configuration Feeder_2000kVA;
+	from SupplyBus;
+	to MainBus;
+	phases ABCN;
+}
+
+object node {
+	name MainBus;
+	phases ABCN;
 }

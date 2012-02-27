@@ -33,6 +33,15 @@ public:
 	int	BR_STATUS;
 	double	ANGMIN;
 	double 	ANGMAX;
+	// only for the output
+	double	PF;	//real power injected at “from” bus end (MW)
+	double	QF;	//reactive power injected at “from” bus end (MVAr)
+	double	PT;	//real power injected at “to” bus end (MW)
+	double	QT;	//reactive power injected at “to” bus end (MVAr)
+	double	MU_SF;	//Kuhn-Tucker multiplier on MVA limit at “from” bus (u/MVA)
+	double	MU_ST;	//Kuhn-Tucker multiplier on MVA limit at “to” bus (u/MVA)
+	double	MU_ANGMIN;	//Kuhn-Tucker multiplier lower angle difference limit (u/degree)
+	double	MU_ANGMAX;	//Kuhn-Tucker multiplier upper angle difference limit (u/degree)
 public:
 	/* required implementations */
 	branch(MODULE *module);

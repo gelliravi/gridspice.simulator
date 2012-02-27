@@ -13,6 +13,7 @@
 #include "gridlabd.h"
 #include "wholesale.h"
 
+#define MAXSIZE 10000
 
 class bus {
 private:
@@ -38,7 +39,17 @@ public:
 	double	BASE_KV;
 	int	ZONE;
 	double 	VMAX;
-	double 	VMIN; 
+	double 	VMIN;
+	// only for the output
+	double	LAM_P; //Lagrange multiplier on real power mismatch (u/MW)
+	double 	LAM_Q; //Lagrange multiplier on reactive power mismatch (u/MVAr)
+	double 	MU_VMAX; //Kuhn-Tucker multiplier on upper voltage limit (u/p.u.)
+	double 	MU_VMIN; //Kuhn-Tucker multiplier on lower voltage limit (u/p.u.)
+
+	// feed header	
+	int 	ifheader;
+	char	header_name[MAXSIZE]; 
+	
 public:
 	/* required implementations */
 	bus(MODULE *module);

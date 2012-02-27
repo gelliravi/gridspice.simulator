@@ -44,6 +44,11 @@ public:
 	double 	RAMP_30;
 	double	RAMP_Q;
 	double	APF;
+	// Only used in Output
+	double	MU_PMAX; //Kuhn-Tucker multiplier on upper Pg limit (u/MW)
+	double	MU_PMIN; //Kuhn-Tucker multiplier on lower Pg limit (u/MW)
+	double	MU_QMAX; //Kuhn-Tucker multiplier on upper Qg limit (u/MVAr)
+	double 	MU_QMIN; //Kuhn-Tucker multiplier on lower Qg limit (u/MVAr)
 public:
 	/* required implementations */
 	gen(MODULE *module);

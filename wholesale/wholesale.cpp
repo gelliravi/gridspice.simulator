@@ -38,6 +38,17 @@ mxArray* initArray(double rdata[], int nRow, int nColumn)
 	return X;
 }
 
+double* getArray(mxArray *X)
+{
+	unsigned int NumOfElement = mxGetNumberOfElements(X);
+	//printf("Number of element %d\n",NumOfElement);
+	double *outputdata;
+	outputdata = (double *) malloc(NumOfElement*sizeof(double));
+	memcpy(outputdata, mxGetPr(X),NumOfElement*sizeof(double));
+	return outputdata;
+	
+}
+
 
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 //int solver_matpower(double *rbus, unsigned int nbus, double *rgen, unsigned int ngen, 
@@ -61,7 +72,7 @@ int solver_matpower()
 
 
 	
-	printf("========Getting Data=============\n");
+	//printf("========Getting Data=============\n");
 
 	// Get Bus objects
 	OBJECT *temp_obj = NULL;
@@ -162,7 +173,7 @@ int solver_matpower()
 
 	
 	// insert bus data for rbus
-	vector<bus>::const_iterator iter_bus = vec_bus.begin();
+	vector<bus>::iterator iter_bus = vec_bus.begin();
 	if (nbus > 1)
 	{
 		for (unsigned int i=0; i < nbus; i++)
@@ -186,7 +197,7 @@ int solver_matpower()
 
 	
 	// insert data for rgen
-	vector<gen>::const_iterator iter_gen = vec_gen.begin();
+	vector<gen>::iterator iter_gen = vec_gen.begin();
 	for (unsigned int i = 0; i < ngen; i++)
 	{
 		rgen[i+0*ngen] = (double) iter_gen->GEN_BUS;
@@ -216,7 +227,7 @@ int solver_matpower()
 
 
 	// insert data for rbranch
-	vector<branch>::const_iterator iter_branch = vec_branch.begin();
+	vector<branch>::iterator iter_branch = vec_branch.begin();
 	for (unsigned int i = 0; i < nbranch; i++)
 	{
 		rbranch[i+0*nbranch] = (double)iter_branch->F_BUS;
@@ -287,18 +298,18 @@ int solver_matpower()
 	}
 
 	// Run the Solver function
-	printf("Running Test\n");
+	//printf("Running Test\n");
         libopfInitialize();
 	//mxArray* basemva = initArray(rbaseMVA,nbaseMVA,BASEMVA_ATTR);
-	mxArray* basemva = mxCreateDoubleMatrix(1,1,mxREAL);
-	*mxGetPr(basemva) = rbaseMVA;
+	mxArray* basemva_array = mxCreateDoubleMatrix(1,1,mxREAL);
+	*mxGetPr(basemva_array) = rbaseMVA;
 
 	// change to MATLAB MAT format
-	mxArray* bus = initArray(rbus, nbus, BUS_ATTR);	
-	mxArray* gen = initArray(rgen, ngen, GEN_ATTR);
-	mxArray* branch = initArray(rbranch, nbranch, BRANCH_ATTR);
-	mxArray* gencost = initArray(rgencost, ngencost, GENCOST_ATTR+max_order);
-	mxArray* areas = initArray(rareas, nareas, AREA_ATTR);
+	mxArray* bus_array = initArray(rbus, nbus, BUS_ATTR);	
+	mxArray* gen_array = initArray(rgen, ngen, GEN_ATTR);
+	mxArray* branch_array = initArray(rbranch, nbranch, BRANCH_ATTR);
+	mxArray* gencost_array = initArray(rgencost, ngencost, GENCOST_ATTR+max_order);
+	mxArray* areas_array = initArray(rareas, nareas, AREA_ATTR);
 
 
 	mxArray* busout;
@@ -317,16 +328,109 @@ int solver_matpower()
 	plhs[3] = f;
 	plhs[4] = success;
 
-	prhs[0] = basemva;
-	prhs[1] = bus;
-	prhs[2] = gen;
-	prhs[3] = branch;
-	prhs[4] = areas;
-	prhs[5] = gencost;
+	prhs[0] = basemva_array;
+	prhs[1] = bus_array;
+	prhs[2] = gen_array;
+	prhs[3] = branch_array;
+	prhs[4] = areas_array;
+	prhs[5] = gencost_array;
 
 	mlxOpf(5, plhs, 6, prhs); // cout if first parameter is 0;
+	
+	//printf("Finish the opf\n");
+	// Update class bus
+	double *obus = getArray(plhs[0]);
+	//printf("Get bus\n");
+	iter_bus = vec_bus.begin();
+	for (unsigned int i=0; i < nbus; i++)
+	{
+		iter_bus->PD = obus[i+2*nbus];
+		iter_bus->QD = obus[i+3*nbus];
+		iter_bus->GS = obus[i+4*nbus];
+		iter_bus->BS = obus[i+5*nbus];
+		iter_bus->VM = obus[i+7*nbus];		
+		iter_bus->VA = obus[i+8*nbus];
+		iter_bus->VMAX = obus[i+11*nbus];
+		iter_bus->VMIN = obus[i+12*nbus];
+		iter_bus->LAM_P = obus[i+13*nbus];
+		iter_bus->LAM_Q = obus[i+14*nbus];
+		iter_bus->MU_VMAX = obus[i+15*nbus];
+		iter_bus->MU_VMIN = obus[i+16*nbus];
+		iter_bus++;
+	}
+/*	unsigned int NumOfElement = mxGetNumberOfElements(plhs[0]);
+	for (unsigned int i =0; i<NumOfElement; i++)
+	{
+		printf("%f ",obus[i]);
+		if ((i+1)%nbus == 0)
+			printf("\n");
+	}
+*/	
+	// Update class gen
+	double *ogen = getArray(plhs[1]);
+	iter_gen = vec_gen.begin();
+	for (unsigned int i = 0; i < ngen; i++)
+	{
+		iter_gen->PG = ogen[i+1*ngen];
+		iter_gen->QG = ogen[i+2*ngen];
+		iter_gen->QMAX = ogen[i+3*ngen];
+		iter_gen->QMIN = ogen[i+4*ngen];
+		iter_gen->VG = ogen[i+5*ngen];
+		iter_gen->PC1 = ogen[i+10*ngen];
+		iter_gen->PC2 = ogen[i+11*ngen];
+		iter_gen->RAMP_AGC = ogen[i+16*ngen];
+		iter_gen->RAMP_10 = ogen[i+17*ngen];
+		iter_gen->RAMP_30 = ogen[i+18*ngen];
+		iter_gen->RAMP_Q = ogen[i+19*ngen];
+		iter_gen->APF = ogen[i+20*ngen];
+		iter_gen->MU_PMAX = ogen[i+21*ngen];
+		iter_gen->MU_PMIN = ogen[i+22*ngen];
+		iter_gen->MU_QMAX = ogen[i+23*ngen];
+		iter_gen->MU_QMIN = ogen[i+24*ngen];
+		iter_gen++;
+	}
 
-	return 0;
+	// Update class branch	
+	//printf("Get branch\n");
+	double *obranch = getArray(plhs[2]);
+	iter_branch = vec_branch.begin();
+	for (unsigned int i = 0; i<nbranch; i++)
+	{
+		iter_branch->PF = obranch[i+13*nbranch];
+		iter_branch->QF = obranch[i+14*nbranch];
+		iter_branch->PT = obranch[i+15*nbranch];
+		iter_branch->QT = obranch[i+16*nbranch];
+		iter_branch->MU_SF = obranch[i+17*nbranch];
+		iter_branch->MU_ST = obranch[i+18*nbranch];
+		iter_branch->MU_ANGMIN = obranch[i+19*nbranch];
+		iter_branch->MU_ANGMAX = obranch[i+20*nbranch];
+		iter_branch++;
+	}
+	
+	// free space
+	//printf("Free r..\n");
+	free(rbus);
+	free(rgen);
+	free(rbranch);
+	free(rareas);
+	//free(rbaseMVA);
+	free(rgencost);
+	
+	//printf("Free o..\n");	
+	free(obus);
+	free(ogen);
+	free(obranch);
+
+	vec_bus.clear();
+	vec_gen.clear();
+	vec_branch.clear();
+	vec_gencost.clear();
+	vec_baseMVA.clear();
+
+
+	short ifsuccess = (short)*getArray(plhs[4]);
+	//printf("suceess %f\n",*getArray(plhs[4]));
+	return ifsuccess;
 
 }
 

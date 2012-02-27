@@ -87,6 +87,10 @@ int gen::create(void)
 {
 	memcpy(this,defaults,sizeof(gen));
 	/* TODO: set the context-free initial value of properties, such as random distributions */
+	MU_PMAX = 0;
+	MU_PMIN = 0;
+	MU_QMAX = 0;
+	MU_QMIN = 0;
 	return 1; /* return 1 on success, 0 on failure */
 }
 

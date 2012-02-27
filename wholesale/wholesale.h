@@ -16,8 +16,11 @@ using std::string;
 
 #ifndef ATTR_NUM
 #define BUS_ATTR 13
+#define	BUS_ATTR_FULL 17
 #define GEN_ATTR 21
+#define	GEN_ATTR_FULL 25
 #define BRANCH_ATTR 13
+#define BRANCH_ATTR_FULL 21
 #define GENCOST_ATTR 4
 #define AREA_ATTR 2
 #define BASEMVA_ATTR 1
@@ -26,9 +29,7 @@ using std::string;
 /*** DO NOT DELETE THE NEXT LINE ***/
 //NEWCLASSINC
 inline mxArray* initArray(double rdata[], int nRow, int nColumn);
-//int solver_matpower(double *rbus, unsigned int nbus, double *rgen, unsigned int ngen, 
-//	double *rbranch, unsigned int nbranch, double *rgencost, unsigned int ngencost,
-//	double *rareas,	unsigned int nareas);
+inline double*	getArray(mxArray* X);
 
 int solver_matpower();
 
