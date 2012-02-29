@@ -190,7 +190,7 @@ GLD_GET_NPROCS
 #GCC_CT_FEATURES
 
 # DO NOT EDIT THE FOLLOWING LINE
-AC_CONFIG_FILES([./Makefile \
+AC_CONFIG_FILES([./Makefile tape_mysql/Makefile \
 	core/Makefile \
 	core/rt/Makefile \
 	assert/Makefile \
