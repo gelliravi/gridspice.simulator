@@ -43,16 +43,16 @@ clock {
 
 ///////////////////////////////////////////////////////////////////////////////
 // load the climate module
-module climate {
+//module climate {
 
 	// set climate module global parameters here (if any)
-}
-object climate {
+//}
+//object climate {
 	// Note: some GFA homes were in Yakima WA some were in Gresham OR
 	// and the rest in Clallam County WA and Port Angeles WA
-	tmyfile "US OR Medford.tmy"; // using medford until we find Clallam's TMY
-	city "Clallam County WA"; 
-}
+//	tmyfile "US OR Medford.tmy"; // using medford until we find Clallam's TMY
+//	city "Clallam County WA"; 
+//}
 
 ///////////////////////////////////////////////////////////////////////////////
 // setup up the power distribution system
