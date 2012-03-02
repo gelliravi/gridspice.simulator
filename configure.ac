@@ -190,8 +190,15 @@ GLD_GET_NPROCS
 #GCC_CT_FEATURES
 
 # DO NOT EDIT THE FOLLOWING LINE
+<<<<<<< HEAD
 AC_CONFIG_FILES([./Makefile \
+=======
+
+
+AC_CONFIG_FILES([./Makefile
+>>>>>>> 0e81b042972bacde26f84f28e89cae1c2f75157e
         wholesale/Makefile \
+	tape_mysql/Makefile \
 	core/Makefile \
 	core/rt/Makefile \
 	assert/Makefile \
