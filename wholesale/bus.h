@@ -44,11 +44,33 @@ public:
 	double	LAM_P; //Lagrange multiplier on real power mismatch (u/MW)
 	double 	LAM_Q; //Lagrange multiplier on reactive power mismatch (u/MVAr)
 	double 	MU_VMAX; //Kuhn-Tucker multiplier on upper voltage limit (u/p.u.)
-	double 	MU_VMIN; //Kuhn-Tucker multiplier on lower voltage limit (u/p.u.)
+	double 	MU_VMIN; //Kuhn-Tucker multiplier on lower voltage limit (u/p.u)
 
 	// feed header	
 	int 	ifheader;
 	char	header_name[MAXSIZE]; 
+
+	// feed power insert
+	double feeder1_PD;
+	double feeder1_QD;
+	double feeder2_PD;
+	double feeder2_QD;
+	double feeder3_PD;
+	double feeder3_QD;
+	double feeder4_PD;
+	double feeder4_QD;
+	double feeder5_PD;
+	double feeder5_QD;
+	double feeder6_PD;
+	double feeder6_QD;
+	double feeder7_PD;
+	double feeder7_QD;
+	double feeder8_PD;
+	double feeder8_QD;
+	double feeder9_PD;
+	double feeder9_QD;
+	double feeder10_PD;
+	double feeder10_QD;
 	
 public:
 	/* required implementations */
