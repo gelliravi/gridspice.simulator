@@ -5,21 +5,28 @@
 
 	You can add an object class to a module using the \e add_class
 	command:
-	<verbatim>
+	<vebatim>
 	linux% add_class CLASS
 	</verbatim>
 
 	You must be in the module directory to do this.
 
  **/
+#include "recorder_mysql.h"
+#include "tape_mysql.h" 
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
+
+#include <string>
+ 
 #include "gridlabd.h"
+#include "object.h"
+#include "aggregate.h"
+
 #include "lock.h"
-#include "recorder_mysql.h"
-#include "tape_mysql.h" 
 
 CLASS *recorder_mysql::oclass = NULL;
 recorder_mysql *recorder_mysql::defaults = NULL;
@@ -94,7 +101,14 @@ int recorder_mysql::init(OBJECT *parent)
     db_access::init_connection(name, host, user, pwd, 
 			       (unsigned int) db_port);
   }
-  db = new db_access(parent->name);
+  PROPERTY *props= link_properties(parent,this->property);
+  std::vector<std::string> myProperties;
+  for (PROPERTY *p=props; p!=NULL; p=p->next)
+    {
+      myProperties.push_back(p->name);
+      }
+  db = new db_access(parent->name, myProperties, false);
+  db->create_table();
   /* TODO: set the context-dependent initial value of properties */
   return 1; /* return 1 on success, 0 on failure */
 }
@@ -103,8 +117,10 @@ int recorder_mysql::init(OBJECT *parent)
 TIMESTAMP recorder_mysql::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
+
+	std::cout<<"PRESYNCING MYSQL RECORDER"<<std::endl;
 	/* TODO: implement pre-topdown behavior */
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	return t1+15; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
 /* Sync is called when the clock needs to advance on the bottom-up pass */
@@ -112,15 +128,39 @@ TIMESTAMP recorder_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement bottom-up behavior */
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	
+	std::cout<<"SYNCING MYSQL RECORDER"<<std::endl;
+	return t1+15; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
+
+
+int recorder_mysql::read_properties(OBJECT *obj, PROPERTY *prop, char *buffer, int size)
+{
+	PROPERTY *p;
+	int offset=0;
+	int count=0;
+	std::vector<std::string> values;
+	for (p=prop; p!=NULL && offset<size-33; p=p->next)
+	{
+	  offset=gl_get_value(obj,GETADDR(obj,p),buffer,size-1,p); /* pointer => int64 */
+		buffer[offset]='\0';
+		values.push_back(buffer);
+		std::cout<<"READ PROPS"<<buffer<<std::endl;
+		count++;
+	}
+
+	this->db->write_properties( values );
+	return count;
+}
+
 
 /* Postsync is called when the clock needs to advance on the second top-down pass */
 TIMESTAMP recorder_mysql::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement post-topdown behavior */
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	std::cout<<"POSTSYNCING MYSQL RECORDER"<<std::endl;
+	return t1+15; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,6 +184,7 @@ EXPORT int create_recorder_mysql(OBJECT **obj)
 
 EXPORT int init_recorder_mysql(OBJECT *obj, OBJECT *parent)
 {
+  std::cout<<"init C-Function"<<std::endl;
 	try
 	{
 		if (obj!=NULL)
@@ -158,6 +199,8 @@ EXPORT int init_recorder_mysql(OBJECT *obj, OBJECT *parent)
 
 EXPORT TIMESTAMP sync_recorder_mysql(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 {
+
+  std::cout<<"SYNC C-Function"<<std::endl;
   recorder_mysql *my = OBJECTDATA(obj,recorder_mysql);
 	typedef enum {NONE='\0', LT='<', EQ='=', GT='>'} COMPAREOP;
 	COMPAREOP comparison;
@@ -181,9 +224,9 @@ EXPORT TIMESTAMP sync_recorder_mysql(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		my->last.ts = t0;
 
 	/* connect to property */
-	//if (my->target==NULL){
-	//	my->target = link_properties(obj->parent,my->property);
-	//}
+	if (my->target==NULL){
+		my->target = link_properties(obj->parent,my->property);
+	}
 	if (my->target==NULL)
 	{
 		sprintf(buffer,"'%s' contains a property of %s %d that is not found", my->property, obj->parent->oclass->name, obj->parent->id);
@@ -197,29 +240,29 @@ EXPORT TIMESTAMP sync_recorder_mysql(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	{	
 		obj->clock = t0;
 		// if the recorder is clock-based, write the value
-		//if((my->interval > 0) && (my->last.ts < t0) && (my->last.value[0] != 0)){
-		//	recorder_write(obj);
-		//	my->last.value[0] = 0; // once it's been finalized, dump it
-		//}
+		if((my->interval > 0) && (my->last.ts < t0) && (my->last.value[0] != 0)){
+			recorder_write(obj);
+			my->last.value[0] = 0; // once it's been finalized, dump it
+		}
 	}
 
 	/* update property value */
 	if ((my->target != NULL) && (my->interval == 0 || my->interval == -1)){	
-	  //if(read_properties(obj->parent,my->target,buffer,sizeof(buffer))==0)
-	  //	{
-	  //	sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
-	  //	close_recorder_mysql(my);
-	  //	my->status = TS_ERROR;
-	  //}
+	  if(my->read_properties(obj->parent,my->target,buffer,sizeof(buffer))==0)
+	  	{
+	  	sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
+	  	close_recorder_mysql(my);
+	  	my->status = TS_ERROR;
+	  }
 	}
 	if ((my->target != NULL) && (my->interval > 0)){
 		if((t0 >=my->last.ts + my->interval) || (t0 == my->last.ts)){
-		  //if(read_properties(obj->parent,my->target,buffer,sizeof(buffer))==0)
-		  //	{
-		  //		sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
-		  //		close_recorder_mysql(my);
-		  //		my->status = TS_ERROR;
-		  //	}
+		  if(my->read_properties(obj->parent,my->target,buffer,sizeof(buffer))==0)
+		  	{
+		  		sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
+		  		close_recorder_mysql(my);
+		  		my->status = TS_ERROR;
+		  	}
 		  	my->last.ts = t0;
 		}
 	}
@@ -257,7 +300,7 @@ EXPORT TIMESTAMP sync_recorder_mysql(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		{
 			strncpy(my->last.value,buffer,sizeof(my->last.value));
 			my->last.ts = t0;
-			//recorder_write(obj);
+			recorder_write(obj);
 		} else if (my->interval > 0 && my->last.ts == t0){
 			strncpy(my->last.value,buffer,sizeof(my->last.value));
 		}
@@ -277,4 +320,42 @@ Error:
 	}
 	else
 		return my->last.ts+my->interval;
+}
+
+
+
+static int write_recorder(struct recorder_mysql *my, char *ts, char *value)
+{
+  std::cout<<"WRITING VALUE: "<<value<<std::endl;
+  return 0;
+}
+
+
+static TIMESTAMP recorder_write(OBJECT *obj)
+{
+	struct recorder_mysql *my = OBJECTDATA(obj,struct recorder_mysql);
+	char ts[64]="0"; /* 0 = INIT */
+	if (my->format==0)
+	{
+		if (my->last.ts>TS_ZERO)
+		{
+			DATETIME dt;
+			gl_localtime(my->last.ts,&dt);
+			gl_strtime(&dt,ts,sizeof(ts));
+		}
+		/* else leave INIT in the buffer */
+	}
+	else
+		sprintf(ts,"%" FMT_INT64 "d", my->last.ts);
+	if ((my->limit>0 && my->samples > my->limit) /* limit reached */
+		|| write_recorder(my, ts, my->last.value)==0) /* write failed */
+	{
+		close_recorder_mysql(my);
+		my->status = TS_DONE;
+	}
+	else
+		my->samples++;
+
+	/* at this point we've written the sample to the normal recorder output */
+	return TS_NEVER;
 }

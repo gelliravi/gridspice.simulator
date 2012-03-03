@@ -27,11 +27,11 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	}
 
 
-	  gl_global_create("smartmeter::db_name", PT_char256, &db_name, NULL);
-	  gl_global_create("smartmeter::db_host", PT_char256, &db_host, NULL);
-	  gl_global_create("smartmeter::db_user", PT_char256, &db_user, NULL);
-	  gl_global_create("smartmeter::db_pwd", PT_char256, &db_pwd, NULL);
-	  gl_global_create("smartmeter::db_port", PT_int16, &db_port, NULL);
+	  gl_global_create("tape_mysql::db_name", PT_char256, &db_name, NULL);
+	  gl_global_create("tape_mysql::db_host", PT_char256, &db_host, NULL);
+	  gl_global_create("tape_mysql::db_user", PT_char256, &db_user, NULL);
+	  gl_global_create("tape_mysql::db_pwd", PT_char256, &db_pwd, NULL);
+	  gl_global_create("tape_mysql::db_port", PT_int16, &db_port, NULL);
 
 
 	/*** DO NOT EDIT NEXT LINE ***/

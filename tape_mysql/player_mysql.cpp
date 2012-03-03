@@ -16,6 +16,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
+
+#include <string>
+ 
+#include "gridlabd.h"
+#include "object.h"
+#include "aggregate.h"
 
 #include "player_mysql.h"
 
@@ -53,6 +60,8 @@ player_mysql::player_mysql(MODULE *module)
 		if (gl_publish_variable(oclass,
 			/* TODO: add your published properties here */
 					PT_double, "interval[s]", PADDR(dInterval),
+					PT_char1024, "property", PADDR(property),
+					PT_char1024, "file", PADDR(file),				     
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(player_mysql));
@@ -71,6 +80,10 @@ int player_mysql::create(void)
 /* Object initialization is called once after all object have been created */
 int player_mysql::init(OBJECT *parent)
 {
+  this->target= link_properties(parent,this->property);
+  if( !this->target ){
+    gl_error("COULD NOT FIND PROPERTIES");
+  }
 	/* TODO: set the context-dependent initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -99,17 +112,113 @@ TIMESTAMP player_mysql::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
+PROPERTY *link_properties(OBJECT *obj, char *property_list)
+{
+	char *item;
+	PROPERTY *first=NULL, *last=NULL;
+	UNIT *unit = NULL;
+	PROPERTY *prop;
+	PROPERTY *target;
+	char1024 list;
+	complex oblig;
+	double scale;
+	char256 pstr, ustr;
+	char *cpart = 0;
+	int64 cid = -1;
+
+	strcpy(list,property_list); /* avoid destroying orginal list */
+	for (item=strtok(list,","); item!=NULL; item=strtok(NULL,","))
+	{
+		
+		prop = NULL;
+		target = NULL;
+		scale = 1.0;
+		unit = NULL;
+		cpart = 0;
+		cid = -1;
+
+		// everything that looks like a property name, then read units up to ]
+		while (isspace(*item)) item++;
+		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,\0]", pstr, ustr)){
+			unit = gl_find_unit(ustr);
+			if(unit == NULL){
+				gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, ustr,pstr);
+				return NULL;
+			}
+			item = pstr;
+		}
+		prop = (PROPERTY*)malloc(sizeof(PROPERTY));
+		
+		/* branch: test to see if we're trying to split up a complex property */
+		/* must occur w/ *cpart=0 before gl_get_property in order to properly reformat the property name string */
+		cpart = strchr(item, '.');
+		if(cpart != NULL){
+			if(strcmp("imag", cpart+1) == 0){
+	       		cid = (int)((int64)&(oblig.i) - (int64)&oblig);
+				*cpart = 0;
+			} else if(strcmp("real", cpart+1) == 0){
+		     	cid = (int)((int64)&(oblig.r) - (int64)&oblig);
+				*cpart = 0;
+			} else {
+				;
+			}
+		}
+
+		target = gl_get_property(obj,item);
+
+		if (prop!=NULL && target!=NULL)
+		{
+			if(unit != NULL && target->unit == NULL){
+				gl_error("recorder:%d: property '%s' is unitless, ignoring unit conversion", obj->id, item);
+			}
+			else if(unit != NULL && 0 == gl_convert_ex(target->unit, unit, &scale))
+			{
+				gl_error("recorder:%d: unable to convert property '%s' units to '%s'", obj->id, item, ustr);
+				return NULL;
+			}
+			if (first==NULL) first=prop; else last->next=prop;
+			last=prop;
+			memcpy(prop,target,sizeof(PROPERTY));
+			if(unit) prop->unit = unit;
+			prop->next = NULL;
+		}
+		else
+		{
+			gl_error("recorder: property '%s' not found", item);
+			return NULL;
+		}
+		if(cid >= 0){ /* doing the complex part thing */
+			prop->ptype = PT_double;
+			(prop->addr) = (PROPERTYADDR)((int64)(prop->addr) + cid);
+		}
+	}
+	return first;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF CORE LINKAGE
 //////////////////////////////////////////////////////////////////////////
-
+static OBJECT *last_player = NULL;
 EXPORT int create_player_mysql(OBJECT **obj)
 {
 	try
 	{
 		*obj = gl_create_object(player_mysql::oclass);
-		if (*obj!=NULL)
-			return OBJECTDATA(*obj,player_mysql)->create();
+		if (*obj!=NULL){
+		  struct player_mysql *my = OBJECTDATA(*obj,struct player_mysql);
+		  last_player = *obj;
+
+		  strcpy(my->file,"");
+		  strcpy(my->filetype,"txt");
+		  strcpy(my->property,"(undefined)");
+		  my->next.ts = TS_ZERO;
+		  strcpy(my->next.value,"");
+		  my->loopnum = 0;
+		  my->loop = 0;
+		  my->status = TS_INIT;
+		  return 1;
+		}
+			
 	}
 	catch (char *msg)
 	{
@@ -132,33 +241,17 @@ EXPORT int init_player_mysql(OBJECT *obj, OBJECT *parent)
 	return 0;
 }
 
-EXPORT TIMESTAMP sync_player_mysql(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
+EXPORT TIMESTAMP sync_player_mysql(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 {
-	TIMESTAMP t2 = TS_NEVER;
-	player_mysql *my = OBJECTDATA(obj,player_mysql);
-	try
-	{
-		switch (pass) {
-		case PC_PRETOPDOWN:
-			t2 = my->presync(obj->clock,t1);
-			break;
-		case PC_BOTTOMUP:
-			t2 = my->sync(obj->clock,t1);
-			break;
-		case PC_POSTTOPDOWN:
-			t2 = my->postsync(obj->clock,t1);
-			break;
-		default:
-			GL_THROW("invalid pass request (%d)", pass);
-			break;
-		}
-		if (pass==clockpass)
-			obj->clock = t1;
-		return t2;
-	}
-	catch (char *msg)
-	{
-		gl_error("sync_player_mysql(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
-	}
-	return TS_INVALID;
+
+
+
+	struct player_mysql *my = OBJECTDATA(obj,struct player_mysql);
+	strcpy(my->next.value, "1234" );
+	TIMESTAMP t1 = t0+15;
+
+	    OBJECT *target = obj->parent; /* target myself if no parent */
+	    gl_set_value(target,GETADDR(target,my->target),my->next.value,my->target); /* pointer => int64 */
+	  	
+	return t1;
 }

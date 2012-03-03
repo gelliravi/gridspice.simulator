@@ -11,13 +11,32 @@
 
 #include <stdarg.h>
 #include "gridlabd.h"
-
+#include "object.h"
+#include "aggregate.h"
+#include "memory.h"
+#include "tape_mysql.h"
 class player_mysql {
 private:
 	/* TODO: put private variables here */
 protected:
 	/* TODO: put unpublished but inherited variables */
 public:
+	char1024 file; /**< the name of the player source */
+	char8 filetype; /**< the type of the player source */
+	char256 property; /**< the target property */
+	int32 loop; /**< the number of time to replay the tape */
+	/* private */
+	TAPESTATUS status;
+	int32 loopnum;
+	struct {
+		TIMESTAMP ts;
+		char32 value;
+	} next;
+	PROPERTY *target;
+
+	char lasterr[1024];
+
+
 	double dInterval;
 	/* TODO: put published variables here */
 public:

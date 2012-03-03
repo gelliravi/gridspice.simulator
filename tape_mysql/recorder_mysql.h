@@ -8,21 +8,28 @@
 
 #ifndef _recorder_mysql_H
 #define _recorder_mysql_H
-
+#include "db_access.h"
 #include <stdarg.h>
 #include "gridlabd.h"
-#include "db_access.h"
 #include "tape_mysql.h"
 
+
+static TIMESTAMP recorder_write(OBJECT *obj);
+static int write_recorder(struct recorder_mysql *my, char *ts, char *value);
+
+PROPERTY *link_properties(OBJECT *obj, char *property_list);
 class recorder_mysql {
 private:
   db_access *db;
+
 	/* TODO: put private variables here */
 protected:
 	/* TODO: put unpublished but inherited variables */
 public:
+  int read_properties(OBJECT *obj, PROPERTY *prop, char *buffer, int size);  
 	/* TODO: put published variables here */
-char1024 file;
+  char1024 file;
+  
 	char1024 multifile;
 	char1024 multitempfile;
 	FILE *multifp, *inputfp;

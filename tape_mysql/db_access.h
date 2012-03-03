@@ -8,21 +8,24 @@
 
 #ifndef DB_ACCESS_H
 #define DB_ACCESS_H
-
+#include <vector> 
 #include <iostream>
 #include "timestamp.h"
 
-using namespace std;
+#include <string>
+
 
 class db_access 
 {
  public:
-
-  db_access(string cust_id);
+ 
+  db_access(std::string Objname, std::vector<std::string> myProperties, bool readOrWrite);
+  int create_table();
   int get_earliest_date(DATETIME &dt);
   int get_latest_date(DATETIME &dt); 
   double get_power_usage(DATETIME &dt);
-
+  
+  int write_properties( std::vector<std::string> values );
   static bool is_connected();
   static void init_connection(const char *db = 0, 
 			      const char *server = 0,
@@ -31,7 +34,9 @@ class db_access
 			      unsigned int port = 0);
 
  private:
-  string customer_id;
+  std::string customer_id;
+  std::vector<std::string> columnNames;
+  std::string tableName; 
 };
 
 #endif

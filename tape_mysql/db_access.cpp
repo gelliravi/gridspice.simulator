@@ -19,18 +19,57 @@ void db_access::init_connection(const char *db, const char *server,
 {
   conn.connect(db, server, user, password, port);
 }
-                     
-
-db_access::db_access(string cust_id) 
-{
-  customer_id = cust_id;
-  mysqlpp::Query query = conn.query();
-  query << "select CUSTID from masterload_all where CUSTID = "
-	<< mysqlpp::quote << customer_id << " limit 1";
-  mysqlpp::StoreQueryResult res = query.store();
-  if (res.num_rows() == 0) {
-    throw runtime_error("invalid customer id " + customer_id);
+                    
+db_access::db_access( std::string Objname,  std::vector<std::string> myProperties, bool readOrWrite ){
+  this->tableName = Objname;
+  this->columnNames = myProperties;
+  
+  if( !readOrWrite ){
+    this->create_table();
   }
+}
+
+
+int db_access::write_properties( std::vector<std::string> values ){
+  assert( values.size() == this->columnNames.size() );
+  std::stringstream query;
+  query << "INSERT INTO "<<this->tableName<<" SET ";
+  for(int i=0; i<this->columnNames.size() ; i++){
+    query << this->columnNames[i] << "='"<<values[i]<<query<< "'";
+    if( i<(this->columnNames.size()-1) ){
+      query << ",";
+    }
+
+  }
+  std::cout<< query.str();
+
+  mysqlpp::Query mysqlQuery =  conn.query();
+  mysqlQuery << query.str();
+  mysqlpp::StoreQueryResult res = mysqlQuery.store();
+
+  return 0;
+}
+
+int db_access::create_table(){
+  mysqlpp::Query dropQuery = conn.query();
+  dropQuery << "DROP TABLE "<<this->tableName;
+  mysqlpp::StoreQueryResult dropRes = dropQuery.store();
+
+  std::stringstream query;
+  query << "CREATE TABLE "<<this->tableName<<" (";
+  for(int i=0; i<this->columnNames.size() ; i++){
+    query<<this->columnNames[i]<<" varchar(50)";
+    if( i<(this->columnNames.size()-1) ){
+      query << ",";
+    }
+
+  }
+  query << ")";
+  std::cout << query.str() << std::endl;
+  mysqlpp::Query mysqlQuery =  conn.query();
+  mysqlQuery << query.str();
+  mysqlpp::StoreQueryResult res = mysqlQuery.store();
+  return 0;
 }
 
 int db_access::get_earliest_date(DATETIME &dt) 
@@ -63,14 +102,14 @@ int db_access::get_latest_date(DATETIME &dt)
 
 double db_access::get_power_usage(DATETIME &dt) 
 {
-  stringstream date_builder;
+  std::stringstream date_builder;
   date_builder << dt.year << "-" << dt.month << "-" << dt.day;
-  string date_field = date_builder.str();
+  std::string date_field = date_builder.str();
 
   int interval_number = (dt.hour * 4) + (dt.minute / 15) + 1;
-  stringstream interval_builder;
+  std::stringstream interval_builder;
   interval_builder << "QKW" << interval_number;
-  string interval_field = interval_builder.str();
+  std::string interval_field = interval_builder.str();
 
   mysqlpp::Query query = conn.query();
   query << "select " << interval_field << " from masterload_all " 
