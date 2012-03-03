@@ -91,6 +91,16 @@ int bus::create(void)
 	memcpy(this,defaults,sizeof(bus));
 	/* TODO: set the context-free initial value of properties, such as random distributions */
 	
+	OBJECT *obj = OBJECTHDR(this);
+	bus *tempbus;
+
+	tempbus = OBJECTDATA(obj,bus);
+	
+	tempbus->feeder1_PD = tempbus->feeder2_PD = tempbus->feeder3_PD = tempbus->feeder4_PD = tempbus->feeder5_PD = 0;
+		tempbus->feeder6_PD = tempbus->feeder7_PD = tempbus->feeder8_PD = tempbus->feeder9_PD = tempbus->feeder10_PD = 0;
+
+		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
+		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -107,6 +117,29 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement pre-topdown behavior */
+	OBJECT *obj = OBJECTHDR(this);
+	bus *tempbus;
+
+	tempbus = OBJECTDATA(obj,bus);
+
+	if (tempbus->ifheader == 1)
+	{
+		double sum_PD, sum_QD;
+		sum_PD = tempbus->feeder1_PD + tempbus->feeder2_PD + tempbus->feeder3_PD + tempbus->feeder4_PD + tempbus->feeder5_PD;
+		sum_PD += tempbus->feeder6_PD + tempbus->feeder7_PD + tempbus->feeder8_PD + tempbus->feeder9_PD + tempbus->feeder10_PD;
+		sum_QD = tempbus->feeder1_QD + tempbus->feeder2_QD + tempbus->feeder3_QD + tempbus->feeder4_QD + tempbus->feeder5_QD;
+		sum_QD += tempbus->feeder6_QD + tempbus->feeder7_QD + tempbus->feeder8_QD + tempbus->feeder9_QD + tempbus->feeder10_QD;
+
+		tempbus->feeder1_PD = tempbus->feeder2_PD = tempbus->feeder3_PD = tempbus->feeder4_PD = tempbus->feeder5_PD = 0;
+		tempbus->feeder6_PD = tempbus->feeder7_PD = tempbus->feeder8_PD = tempbus->feeder9_PD = tempbus->feeder10_PD = 0;
+
+		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
+		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
+
+		tempbus->PD = sum_PD;
+		tempbus->QD = sum_QD;
+	}
+
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
@@ -120,7 +153,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 	tempbus = OBJECTDATA(obj,bus);
 	unsigned int bus_num = tempbus->BUS_I;
 	
-
+/*
 	if (tempbus->ifheader == 1)
 	{
 		//gl_warning("Start to work with feeder\n");
@@ -165,7 +198,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	}	
 	
-
+*/
 	if (tempbus->BUS_TYPE == 3) //ref bus
 	{
 		//printf("Bus number %d\n", tempbus->BUS_I);
