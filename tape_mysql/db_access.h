@@ -8,11 +8,13 @@
 
 #ifndef DB_ACCESS_H
 #define DB_ACCESS_H
-#include <vector> 
-#include <iostream>
-#include "timestamp.h"
 
+#include <iostream>
+#include <vector>
 #include <string>
+
+
+
 
 
 class db_access 
@@ -21,11 +23,11 @@ class db_access
  
   db_access(std::string Objname, std::vector<std::string> myProperties, bool readOrWrite);
   int create_table();
-  int get_earliest_date(DATETIME &dt);
-  int get_latest_date(DATETIME &dt); 
-  double get_power_usage(DATETIME &dt);
   
-  int write_properties( std::vector<std::string> values );
+  std::vector<std::string> *read_properties( std::string ts );
+
+  int write_properties( std::string t0, std::string t1,std::vector<std::string> values );
+
   static bool is_connected();
   static void init_connection(const char *db = 0, 
 			      const char *server = 0,

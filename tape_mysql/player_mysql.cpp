@@ -12,19 +12,20 @@
 	You must be in the module directory to do this.
 
  **/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
-
 #include <string>
+#include <sstream> 
+
+
+#include "player_mysql.h"
  
 #include "gridlabd.h"
 #include "object.h"
 #include "aggregate.h"
 
-#include "player_mysql.h"
 
 CLASS *player_mysql::oclass = NULL;
 player_mysql *player_mysql::defaults = NULL;
@@ -80,14 +81,33 @@ int player_mysql::create(void)
 /* Object initialization is called once after all object have been created */
 int player_mysql::init(OBJECT *parent)
 {
-  this->target= link_properties(parent,this->property);
-  if( !this->target ){
-    gl_error("COULD NOT FIND PROPERTIES");
+  this->interval = (int64)(this->dInterval/TS_SECOND);
+  if (!db_access::is_connected()) {
+    extern char256 db_name, db_host, db_user, db_pwd, db_port;
+    char *name = (db_name == "") ? 0 : db_name;
+    char *host = (db_host == "") ? 0 : db_host;
+    char *user = (db_user == "") ? 0 : db_user;
+    char *pwd = (db_pwd == "") ? 0 : db_pwd;
+    db_access::init_connection(name, host, user, pwd, 
+			       (unsigned int) db_port);
   }
+  PROPERTY *props= link_properties(parent,this->property);
+  this->target= props;
+  std::vector<std::string> myProperties;
+  for (PROPERTY *p=props; p!=NULL; p=p->next)
+    {
+      myProperties.push_back(p->name);
+    }
+    
+    db = new db_access(parent->name, myProperties, true);
+
+      if( !this->target ){
+	gl_error("COULD NOT FIND PROPERTIES");
+	  }
 	/* TODO: set the context-dependent initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }
-
+	 
 /* Presync is called when the clock needs to advance on the first top-down pass */
 TIMESTAMP player_mysql::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
@@ -99,9 +119,21 @@ TIMESTAMP player_mysql::presync(TIMESTAMP t0, TIMESTAMP t1)
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 TIMESTAMP player_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	TIMESTAMP t2 = TS_NEVER;
-	/* TODO: implement bottom-up behavior */
-	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+  OBJECT *obj = OBJECTHDR(this);
+  char ts[64]="0"; /* 0 = INIT */
+  sprintf(ts,"%" FMT_INT64 "d", t0);
+  std::stringstream ss;
+  ss<<ts;
+  std::vector<std::string> * values;
+  for (PROPERTY *p=this->target; p!=NULL; p=p->next)
+    {
+	OBJECT *target = obj->parent; /* target myself if no parent */
+	gl_set_value(target,GETADDR(target,p),this->next.value,p); /* pointer => int64 */
+	this->db->read_properties( ss.str() );
+    }
+
+	  	
+  return t0+15;
 }
 
 /* Postsync is called when the clock needs to advance on the second top-down pass */
@@ -112,6 +144,13 @@ TIMESTAMP player_mysql::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
+
+typedef struct { /**< complex number */
+	double r; /**< the real part */
+	double i; /**< the imaginary part */
+	CNOTATION f; /**< the default notation used */
+} complex_struct; 
+
 PROPERTY *link_properties(OBJECT *obj, char *property_list)
 {
 	char *item;
@@ -120,12 +159,12 @@ PROPERTY *link_properties(OBJECT *obj, char *property_list)
 	PROPERTY *prop;
 	PROPERTY *target;
 	char1024 list;
-	complex oblig;
+	complex_struct oblig;
 	double scale;
 	char256 pstr, ustr;
 	char *cpart = 0;
 	int64 cid = -1;
-
+	printf("linking properties\n");
 	strcpy(list,property_list); /* avoid destroying orginal list */
 	for (item=strtok(list,","); item!=NULL; item=strtok(NULL,","))
 	{
@@ -136,11 +175,12 @@ PROPERTY *link_properties(OBJECT *obj, char *property_list)
 		unit = NULL;
 		cpart = 0;
 		cid = -1;
-
+		printf("Item: %s\n",item);
 		// everything that looks like a property name, then read units up to ]
 		while (isspace(*item)) item++;
 		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,\0]", pstr, ustr)){
-			unit = gl_find_unit(ustr);
+		  printf("Units: %s\n",ustr);
+		  unit = gl_find_unit(ustr);
 			if(unit == NULL){
 				gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, ustr,pstr);
 				return NULL;
@@ -241,17 +281,33 @@ EXPORT int init_player_mysql(OBJECT *obj, OBJECT *parent)
 	return 0;
 }
 
-EXPORT TIMESTAMP sync_player_mysql(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
+EXPORT TIMESTAMP sync_player_mysql(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
 {
-
-
-
-	struct player_mysql *my = OBJECTDATA(obj,struct player_mysql);
-	strcpy(my->next.value, "1234" );
-	TIMESTAMP t1 = t0+15;
-
-	    OBJECT *target = obj->parent; /* target myself if no parent */
-	    gl_set_value(target,GETADDR(target,my->target),my->next.value,my->target); /* pointer => int64 */
-	  	
-	return t1;
+	TIMESTAMP t2 = TS_NEVER;
+	player_mysql *my = OBJECTDATA(obj,player_mysql);
+	try
+	{
+		switch (pass) {
+		case PC_PRETOPDOWN:
+			t2 = my->presync(obj->clock,t1);
+			break;
+		case PC_BOTTOMUP:
+			t2 = my->sync(obj->clock,t1);
+			break;
+		case PC_POSTTOPDOWN:
+			t2 = my->postsync(obj->clock,t1);
+			break;
+		default:
+			GL_THROW("invalid pass request (%d)", pass);
+			break;
+		}
+		if (pass==clockpass)
+			obj->clock = t1;
+		return t2;
+	}
+	catch (char *msg)
+	{
+		gl_error("sync_player_mysql(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
+	}
+	return TS_INVALID;
 }

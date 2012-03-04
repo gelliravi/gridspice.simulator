@@ -31,9 +31,10 @@ class complex {
   
 private:
 	CNOTATION f; /**< the default notation to use */
-public:
 	double r; /**< the real part */
 	double i; /**< the imaginary part */
+
+public:
 	
 	/** Construct a complex number with zero magnitude */
 	inline complex() /**< create a zero complex number */

@@ -8,10 +8,12 @@
 
 #ifndef _recorder_mysql_H
 #define _recorder_mysql_H
-#include "db_access.h"
+#include <sstream> 
 #include <stdarg.h>
-#include "gridlabd.h"
 #include "tape_mysql.h"
+
+#include "gridlabd.h"
+
 
 
 static TIMESTAMP recorder_write(OBJECT *obj);
@@ -41,6 +43,7 @@ public:
 	TIMESTAMP interval;
 	int32 limit;
 	char1024 property;
+	PROPERTY *props;
 	char1024 plotcommands;
 	char32 xdata;
 	char32 columns;

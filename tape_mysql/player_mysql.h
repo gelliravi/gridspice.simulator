@@ -8,19 +8,24 @@
 
 #ifndef _player_mysql_H
 #define _player_mysql_H
+#include <vector>
 
 #include <stdarg.h>
-#include "gridlabd.h"
-#include "object.h"
-#include "aggregate.h"
-#include "memory.h"
+
+#include "db_access.h"
 #include "tape_mysql.h"
+
+#include "tape_mysql.h"
+
+
 class player_mysql {
-private:
+ private:
+
 	/* TODO: put private variables here */
-protected:
+ protected:
 	/* TODO: put unpublished but inherited variables */
 public:
+  db_access *db;
 	char1024 file; /**< the name of the player source */
 	char8 filetype; /**< the type of the player source */
 	char256 property; /**< the target property */
@@ -38,6 +43,7 @@ public:
 
 
 	double dInterval;
+	TIMESTAMP interval;
 	/* TODO: put published variables here */
 public:
 	/* required implementations */
