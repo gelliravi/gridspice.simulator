@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
+#include <map>
 
 
 
@@ -24,7 +24,7 @@ class db_access
   db_access(std::string Objname, std::vector<std::string> myProperties, bool readOrWrite);
   int create_table();
   
-  std::vector<std::string> *read_properties( std::string ts );
+  std::map<std::string, std::string> *read_properties( std::string ts );
 
   int write_properties( std::string t0, std::string t1,std::vector<std::string> values );
 

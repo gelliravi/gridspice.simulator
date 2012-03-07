@@ -43,10 +43,12 @@ public:
 	TIMESTAMP interval;
 	int32 limit;
 	char1024 property;
+	char1024 table;
+	char1024 columns;
 	PROPERTY *props;
 	char1024 plotcommands;
 	char32 xdata;
-	char32 columns;
+
 	char32 trigger;
 	char8 delim;
 	struct {

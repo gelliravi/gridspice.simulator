@@ -9,7 +9,8 @@
 #ifndef _player_mysql_H
 #define _player_mysql_H
 #include <vector>
-
+#include <map>
+#include <utility>
 #include <stdarg.h>
 
 #include "db_access.h"
@@ -29,6 +30,8 @@ public:
 	char1024 file; /**< the name of the player source */
 	char8 filetype; /**< the type of the player source */
 	char256 property; /**< the target property */
+	char1024 table;
+	char1024 columns;
 	int32 loop; /**< the number of time to replay the tape */
 	/* private */
 	TAPESTATUS status;
@@ -41,7 +44,7 @@ public:
 
 	char lasterr[1024];
 
-
+	std::map<std::string, std::string> *propertyToColumn;
 	double dInterval;
 	TIMESTAMP interval;
 	/* TODO: put published variables here */

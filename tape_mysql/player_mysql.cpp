@@ -62,6 +62,8 @@ player_mysql::player_mysql(MODULE *module)
 			/* TODO: add your published properties here */
 					PT_double, "interval[s]", PADDR(dInterval),
 					PT_char1024, "property", PADDR(property),
+					PT_char1024, "table", PADDR(table),				     
+					PT_char1024, "columns", PADDR(columns),				     
 					PT_char1024, "file", PADDR(file),				     
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
@@ -93,14 +95,32 @@ int player_mysql::init(OBJECT *parent)
   }
   PROPERTY *props= link_properties(parent,this->property);
   this->target= props;
-  std::vector<std::string> myProperties;
-  for (PROPERTY *p=props; p!=NULL; p=p->next)
-    {
-      myProperties.push_back(p->name);
-    }
-    
-    db = new db_access(parent->name, myProperties, true);
+ 
+  this->propertyToColumn = new std::map<std::string, std::string>();
 
+
+  std::vector<std::string> myProperties;
+  char * item;
+  char1024 list;
+  PROPERTY *p=props;
+  strcpy(list,this->columns); /* avoid destroying orginal list */
+  for (item=strtok(list,","); item!= NULL; item=strtok(NULL,","))
+    {
+      if( p==NULL ){
+	gl_error("property count and column count do not match");
+	throw "die";
+      }
+
+      std::stringstream ss;
+      ss<<item;
+      myProperties.push_back(ss.str());
+
+
+      this->propertyToColumn->insert ( std::pair<std::string, std::string>(p->name,ss.str()) );
+      p=p->next;
+    }
+  db = new db_access(table, myProperties, true);
+  
       if( !this->target ){
 	gl_error("COULD NOT FIND PROPERTIES");
 	  }
@@ -121,15 +141,30 @@ TIMESTAMP player_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
   OBJECT *obj = OBJECTHDR(this);
   char ts[64]="0"; /* 0 = INIT */
-  sprintf(ts,"%" FMT_INT64 "d", t0);
+  sprintf(ts,"%" FMT_INT64 "d", t1);
   std::stringstream ss;
   ss<<ts;
-  std::vector<std::string> * values;
+  std::map<std::string, std::string> * values;
+  values = this->db->read_properties( ss.str() );
   for (PROPERTY *p=this->target; p!=NULL; p=p->next)
     {
 	OBJECT *target = obj->parent; /* target myself if no parent */
-	gl_set_value(target,GETADDR(target,p),this->next.value,p); /* pointer => int64 */
-	this->db->read_properties( ss.str() );
+
+	std::map<std::string, std::string>::iterator it = this->propertyToColumn->find(p->name);
+	std::string columnName = it->second;
+	if( it == values->end() ){
+	  std::cerr<<"can't find column for property %s"<<p->name;
+	  throw "column error";
+	}	
+	std::map<std::string, std::string>::iterator it2 = values->find(columnName);
+	if( it2 == values->end() ){
+	  std::cerr<<"mismatched column %s"<<columnName;
+	  throw "column error";
+	}
+	std::string value = it2->second;
+	char1024 valueCstr;
+	strcpy(valueCstr, value.c_str());
+	gl_set_value(target,GETADDR(target,p),valueCstr,p); /* pointer => int64 */
     }
 
 	  	
