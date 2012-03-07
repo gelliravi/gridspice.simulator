@@ -77,6 +77,29 @@ bus::bus(MODULE *module)
 			PT_int16, "IFHEADER", PADDR(ifheader),	// if connected with distribution network
 			PT_char1024, "HEADER", PADDR(header_name), // the name of header node of distribution network
                         //PT_double, "length[ft]",PADDR(length),
+			
+			// for feeder
+			PT_double, "feeder1_PD", PADDR(feeder1_PD),
+			PT_double, "feeder2_PD", PADDR(feeder2_PD),
+			PT_double, "feeder3_PD", PADDR(feeder3_PD),
+			PT_double, "feeder4_PD", PADDR(feeder4_PD),
+			PT_double, "feeder5_PD", PADDR(feeder5_PD),
+			PT_double, "feeder6_PD", PADDR(feeder6_PD),
+			PT_double, "feeder7_PD", PADDR(feeder7_PD),
+			PT_double, "feeder8_PD", PADDR(feeder8_PD),
+			PT_double, "feeder9_PD", PADDR(feeder9_PD),
+			PT_double, "feeder10_PD", PADDR(feeder10_PD),
+
+			PT_double, "feeder1_QD", PADDR(feeder1_QD),
+			PT_double, "feeder2_QD", PADDR(feeder2_QD),
+			PT_double, "feeder3_QD", PADDR(feeder3_QD),
+			PT_double, "feeder4_QD", PADDR(feeder4_QD),
+			PT_double, "feeder5_QD", PADDR(feeder5_QD),
+			PT_double, "feeder6_QD", PADDR(feeder6_QD),
+			PT_double, "feeder7_QD", PADDR(feeder7_QD),
+			PT_double, "feeder8_QD", PADDR(feeder8_QD),
+			PT_double, "feeder9_QD", PADDR(feeder9_QD),
+			PT_double, "feeder10_QD", PADDR(feeder10_QD),
 		     /* TODO: add your published properties here */
 		    NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
@@ -138,6 +161,8 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 		tempbus->PD = sum_PD;
 		tempbus->QD = sum_QD;
+		//cout<<"sum_PD"<<sum_PD<<endl;
+		//cout<<"sum_QD"<<sum_QD<<endl;
 	}
 
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
