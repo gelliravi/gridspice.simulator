@@ -148,7 +148,7 @@ TIMESTAMP player_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
   values = this->db->read_properties( ss.str() );
   for (PROPERTY *p=this->target; p!=NULL; p=p->next)
     {
-	OBJECT *target = obj->parent; /* target myself if no parent */
+
 
 	std::map<std::string, std::string>::iterator it = this->propertyToColumn->find(p->name);
 	std::string columnName = it->second;
@@ -164,11 +164,12 @@ TIMESTAMP player_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 	std::string value = it2->second;
 	char1024 valueCstr;
 	strcpy(valueCstr, value.c_str());
-	gl_set_value(target,GETADDR(target,p),valueCstr,p); /* pointer => int64 */
+	gl_set_value(obj->parent,GETADDR(obj->parent,p),valueCstr,p); /* pointer => int64 */
+	std::cout<<"SETTING "<<p->name<<" TO: "<<value;
     }
 
 	  	
-  return t0+15;
+  return t1+15*60;
 }
 
 /* Postsync is called when the clock needs to advance on the second top-down pass */
