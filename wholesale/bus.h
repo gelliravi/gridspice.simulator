@@ -49,8 +49,10 @@ public:
 	// feed header	
 	int 	ifheader;
 	char	header_name[MAXSIZE]; 
+	complex CVoltage; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 
 	// feed power insert
+	/*
 	double feeder1_PD;
 	double feeder1_QD;
 	double feeder2_PD;
@@ -71,6 +73,18 @@ public:
 	double feeder9_QD;
 	double feeder10_PD;
 	double feeder10_QD;
+	*/
+	complex feeder0;
+	complex feeder1;
+	complex feeder2;
+	complex feeder3;
+	complex feeder4;
+	complex feeder5;
+	complex feeder6;
+	complex feeder7;
+	complex feeder8;
+	complex feeder9;
+
 	
 public:
 	/* required implementations */

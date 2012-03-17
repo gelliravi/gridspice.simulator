@@ -35,6 +35,14 @@ int solver_matpower();
 
 inline vector<string> split(const string s, char c);
 
+inline void setObjectValue_Double(OBJECT* obj, char* Property, double value);
+
+inline void setObjectValue_Double2Complex_inDegree(OBJECT* obj, char* Property, double Mag, double Ang);
+
+inline void setObjectValue_Double2Complex(OBJECT* obj, char* Property, double Re, double Im);
+
+inline void setObjectValue_Complex(OBJECT* obj, char* Property, complex val);
+
 /* optional exports */
 #ifdef OPTIONAL
 

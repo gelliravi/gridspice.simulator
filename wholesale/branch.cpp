@@ -66,6 +66,14 @@ branch::branch(MODULE *module)
               PT_int16,	 "BR_STATUS", PADDR(BR_STATUS),   // initial branch status, 1 = in-service,0=out-of-service
               PT_double, "ANGMIN", PADDR(ANGMIN),       // minimum angle difference, \theta_f - \theta_t (degrees)
               PT_double, "ANGMAX", PADDR(ANGMAX),       // maximum angle difference, \theta_f - \theta_t (degrees)
+		PT_double, "PF", PADDR(PF),
+		PT_double, "QF", PADDR(QF),
+		PT_double, "PT", PADDR(PT),
+		PT_double, "QT", PADDR(QT),
+		PT_double, "MU_SF", PADDR(MU_SF),
+		PT_double, "MU_ST", PADDR(MU_ST),
+		PT_double, "MU_ANGMIN", PADDR(MU_ANGMIN),
+		PT_double, "MU_ANGMAX", PADDR(MU_ANGMAX),
            
               NULL)<1 && errno) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
