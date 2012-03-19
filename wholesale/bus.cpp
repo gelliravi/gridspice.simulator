@@ -22,8 +22,7 @@
 #include "line.h"
 #include "gen_cost.h"
 #include "wholesale.h"
-
-#include "../powerflow/node.h"
+#include "lock.h"
 
 
 CLASS *bus::oclass = NULL;
@@ -74,11 +73,16 @@ bus::bus(MODULE *module)
                         PT_int16, "ZONE", PADDR(ZONE),          // lose zone
                         PT_double, "VMAX", PADDR(VMAX),         // maximum voltage magnitude
                         PT_double, "VMIN", PADDR(VMIN),         // minimum voltage magnitude
+			PT_double, "LAM_P", PADDR(LAM_P),
+			PT_double, "LAM_Q", PADDR(LAM_Q),
+			PT_double, "MU_VMAX", PADDR(MU_VMAX),
+			PT_double, "MU_VMIN", PADDR(MU_VMIN),
 			PT_int16, "IFHEADER", PADDR(ifheader),	// if connected with distribution network
 			PT_char1024, "HEADER", PADDR(header_name), // the name of header node of distribution network
                         //PT_double, "length[ft]",PADDR(length),
 			
 			// for feeder
+			/*
 			PT_double, "feeder1_PD", PADDR(feeder1_PD),
 			PT_double, "feeder2_PD", PADDR(feeder2_PD),
 			PT_double, "feeder3_PD", PADDR(feeder3_PD),
@@ -100,6 +104,18 @@ bus::bus(MODULE *module)
 			PT_double, "feeder8_QD", PADDR(feeder8_QD),
 			PT_double, "feeder9_QD", PADDR(feeder9_QD),
 			PT_double, "feeder10_QD", PADDR(feeder10_QD),
+			*/
+			PT_complex,"CVoltage",PADDR(CVoltage),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
+			PT_complex,"feeder0", PADDR(feeder0),
+			PT_complex,"feeder1", PADDR(feeder1),
+			PT_complex,"feeder2", PADDR(feeder2),
+			PT_complex,"feeder3", PADDR(feeder3),
+			PT_complex,"feeder4", PADDR(feeder4),
+			PT_complex,"feeder5", PADDR(feeder5),
+			PT_complex,"feeder6", PADDR(feeder6),
+			PT_complex,"feeder7", PADDR(feeder7),
+			PT_complex,"feeder8", PADDR(feeder8),
+			PT_complex,"feeder9", PADDR(feeder9),
 		     /* TODO: add your published properties here */
 		    NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
@@ -118,12 +134,23 @@ int bus::create(void)
 	bus *tempbus;
 
 	tempbus = OBJECTDATA(obj,bus);
-	
+/*	
 	tempbus->feeder1_PD = tempbus->feeder2_PD = tempbus->feeder3_PD = tempbus->feeder4_PD = tempbus->feeder5_PD = 0;
 		tempbus->feeder6_PD = tempbus->feeder7_PD = tempbus->feeder8_PD = tempbus->feeder9_PD = tempbus->feeder10_PD = 0;
 
 		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
 		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
+*/
+	tempbus->feeder0 = complex();
+	tempbus->feeder1 = complex();
+	tempbus->feeder2 = complex();
+	tempbus->feeder3 = complex();
+	tempbus->feeder4 = complex();
+	tempbus->feeder5 = complex();
+	tempbus->feeder6 = complex();
+	tempbus->feeder7 = complex();
+	tempbus->feeder8 = complex();
+	tempbus->feeder9 = complex();
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -147,7 +174,9 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 	if (tempbus->ifheader == 1)
 	{
+		LOCK_OBJECT(obj);		
 		double sum_PD, sum_QD;
+/*
 		sum_PD = tempbus->feeder1_PD + tempbus->feeder2_PD + tempbus->feeder3_PD + tempbus->feeder4_PD + tempbus->feeder5_PD;
 		sum_PD += tempbus->feeder6_PD + tempbus->feeder7_PD + tempbus->feeder8_PD + tempbus->feeder9_PD + tempbus->feeder10_PD;
 		sum_QD = tempbus->feeder1_QD + tempbus->feeder2_QD + tempbus->feeder3_QD + tempbus->feeder4_QD + tempbus->feeder5_QD;
@@ -158,11 +187,30 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
 		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
+*/
+
+		sum_PD = tempbus->feeder0.Re() + tempbus->feeder1.Re() + tempbus->feeder2.Re() + tempbus->feeder3.Re() + tempbus->feeder4.Re() + tempbus->feeder5.Re() + tempbus->feeder6.Re() + tempbus->feeder7.Re() + tempbus->feeder8.Re() + tempbus->feeder9.Re();
+
+		sum_QD = tempbus->feeder0.Im() + tempbus->feeder1.Im() + tempbus->feeder2.Im() + tempbus->feeder3.Im() + tempbus->feeder4.Im() + tempbus->feeder5.Im() + tempbus->feeder6.Im() + tempbus->feeder7.Im() + tempbus->feeder8.Im() + tempbus->feeder9.Im();
+
+		tempbus->feeder0 = complex();
+		tempbus->feeder1 = complex();
+		tempbus->feeder2 = complex();
+		tempbus->feeder3 = complex();
+		tempbus->feeder4 = complex();
+		tempbus->feeder5 = complex();
+		tempbus->feeder6 = complex();
+		tempbus->feeder7 = complex();
+		tempbus->feeder8 = complex();
+		tempbus->feeder9 = complex();
+		
 
 		tempbus->PD = sum_PD;
 		tempbus->QD = sum_QD;
-		//cout<<"sum_PD"<<sum_PD<<endl;
-		//cout<<"sum_QD"<<sum_QD<<endl;
+		UNLOCK_OBJECT(obj);
+		cout<<"sum_PD"<<sum_PD<<"   "<<tempbus->PD<<endl;
+		cout<<"sum_QD"<<sum_QD<<"   "<<tempbus->QD<<endl;
+
 	}
 
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
@@ -176,7 +224,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 	bus *tempbus;
 	
 	tempbus = OBJECTDATA(obj,bus);
-	unsigned int bus_num = tempbus->BUS_I;
+	//unsigned int bus_num = tempbus->BUS_I;
 	
 /*
 	if (tempbus->ifheader == 1)
@@ -226,13 +274,30 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 */
 	if (tempbus->BUS_TYPE == 3) //ref bus
 	{
-		//printf("Bus number %d\n", tempbus->BUS_I);
+/*		
+		OBJECT *temp_obj = NULL;
+		bus *iter_bus;
+		FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
+		printf("Before simulation!\n");
+		while (gl_find_next(bus_list,temp_obj)!=NULL)
+		{
+			temp_obj = gl_find_next(bus_list,temp_obj);
+			iter_bus = OBJECTDATA(temp_obj,bus);
+			printf("Bus %d; PD %f; QD %f; VM %f; VA %f;\n",iter_bus->BUS_I,iter_bus->PD,iter_bus->QD,iter_bus->VM,iter_bus->VA);
+		};
+*/
+		
+		//Run OPF solver
 		if (solver_matpower() == 1)
 		{
 			GL_THROW("OPF Failed at bus");
 		}
-	}
+
+
+
 		
+	}
+	
 
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
@@ -243,6 +308,25 @@ TIMESTAMP bus::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement post-topdown behavior */
+/*	OBJECT *obj = OBJECTHDR(this);
+	bus *tempbus;
+	
+	tempbus = OBJECTDATA(obj,bus);
+	unsigned int bus_num = tempbus->BUS_I;
+	if (tempbus->BUS_TYPE == 3)
+	{
+		OBJECT *temp_obj = NULL;
+		bus *iter_bus;
+		FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
+		printf("After simulation\n");
+		while (gl_find_next(bus_list,temp_obj)!=NULL)
+		{
+			temp_obj = gl_find_next(bus_list,temp_obj);
+			iter_bus = OBJECTDATA(temp_obj,bus);
+			printf("Bus %d; PD %f; QD %f; VM %f; VA %f;\n",iter_bus->BUS_I,iter_bus->PD,iter_bus->QD,iter_bus->VM,iter_bus->VA);
+		};
+	}
+*/
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 

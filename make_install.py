@@ -15,6 +15,8 @@ else:
 		command = "make 2> Makefile.error.log"
 	elif flag == "install":
 		command = "make install DESTDIR=/mnt/yizheng/ 2> install.error.log"
+	elif flag == "all":
+		command = "make & make install DESTDIR=/mnt/yizheng/"
 
 
 commandOutput = ""

@@ -23,6 +23,8 @@
 #include "areas.h"
 #include "baseMVA.h"
 
+#include <iostream>
+
 
 
 
@@ -68,8 +70,8 @@ int solver_matpower()
 	vector<branch> vec_branch;
 	vector<areas> vec_areas;
 	vector<gen_cost> vec_gencost;
-	vector<baseMVA> vec_baseMVA;	
-
+	vector<baseMVA> vec_baseMVA;
+	
 
 	
 	//printf("========Getting Data=============\n");
@@ -78,12 +80,13 @@ int solver_matpower()
 	OBJECT *temp_obj = NULL;
 	bus *list_bus;
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
-
 	while (gl_find_next(bus_list,temp_obj)!=NULL)
 	{
+		
 		temp_obj = gl_find_next(bus_list,temp_obj);
 		list_bus = OBJECTDATA(temp_obj,bus);
 		vec_bus.push_back(*list_bus);
+		
         };
 
 	// Get Generator objects
@@ -151,6 +154,7 @@ int solver_matpower()
 	ngencost = vec_gencost.size();
 	nareas = vec_areas.size();
 	nbaseMVA = vec_baseMVA.size();
+
 
 	// create arrays for input and allocate memory
 	double *rbus;
@@ -341,9 +345,11 @@ int solver_matpower()
 	// Update class bus
 	double *obus = getArray(plhs[0]);
 	//printf("Get bus\n");
-	iter_bus = vec_bus.begin();
+	//iter_bus = vec_bus.begin();
+	temp_obj = NULL;
 	for (unsigned int i=0; i < nbus; i++)
 	{
+		/*		
 		iter_bus->PD = obus[i+2*nbus];
 		iter_bus->QD = obus[i+3*nbus];
 		iter_bus->GS = obus[i+4*nbus];
@@ -356,21 +362,57 @@ int solver_matpower()
 		iter_bus->LAM_Q = obus[i+14*nbus];
 		iter_bus->MU_VMAX = obus[i+15*nbus];
 		iter_bus->MU_VMIN = obus[i+16*nbus];
-		iter_bus++;
+		//iter_bus++;
+		*/
+		//printf("====Before Test part VM %f; %f\n",iter_bus->VM,obus[i+7*nbus]);
+		
+		temp_obj = gl_find_next(bus_list,temp_obj);
+
+		setObjectValue_Double(temp_obj,"PD",obus[i+2*nbus]);
+		setObjectValue_Double(temp_obj,"QD",obus[i+3*nbus]);
+		setObjectValue_Double(temp_obj,"GS",obus[i+4*nbus]);
+		setObjectValue_Double(temp_obj,"BS",obus[i+5*nbus]);
+		setObjectValue_Double(temp_obj,"VM",obus[i+7*nbus]);
+		setObjectValue_Double(temp_obj,"VA",obus[i+8*nbus]);
+		setObjectValue_Double(temp_obj,"VMAX",obus[i+11*nbus]);
+		setObjectValue_Double(temp_obj,"VMIN",obus[i+12*nbus]);
+		setObjectValue_Double(temp_obj,"LAM_P",obus[i+13*nbus]);
+		setObjectValue_Double(temp_obj,"LAM_Q",obus[i+14*nbus]);
+		setObjectValue_Double(temp_obj,"MU_VMAX",obus[i+15*nbus]);
+		setObjectValue_Double(temp_obj,"MU_VMIN",obus[i+16*nbus]);
+
+		
+		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltage",obus[i+7*nbus],obus[i+8*nbus]*180/PI);
+		
+		//printf("BUS: %f LAM_P %f\n",obus[i+0*nbus],obus[i+13*nbus]);
+		//cout<<"BUS "<<obus[i+0*nbus]<<"LAM_P "<<obus[i+13*nbus]<<endl;
 	}
-/*	unsigned int NumOfElement = mxGetNumberOfElements(plhs[0]);
+/*
+	unsigned int NumOfElement = mxGetNumberOfElements(plhs[0]);
 	for (unsigned int i =0; i<NumOfElement; i++)
 	{
 		printf("%f ",obus[i]);
 		if ((i+1)%nbus == 0)
 			printf("\n");
 	}
+	
+
+	printf("========================\n");
+
+	iter_bus = vec_bus.begin();
+	for (unsigned int i=0;i< nbus; i++)
+	{
+		printf("Bus %d; PD %f; QD %f; VM %f; VA %f;\n",iter_bus->BUS_I,iter_bus->PD,iter_bus->QD,iter_bus->VM,iter_bus->VA);
+		iter_bus++;
+	}
 */	
 	// Update class gen
 	double *ogen = getArray(plhs[1]);
-	iter_gen = vec_gen.begin();
+	//iter_gen = vec_gen.begin();
+	temp_obj = NULL;
 	for (unsigned int i = 0; i < ngen; i++)
 	{
+/*		
 		iter_gen->PG = ogen[i+1*ngen];
 		iter_gen->QG = ogen[i+2*ngen];
 		iter_gen->QMAX = ogen[i+3*ngen];
@@ -388,14 +430,34 @@ int solver_matpower()
 		iter_gen->MU_QMAX = ogen[i+23*ngen];
 		iter_gen->MU_QMIN = ogen[i+24*ngen];
 		iter_gen++;
+*/
+		temp_obj = gl_find_next(gen_list,temp_obj);
+		setObjectValue_Double(temp_obj,"PG",ogen[i+1*ngen]);
+		setObjectValue_Double(temp_obj,"QG",ogen[i+2*ngen]);
+		setObjectValue_Double(temp_obj,"QMAX",ogen[i+3*ngen]);
+		setObjectValue_Double(temp_obj,"QMIN",ogen[i+4*ngen]);
+		setObjectValue_Double(temp_obj,"VG",ogen[i+5*ngen]);
+		setObjectValue_Double(temp_obj,"PC1",ogen[i+10*ngen]);
+		setObjectValue_Double(temp_obj,"PC2",ogen[i+11*ngen]);
+		setObjectValue_Double(temp_obj,"RAMP_AGC",ogen[i+16*ngen]);
+		setObjectValue_Double(temp_obj,"RAMP_10",ogen[i+17*ngen]);
+		setObjectValue_Double(temp_obj,"RAMP_30",ogen[i+18*ngen]);
+		setObjectValue_Double(temp_obj,"RAMP_Q",ogen[i+19*ngen]);
+		setObjectValue_Double(temp_obj,"APF",ogen[i+20*ngen]);
+		setObjectValue_Double(temp_obj,"MU_PMAX",ogen[i+21*ngen]);
+		setObjectValue_Double(temp_obj,"MU_PMIN",ogen[i+22*ngen]);
+		setObjectValue_Double(temp_obj,"MU_QMAX",ogen[i+23*ngen]);
+		setObjectValue_Double(temp_obj,"MU_QMIN",ogen[i+24*ngen]);
 	}
 
 	// Update class branch	
 	//printf("Get branch\n");
 	double *obranch = getArray(plhs[2]);
-	iter_branch = vec_branch.begin();
+	//iter_branch = vec_branch.begin();
+	temp_obj = NULL;
 	for (unsigned int i = 0; i<nbranch; i++)
 	{
+/*
 		iter_branch->PF = obranch[i+13*nbranch];
 		iter_branch->QF = obranch[i+14*nbranch];
 		iter_branch->PT = obranch[i+15*nbranch];
@@ -405,6 +467,17 @@ int solver_matpower()
 		iter_branch->MU_ANGMIN = obranch[i+19*nbranch];
 		iter_branch->MU_ANGMAX = obranch[i+20*nbranch];
 		iter_branch++;
+*/
+
+		temp_obj = gl_find_next(branch_list,temp_obj);
+		setObjectValue_Double(temp_obj,"PF",obranch[i+13*nbranch]);
+		setObjectValue_Double(temp_obj,"QF",obranch[i+14*nbranch]);
+		setObjectValue_Double(temp_obj,"PT",obranch[i+15*nbranch]);
+		setObjectValue_Double(temp_obj,"QT",obranch[i+16*nbranch]);
+		setObjectValue_Double(temp_obj,"MU_SF",obranch[i+17*nbranch]);
+		setObjectValue_Double(temp_obj,"MU_ST",obranch[i+18*nbranch]);
+		setObjectValue_Double(temp_obj,"MU_ANGMIN",obranch[i+19*nbranch]);
+		setObjectValue_Double(temp_obj,"MU_ANGMAX",obranch[i+20*nbranch]);
 	}
 	
 	// free space
@@ -448,5 +521,31 @@ vector<string> split(const string s, char c)
 			v.push_back(s.substr(i,s.length()));
 	}
 	return v;
+}
+
+void setObjectValue_Double(OBJECT* obj, char* Property, double value)
+{
+	char buffer[1024];
+	snprintf(buffer,sizeof(buffer),"%g",value);
+	gl_set_value_by_name(obj,Property,buffer);
+}
+
+void setObjectValue_Double2Complex_inDegree(OBJECT* obj, char* Property, double Mag, double Ang)
+{
+	char buffer[1024];
+	snprintf(buffer,sizeof(buffer),"+%g+%gd",Mag,Ang);
+	gl_set_value_by_name(obj,Property,buffer);
+}
+
+void setObjectValue_Double2Complex(OBJECT* obj, char* Property, double Re, double Im)
+{
+	char buffer[1024];
+	snprintf(buffer,sizeof(buffer),"+%g+%gj",Re,Im);
+	gl_set_value_by_name(obj,Property,buffer);
+}
+
+void setObjectValue_Complex(OBJECT* obj, char* Property, complex val)
+{
+	setObjectValue_Double2Complex(obj,Property,val.Re(),val.Im());
 }
 

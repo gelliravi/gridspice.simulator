@@ -1348,7 +1348,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 			if (((pNode->phases & phases) & (!(PHASE_D | PHASE_N))) == (phases & (!(PHASE_D | PHASE_N))))
 			{
 				// add the injections on this node to the parent
-				LOCKED(obj->parent, pNode->current_inj   [0] += current_inj[0]);
+				LOCKED(obj->parent, pNode->current_inj[0] += current_inj[0]);
 				LOCKED(obj->parent, pNode->current_inj[1] += current_inj[1]);
 				LOCKED(obj->parent, pNode->current_inj[2] += current_inj[2]);
 			}

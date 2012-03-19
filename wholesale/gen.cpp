@@ -75,6 +75,10 @@ gen::gen(MODULE *module)
                         PT_double, "RAMP_30[MW]", PADDR(RAMP_30),           // ramp rate for 30 min reserves
                         PT_double, "RAMP_Q[MW]", PADDR(RAMP_Q),           // ramp rate for reactive power
                         PT_double, "APF", PADDR(APF),                   // area participation factor
+			PT_double, "MU_PMAX", PADDR(MU_PMAX),
+			PT_double, "MU_PMIN", PADDR(MU_PMIN),
+			PT_double, "MU_QMAX", PADDR(MU_QMAX),
+			PT_double, "MU_QMIN", PADDR(MU_QMIN),
                         NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(gen));
