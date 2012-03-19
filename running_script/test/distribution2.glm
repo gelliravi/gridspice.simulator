@@ -1,0 +1,199 @@
+#define NHOUSES=1
+#define MAXDATA=1000
+#define INTERVAL=7200
+
+#set debugger=0		// 1 to enable model debugger
+#set skipsafe=0		// number of ticks to allow objects to safely skip on sync (0 disables skipsafe)
+#set threadcount=1	// 0 uses all available processors
+#set debug=1		// 1 enables debug output
+#set verbose=0		// 1 enables verbose output
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// setup the simulation clock
+clock {
+	// set the timezone to Pacific with daylight savings active
+	timezone PST+8PDT;
+
+	// set the clock to the beginning of the Olypen project
+	starttime '2000-01-01 0:00:00 PST';
+
+	// set the stop date
+	stoptime '2000-01-01 06:00:00 PST';
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// load the climate module
+module climate {
+
+	// set climate module global parameters here (if any)
+}
+object climate {
+	// Note: some GFA homes were in Yakima WA some were in Gresham OR
+	// and the rest in Clallam County WA and Port Angeles WA
+	tmyfile "US OR Medford.tmy"; // using medford until we find Clallam's TMY
+	city "Clallam County WA"; 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// setup up the power distribution system
+#include "distribution2_lib.glm"
+object node {
+	name SupplyBus;
+	phases ABCN;
+	nominal_voltage 37500;
+	voltage_A 37500+0d;
+	voltage_B 37500-120d;
+	voltage_C 37500+120d;
+}
+
+object transformer {
+	name Feeder;
+	configuration Feeder_2000kVA;
+	from SupplyBus;
+	to MainBus;
+	phases ABCN;
+}
+
+object node {
+	name MainBus;
+	phases ABCN;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// setup up the homes
+
+#ifndef NHOUSES
+object transformer {
+	name test1;
+	from MainBus;
+	configuration Poletop_40kVA_A;
+	phases AS;
+	to object load {
+		phases AS;
+		nominal_voltage 120;
+		constant_power_A 10000;
+		constant_power_B 10000;
+	};
+}
+#endif
+
+#ifdef NHOUSES
+// fixed price group on phase A - don't have to do this, but it's easy that way
+object transformer:..${NHOUSES} {
+	from MainBus;
+	configuration Poletop_40kVA_A;
+	phases AS;
+	to object triplex_meter {
+		phases AS;
+		object house {
+			contract FIXED;
+			price 81 $/MWh;
+			heating_setpoint random.normal(70,5);
+			cooling_setpoint (this.heating_setpoint+5);
+			object lights {
+				installed_power 500 W;
+			};
+			object clotheswasher {
+			};
+			object occupantload {
+			};
+			object microwave {
+			};
+			object plugload {
+			};
+			object range {
+			};
+			object waterheater {
+			};
+		};
+	};
+}
+#endif
+
+
+///////////////////////////////////////////////////////////////////////////////
+// data collection
+object recorder {
+	file "distribution1_SupplyBus.csv";
+	parent SupplyBus;
+	property "power_A,power_B,power_C,nominal_voltage,voltage_A,voltage_B,voltage_C";
+	interval ${INTERVAL};
+	limit ${MAXDATA};
+}
+
+
+object recorder {
+	file "distribution1_MainBus.csv";
+	parent MainBus;
+	property "power_A,power_B,power_C,nominal_voltage,voltage_A,voltage_B,voltage_C";
+	interval ${INTERVAL};
+	limit ${MAXDATA};
+}
+
+object recorder {
+	file "distribution1_Feeder.csv";
+	parent Feeder;
+	property "power_in, power_out,power_in_A,power_in_B,power_in_C,power_out_A,power_out_B,power_out_C";
+	interval ${INTERVAL};
+	limit ${MAXDATA};	
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// data collection -- mysql
+
+module tape_mysql
+{
+	db_name "mysql_wholesale";
+	db_host "localhost";
+	db_user "root";
+	db_pwd	"smartgrid";
+	db_port	"3306";
+};
+
+object recorder_mysql
+{
+	parent SupplyBus;
+	property "power_A,power_B,power_C,nominal_voltage,voltage_A,voltage_B,voltage_C";
+	table	"Distribution2_SupplyBus";
+	columns "power_A,power_B,power_C,nominal_voltage,voltage_A,voltage_B,voltage_C";
+	interval ${INTERVAL};
+	limit	${MAXDATA};
+};
+
+object recorder_mysql
+{
+	parent MainBus;
+	property "power_A,power_B,power_C,nominal_voltage,voltage_A,voltage_B,voltage_C";
+	table	"Distribution2_MainBus";
+	columns "power_A,power_B,power_C,nominal_voltage,voltage_A,voltage_B,voltage_C";
+	interval ${INTERVAL};
+	limit	${MAXDATA};
+};
+
+object recorder_mysql
+{
+	parent Feeder;
+	property "power_in, power_out,power_in_A,power_in_B,power_in_C,power_out_A,power_out_B,power_out_C";
+	table 	"Distribution2_Feeder";
+	columns "power_in, power_out,power_in_A,power_in_B,power_in_C,power_out_A,power_out_B,power_out_C";
+	interval ${INTERVAL};
+	limit	${MAXDATA};
+}
+
+object player_mysql
+{
+	parent SupplyBus;
+	table 	"Transmission";
+	columns "VM,CVoltageA,CVoltageB,CVoltageC";
+	property "nominal_voltage,voltage_A,voltage_B,voltage_C";
+}
+
+//object player_mysql
+//{
+//	parent Feeder;
+//	table "Transmission";
+//	columns "VM";
+//	property "primary_voltage";
+//}
