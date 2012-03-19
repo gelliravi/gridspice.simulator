@@ -12,16 +12,17 @@
 #include <iostream>
 #include "timestamp.h"
 
-using namespace std;
-
 class db_access 
 {
 public:
 
-    db_access(string cust_id);
-    int get_earliest_date(DATETIME &dt);
-    int get_latest_date(DATETIME &dt); 
-    double get_power_usage(DATETIME &dt);
+    db_access(std::string cust_id);
+    bool get_earliest_date(DATETIME &dt);
+    bool get_latest_date(DATETIME &dt); 
+    double get_power_usage(const DATETIME &dt);
+    double get_humidity(const DATETIME &dt);
+    double get_temp(const DATETIME &dt);
+    double is_dr(const DATETIME &dt);
 
     static bool is_connected();
     static void init_connection(const char *db = 0, 
@@ -31,7 +32,11 @@ public:
                                 unsigned int port = 0);
 
 private:
-    string customer_id;
+    std::string customer_id;
+    std::string weather_id;
+
+    /* static private helper functions */
+    static std::string dt_to_string(const DATETIME &dt);
 };
 
 #endif
