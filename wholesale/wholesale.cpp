@@ -381,8 +381,10 @@ int solver_matpower()
 		setObjectValue_Double(temp_obj,"MU_VMAX",obus[i+15*nbus]);
 		setObjectValue_Double(temp_obj,"MU_VMIN",obus[i+16*nbus]);
 
-		
-		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltage",obus[i+7*nbus],obus[i+8*nbus]*180/PI);
+		// obus[i+9*nbus] is BASE_KV. The unit is KV.
+		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltageA",obus[i+7*nbus]*obus[i+9*nbus]*1000,obus[i+8*nbus]);
+		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltageB",obus[i+7*nbus]*obus[i+9*nbus]*1000,obus[i+8*nbus]+2/3*PI);
+		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltageC",obus[i+7*nbus]*obus[i+9*nbus]*1000,obus[i+8*nbus]-2/3*PI);
 		
 		//printf("BUS: %f LAM_P %f\n",obus[i+0*nbus],obus[i+13*nbus]);
 		//cout<<"BUS "<<obus[i+0*nbus]<<"LAM_P "<<obus[i+13*nbus]<<endl;
@@ -501,7 +503,7 @@ int solver_matpower()
 	vec_baseMVA.clear();
 
 
-	short ifsuccess = (short)*getArray(plhs[4]);
+	short ifsuccess = (short)*getArray(plhs[3]);
 	//printf("suceess %f\n",*getArray(plhs[4]));
 	return ifsuccess;
 
@@ -532,15 +534,18 @@ void setObjectValue_Double(OBJECT* obj, char* Property, double value)
 
 void setObjectValue_Double2Complex_inDegree(OBJECT* obj, char* Property, double Mag, double Ang)
 {
+	complex temp;
+	temp.SetPolar(Mag,Ang);	
 	char buffer[1024];
-	snprintf(buffer,sizeof(buffer),"+%g+%gd",Mag,Ang);
-	gl_set_value_by_name(obj,Property,buffer);
+	//snprintf(buffer,sizeof(buffer),"+%g+%gj",temp.Re(),temp.Im());
+	//gl_set_value_by_name(obj,Property,buffer);
+	setObjectValue_Double2Complex(obj,Property,temp.Re(),temp.Im());
 }
 
 void setObjectValue_Double2Complex(OBJECT* obj, char* Property, double Re, double Im)
 {
 	char buffer[1024];
-	snprintf(buffer,sizeof(buffer),"+%g+%gj",Re,Im);
+	snprintf(buffer,sizeof(buffer),"%g+%gj",Re,Im);
 	gl_set_value_by_name(obj,Property,buffer);
 }
 

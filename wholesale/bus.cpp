@@ -105,7 +105,9 @@ bus::bus(MODULE *module)
 			PT_double, "feeder9_QD", PADDR(feeder9_QD),
 			PT_double, "feeder10_QD", PADDR(feeder10_QD),
 			*/
-			PT_complex,"CVoltage",PADDR(CVoltage),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
+			PT_complex,"CVoltageA",PADDR(CVoltageA),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
+			PT_complex,"CVoltageB",PADDR(CVoltageB),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
+			PT_complex,"CVoltageC",PADDR(CVoltageC),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 			PT_complex,"feeder0", PADDR(feeder0),
 			PT_complex,"feeder1", PADDR(feeder1),
 			PT_complex,"feeder2", PADDR(feeder2),
@@ -141,6 +143,7 @@ int bus::create(void)
 		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
 		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
 */
+/*
 	tempbus->feeder0 = complex();
 	tempbus->feeder1 = complex();
 	tempbus->feeder2 = complex();
@@ -151,6 +154,17 @@ int bus::create(void)
 	tempbus->feeder7 = complex();
 	tempbus->feeder8 = complex();
 	tempbus->feeder9 = complex();
+*/
+	setObjectValue_Double2Complex(obj,"feeder0",0,0);
+	setObjectValue_Double2Complex(obj,"feeder1",0,0);
+	setObjectValue_Double2Complex(obj,"feeder2",0,0);
+	setObjectValue_Double2Complex(obj,"feeder3",0,0);
+	setObjectValue_Double2Complex(obj,"feeder4",0,0);
+	setObjectValue_Double2Complex(obj,"feeder5",0,0);
+	setObjectValue_Double2Complex(obj,"feeder6",0,0);
+	setObjectValue_Double2Complex(obj,"feeder7",0,0);
+	setObjectValue_Double2Complex(obj,"feeder8",0,0);
+	setObjectValue_Double2Complex(obj,"feeder9",0,0);
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -193,23 +207,31 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 		sum_QD = tempbus->feeder0.Im() + tempbus->feeder1.Im() + tempbus->feeder2.Im() + tempbus->feeder3.Im() + tempbus->feeder4.Im() + tempbus->feeder5.Im() + tempbus->feeder6.Im() + tempbus->feeder7.Im() + tempbus->feeder8.Im() + tempbus->feeder9.Im();
 
-		tempbus->feeder0 = complex();
-		tempbus->feeder1 = complex();
-		tempbus->feeder2 = complex();
-		tempbus->feeder3 = complex();
-		tempbus->feeder4 = complex();
-		tempbus->feeder5 = complex();
-		tempbus->feeder6 = complex();
-		tempbus->feeder7 = complex();
-		tempbus->feeder8 = complex();
-		tempbus->feeder9 = complex();
+		UNLOCK_OBJECT(obj);
+
+		setObjectValue_Double2Complex(obj,"feeder0",0,0);
+		setObjectValue_Double2Complex(obj,"feeder1",0,0);
+		setObjectValue_Double2Complex(obj,"feeder2",0,0);
+		setObjectValue_Double2Complex(obj,"feeder3",0,0);
+		setObjectValue_Double2Complex(obj,"feeder4",0,0);
+		setObjectValue_Double2Complex(obj,"feeder5",0,0);
+		setObjectValue_Double2Complex(obj,"feeder6",0,0);
+		setObjectValue_Double2Complex(obj,"feeder7",0,0);
+		setObjectValue_Double2Complex(obj,"feeder8",0,0);
+		setObjectValue_Double2Complex(obj,"feeder9",0,0);
 		
 
-		tempbus->PD = sum_PD;
-		tempbus->QD = sum_QD;
-		UNLOCK_OBJECT(obj);
-		cout<<"sum_PD"<<sum_PD<<"   "<<tempbus->PD<<endl;
-		cout<<"sum_QD"<<sum_QD<<"   "<<tempbus->QD<<endl;
+		//tempbus->PD = sum_PD;
+		//tempbus->QD = sum_QD;
+
+		// Unit of Power in MATPOWER is MW and MVAr
+		setObjectValue_Double(obj,"PD",sum_PD/1000000);
+		setObjectValue_Double(obj,"QD",sum_QD/1000000);
+
+		
+		
+		//cout<<"sum_PD"<<sum_PD<<"   "<<tempbus->PD<<endl;
+		//cout<<"sum_QD"<<sum_QD<<"   "<<tempbus->QD<<endl;
 
 	}
 
@@ -292,9 +314,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 		{
 			GL_THROW("OPF Failed at bus");
 		}
-
-
-
+	
 		
 	}
 	
