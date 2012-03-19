@@ -3,7 +3,7 @@
 	@file powerflow.cpp
 	@addtogroup powerflow Distribution flow solver (radial)
 	@ingroup modules
-``
+
 	This module contains a model simulating a powerflow distribution network 
 	using Kersting's method outlined in his book: <I>Distribution System Modeling and Analysis.</I>
 	In this method, the network is looked at as a system of	nodes and links.

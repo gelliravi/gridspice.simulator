@@ -30,9 +30,9 @@ typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation 
 class complex { 
   
 private:
-	CNOTATION f; /**< the default notation to use */
 	double r; /**< the real part */
 	double i; /**< the imaginary part */
+	CNOTATION f; /**< the default notation to use */
 
 public:
 	

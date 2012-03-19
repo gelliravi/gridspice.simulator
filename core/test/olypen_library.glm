@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // load the boundary condition and data collection module
-module tape;
+
 
 // load the powerflow module
 module powerflow {
@@ -38,7 +38,7 @@ class house {
 // transformer library
 object transformer_configuration {
 	name Feeder_2000kVA;
-	impedance 0.001+0.01j;
+	impedance +0.001+0.01j;
 	powerA_rating 2000 kVA;
 	powerB_rating 2000 kVA;
 	powerC_rating 2000 kVA;
@@ -50,7 +50,7 @@ object transformer_configuration {
 
 object transformer_configuration {
 	name Poletop_40kVA_A;
-	impedance 0.005+0.05j;
+	impedance +0.005+0.05j;
 	powerA_rating 40 kVA;
 	primary_voltage 7200;
 	secondary_voltage 120;
@@ -60,7 +60,7 @@ object transformer_configuration {
 
 object transformer_configuration {
 	name Poletop_40kVA_B;
-	impedance 0.005+0.05j;
+	impedance +0.005+0.05j;
 	powerB_rating 40 kVA;
 	primary_voltage 7200;
 	secondary_voltage 120;
@@ -70,7 +70,7 @@ object transformer_configuration {
 
 object transformer_configuration {
 	name Poletop_40kVA_C;
-	impedance 0.005+0.05j;
+	impedance +0.005+0.05j;
 	powerC_rating 40 kVA;
 	primary_voltage 7200;
 	secondary_voltage 120;
