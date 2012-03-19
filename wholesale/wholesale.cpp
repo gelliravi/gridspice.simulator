@@ -80,7 +80,6 @@ int solver_matpower()
 	OBJECT *temp_obj = NULL;
 	bus *list_bus;
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
-	unsigned int i = 0;
 	while (gl_find_next(bus_list,temp_obj)!=NULL)
 	{
 		

@@ -22,8 +22,7 @@
 #include "line.h"
 #include "gen_cost.h"
 #include "wholesale.h"
-
-#include "../powerflow/node.h"
+#include "lock.h"
 
 
 CLASS *bus::oclass = NULL;

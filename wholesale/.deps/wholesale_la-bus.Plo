@@ -119,10 +119,7 @@ wholesale_la-bus.lo: bus.cpp /usr/include/stdlib.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_vector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_bvector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/vector.tcc \
-  gen.h line.h gen_cost.h ../powerflow/node.h ../core/lock.h \
-  ../powerflow/powerflow.h ../powerflow/solver_nr.h ../core/complex.h \
-  ../powerflow/powerflow_object.h ../powerflow/load.h ../powerflow/node.h \
-  ../powerflow/triplex_node.h
+  gen.h line.h gen_cost.h ../core/lock.h
 
 /usr/include/stdlib.h:
 
@@ -482,20 +479,4 @@ line.h:
 
 gen_cost.h:
 
-../powerflow/node.h:
-
 ../core/lock.h:
-
-../powerflow/powerflow.h:
-
-../powerflow/solver_nr.h:
-
-../core/complex.h:
-
-../powerflow/powerflow_object.h:
-
-../powerflow/load.h:
-
-../powerflow/node.h:
-
-../powerflow/triplex_node.h:
