@@ -385,6 +385,7 @@ int solver_matpower()
 		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltageA",obus[i+7*nbus]*obus[i+9*nbus]*1000,obus[i+8*nbus]);
 		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltageB",obus[i+7*nbus]*obus[i+9*nbus]*1000,obus[i+8*nbus]+2/3*PI);
 		setObjectValue_Double2Complex_inDegree(temp_obj,"CVoltageC",obus[i+7*nbus]*obus[i+9*nbus]*1000,obus[i+8*nbus]-2/3*PI);
+		setObjectValue_Double(temp_obj,"V_nom",obus[i+7*nbus]*obus[i+9*nbus]*1000);
 		
 		//printf("BUS: %f LAM_P %f\n",obus[i+0*nbus],obus[i+13*nbus]);
 		//cout<<"BUS "<<obus[i+0*nbus]<<"LAM_P "<<obus[i+13*nbus]<<endl;

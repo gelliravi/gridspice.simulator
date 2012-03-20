@@ -24,6 +24,7 @@
 #include "wholesale.h"
 #include "lock.h"
 
+#define TIME_INTERVAL 900
 
 CLASS *bus::oclass = NULL;
 bus *bus::defaults = NULL;
@@ -108,6 +109,7 @@ bus::bus(MODULE *module)
 			PT_complex,"CVoltageA",PADDR(CVoltageA),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 			PT_complex,"CVoltageB",PADDR(CVoltageB),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 			PT_complex,"CVoltageC",PADDR(CVoltageC),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
+			PT_double,"V_nom",PADDR(V_nom),
 			PT_complex,"feeder0", PADDR(feeder0),
 			PT_complex,"feeder1", PADDR(feeder1),
 			PT_complex,"feeder2", PADDR(feeder2),
@@ -241,7 +243,8 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	TIMESTAMP t2 = TS_NEVER;
+	//TIMESTAMP t2 = TS_NEVER;
+	TIMESTAMP t2 = t1+TIME_INTERVAL;
 	OBJECT *obj = OBJECTHDR(this);
 	bus *tempbus;
 	
@@ -321,7 +324,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 	/* TODO: implement bottom-up behavior */
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
-}
+}	
 
 /* Postsync is called when the clock needs to advance on the second top-down pass */
 TIMESTAMP bus::postsync(TIMESTAMP t0, TIMESTAMP t1)

@@ -26,6 +26,7 @@
 #include "object.h"
 #include "aggregate.h"
 
+#define TIME_INTERVAL 900
 
 CLASS *player_mysql::oclass = NULL;
 player_mysql *player_mysql::defaults = NULL;
@@ -133,14 +134,20 @@ TIMESTAMP player_mysql::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement pre-topdown behavior */
+
+  
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	
 }
 
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 TIMESTAMP player_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
+
   OBJECT *obj = OBJECTHDR(this);
   char ts[64]="0"; /* 0 = INIT */
+
+
   sprintf(ts,"%" FMT_INT64 "d", t1);
   std::stringstream ss;
   ss<<ts;
@@ -165,11 +172,13 @@ TIMESTAMP player_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 	char1024 valueCstr;
 	strcpy(valueCstr, value.c_str());
 	gl_set_value(obj->parent,GETADDR(obj->parent,p),valueCstr,p); /* pointer => int64 */
+
 	std::cout<<"SETTING "<<p->name<<" TO: "<<value;
     }
 
 	  	
-  return t1+15*60;
+  return t1+TIME_INTERVAL;
+
 }
 
 /* Postsync is called when the clock needs to advance on the second top-down pass */
@@ -177,7 +186,9 @@ TIMESTAMP player_mysql::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement post-topdown behavior */
+
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+
 }
 
 

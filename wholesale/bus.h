@@ -52,6 +52,7 @@ public:
 	complex CVoltageA; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 	complex CVoltageB; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 	complex CVoltageC; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
+	double  V_nom;	   // nomial voltage: VM * 1000;	
 
 	// feed power insert
 	/*

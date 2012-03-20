@@ -30,6 +30,8 @@
 
 #include "lock.h"
 
+#define TIME_INTERVAL 900	// 15 min
+
 CLASS *recorder_mysql::oclass = NULL;
 recorder_mysql *recorder_mysql::defaults = NULL;
 
@@ -150,7 +152,8 @@ TIMESTAMP recorder_mysql::presync(TIMESTAMP t0, TIMESTAMP t1)
 	
 	
 	char ts2[64]="0"; /* 0 = INIT */
-	sprintf(ts2,"%" FMT_INT64 "d", t1+1500);
+	//sprintf(ts2,"%" FMT_INT64 "d", t1+1500);
+	sprintf(ts2,"%" FMT_INT64 "d", t1+TIME_INTERVAL);
 	
 	std::stringstream ss;
 	ss<<ts1;
@@ -161,14 +164,15 @@ TIMESTAMP recorder_mysql::presync(TIMESTAMP t0, TIMESTAMP t1)
 	this->db->write_properties( ss.str(), ss2.str(), values );
 	std::cout<<"SYNCING MYSQL RECORDER"<<std::endl;
 	
-	return t1+1500; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	//return t1+1500; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	return t1+TIME_INTERVAL;
 }
 
 /* Sync is called when the clock needs to advance on the bottom-up pass */
 TIMESTAMP recorder_mysql::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 {
-  return t1+1500;
+  return t1+TIME_INTERVAL;
 }
 
 
@@ -197,7 +201,8 @@ TIMESTAMP recorder_mysql::postsync(TIMESTAMP t0, TIMESTAMP t1)
 
 	std::cout<<"POSTSYNCING MYSQL RECORDER"<<std::endl;
 
-	return t1+1500; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	return t1+TIME_INTERVAL; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
+	//return t2;
 
 }
 
