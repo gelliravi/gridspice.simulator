@@ -79,6 +79,7 @@ gen::gen(MODULE *module)
 			PT_double, "MU_PMIN", PADDR(MU_PMIN),
 			PT_double, "MU_QMAX", PADDR(MU_QMAX),
 			PT_double, "MU_QMIN", PADDR(MU_QMIN),
+			PT_double, "Price", PADDR(Price),
                         NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(gen));

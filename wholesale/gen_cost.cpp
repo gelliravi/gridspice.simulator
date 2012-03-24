@@ -60,8 +60,7 @@ gen_cost::gen_cost(MODULE *module)
                         PT_int16, "NCOST", PADDR(NCOST),         // number of cost coeff for poly cost function
                                                                 // or number of data points for piecewise linear
                         /*Only support model 2 right now -- LYZ @ Jan 11th, 2012*/
-                        PT_char1024, "COST", PADDR(COST), 	// n+1 coeff of n-th order polynomial cost,
-																			// starting with highest order
+                        PT_char1024, "COST", PADDR(COST), 	// n+1 coeff of n-th order polynomial cost, starting with highest order
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(gen_cost));

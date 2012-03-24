@@ -22,6 +22,7 @@
 #include "gen_cost.h"
 #include "areas.h"
 #include "baseMVA.h"
+#include <math.h>
 
 #include <iostream>
 
@@ -282,6 +283,10 @@ int solver_matpower()
 	iter_gencost = vec_gencost.begin();
 	for (unsigned int i = 0; i<ngencost; i++)
 	{
+		// Only support model 2: ticket 4
+		if (iter_gencost -> MODEL != 2)
+			GL_THROW("Unsupported model for generation cost\n");
+
 		rgencost[i+0*ngencost] = iter_gencost->MODEL;
 		rgencost[i+1*ngencost] = iter_gencost->STARTUP;
 		rgencost[i+2*ngencost] = iter_gencost->SHUTDOWN;
@@ -300,6 +305,12 @@ int solver_matpower()
 		}
 		iter_gencost++;
 	}
+
+	// Debug
+/*	for (unsigned int i = 0; i < 100; i++)
+	{
+		printf("%f ",rgencost[i]);
+	}*/
 
 	// Run the Solver function
 	//printf("Running Test\n");
@@ -411,7 +422,7 @@ int solver_matpower()
 */	
 	// Update class gen
 	double *ogen = getArray(plhs[1]);
-	//iter_gen = vec_gen.begin();
+	iter_gencost = vec_gencost.begin();
 	temp_obj = NULL;
 	for (unsigned int i = 0; i < ngen; i++)
 	{
@@ -451,6 +462,20 @@ int solver_matpower()
 		setObjectValue_Double(temp_obj,"MU_PMIN",ogen[i+22*ngen]);
 		setObjectValue_Double(temp_obj,"MU_QMAX",ogen[i+23*ngen]);
 		setObjectValue_Double(temp_obj,"MU_QMIN",ogen[i+24*ngen]);
+
+		// Calculate Price
+		double price = 0;
+		unsigned int NCOST = (unsigned int)rgencost[i+3*ngencost];
+		//printf("Bus %d, order %d ",i,NCOST);
+		for (unsigned int j = 0; j < NCOST; j++)
+		{
+			price += pow(ogen[i+1*ngen],NCOST-1-j)*rgencost[i+(4+j)*ngencost];
+			//printf("Coeff %d: %f and price %f",j,rgencost[i+(4+j)*ngencost],price);
+		}
+
+		setObjectValue_Double(temp_obj,"Price",price);
+		//printf("\nBus %d, Price %f\n",i,price);
+		
 	}
 
 	// Update class branch	
