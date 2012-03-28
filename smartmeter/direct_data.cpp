@@ -209,14 +209,15 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
         to_return = t1 + (INTERVAL_SIZE * 60);
 
         current_load = db->get_power_usage(dt1);
-        complex voltage = *pVoltage; // volts
-        complex current = current_load / voltage;
-        complex resistance = voltage / current;
-        complex shunt = ((complex) 1) / resistance; // shunt = admittance
 
         OBJECT *obj = OBJECTHDR(this);
         if (obj->parent != NULL) {
             LOCK_OBJECT(obj->parent);
+
+            complex voltage = *pVoltage; // volts
+            complex current = current_load / voltage;
+            complex resistance = voltage / current;
+            complex shunt = ((complex) 1) / resistance; // shunt = admittance
 
             pPower[0] = current_load;
             pPower[1] = current_load;
