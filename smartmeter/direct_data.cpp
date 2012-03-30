@@ -29,13 +29,13 @@ direct_data *direct_data::defaults = NULL;
 CLASS *PARENTdirect_data::pclass = NULL;
 #endif
 
+static const int MIN_TRAINING_DAYS = 30;
+
 /* TODO: remove passes that aren't needed */
 static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
 
 /* TODO: specify which pass the clock advances */
 static PASSCONFIG clockpass = PC_BOTTOMUP;
-
-const int INTERVAL_SIZE = 15; // load interval size, in minutes
 
 /* Class registration is only called once to register the class with the core */
 direct_data::direct_data(MODULE *module)
@@ -59,6 +59,7 @@ direct_data::direct_data(MODULE *module)
             PT_complex, "current_load", PADDR(current_load),
             PT_complex_array, "forecasted_load", PADDR(forecasted_load),
             PT_char32, "customer_id", PADDR(customer_id),
+            PT_char256, "dr_flags", PADDR(dr_flags),
 			NULL) < 1) {
             GL_THROW("unable to publish properties in %s",__FILE__);
         }
@@ -112,6 +113,10 @@ int direct_data::init(OBJECT *parent)
     earliest_time = gl_mktime(&earliest_date);
     latest_time = gl_mktime(&latest_date);
 
+    f = new forecaster(earliest_time, MIN_TRAINING_DAYS, db);
+    earliest_time = round_to_day_start(earliest_time + 
+        (MIN_TRAINING_DAYS * S_DAY_IN_SECONDS));
+
     OBJECT *obj = OBJECTHDR(this);
 	if (parent != NULL && (gl_object_isa(parent,"triplex_meter", "powerflow") 
         || gl_object_isa(obj->parent, "triplex_node", "powerflow"))) {
@@ -145,26 +150,15 @@ int direct_data::init(OBJECT *parent)
 }
 
 
-void direct_data::update_day_ahead_forecast(TIMESTAMP t)
+void direct_data::update_day_ahead_forecast(TIMESTAMP tomorrow)
 {
-    TIMESTAMP yesterday = t - (24 * 60 * 60);
     for (int i = 0; i < 96; i++) {
-        // TODO add error checking
-        TIMESTAMP temp = yesterday + (i * 15 * 60); // increment by 15 minutes
-        DATETIME dt;
-        gl_localtime(temp, &dt);
-        double predicted_load = db->get_power_usage(dt);
-        double noise = 0.5 * predicted_load;
-        /* generate a random number between 0  and 1 (inclusive).
-           if 1, then add noise. if 0, then subtract noise
-        */
-        int random_number = rand() % 2;
-        if (random_number == 1) {
-            predicted_load += noise;
-        } else {
-            predicted_load -= noise;
+        TIMESTAMP curr = tomorrow + (i * S_INTERVAL_IN_SECONDS);
+        bool is_dr = false;
+        if (strcmp(dr_flags, "") != 0) {
+            is_dr = dr_flags[i] == '1';
         }
-        forecasted_load[i] = predicted_load;
+        forecasted_load[i] = f->predict_load(curr, is_dr);
     }
 }
 
@@ -192,21 +186,13 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
         gl_localtime(t0, &dt0);
         gl_localtime(t1, &dt1);
         if (dt0.day != dt1.day) { // we're transitioning to a new day in the system
-            // update forecast array for next day forecast
-            DATETIME next_day = dt1; 
-
-            // set datetime to 00:00 hours
-            next_day.hour = 0;
-            next_day.microsecond = 0;
-            next_day.minute = 0;
-            next_day.second = 0;
-
-            TIMESTAMP tomorrow = gl_mktime(&next_day);       
+            f->update_forecast(t1);
+            TIMESTAMP tomorrow = round_to_day_start(t1 + S_DAY_IN_SECONDS);
             update_day_ahead_forecast(tomorrow);
         }
 
         // increment time by INTERVAL_SIZE (in minutes) * 60 to get seconds
-        to_return = t1 + (INTERVAL_SIZE * 60);
+        to_return = t1 + S_INTERVAL_IN_SECONDS;
 
         current_load = db->get_power_usage(dt1);
 

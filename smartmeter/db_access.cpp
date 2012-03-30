@@ -101,7 +101,7 @@ double db_access::get_power_usage(const DATETIME &dt)
         // guaranteed to not be null because of query
         return res[0][interval_field.c_str()];
     } else {
-        return 0;
+        return -1;
     }
 }
 
@@ -113,7 +113,7 @@ double db_access::get_humidity(const DATETIME &dt)
     string date_field = dt_to_string(dt);
 
     stringstream hum_builder;
-    hum_builder << "RHUM" << (dt.hour + 1) << endl;
+    hum_builder << "RHUM" << (dt.hour + 1);
     string hum_field = hum_builder.str();
 
     mysqlpp::Query query = conn.query();
@@ -137,7 +137,7 @@ double db_access::get_temp(const DATETIME &dt)
     string date_field = dt_to_string(dt);
 
     stringstream temp_builder;
-    temp_builder << "TMP" << (dt.hour + 1) << endl;
+    temp_builder << "TMP" << (dt.hour + 1);
     string temp_field = temp_builder.str();
 
     mysqlpp::Query query = conn.query();
@@ -161,7 +161,7 @@ double db_access::is_dr(const DATETIME &dt)
     query << "select CPVSTART, CPVSTOP from master_tb3_all "
           << " where date_ = " << mysqlpp::quote << date_field
           << " and custid = " << mysqlpp::quote << customer_id
-          << " CPVSTART is not null " 
+          << " and CPVSTART is not null " 
           << " and CPVSTOP is not null ";
     mysqlpp::StoreQueryResult res = query.store();
     

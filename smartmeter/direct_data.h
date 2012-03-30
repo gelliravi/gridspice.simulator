@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include "gridlabd.h"
 #include "db_access.h"
+#include "forecaster.h"
 
 class direct_data {
 private:
@@ -19,6 +20,7 @@ private:
     TIMESTAMP earliest_time;
     TIMESTAMP latest_time;
     db_access *db;
+    forecaster *f;
     complex *pPower; // pointer to power in parent object
     complex *pShunt; // pointer to shunt in parent object
     complex *pLine_I; // pointer to current in parent object
@@ -29,6 +31,7 @@ protected:
 	/* TODO: put unpublished but inherited variables */
 public:
     char32 customer_id;
+    char256 dr_flags;
     complex current_load;
     complex forecasted_load[96];
 	/* TODO: put published variables here */
