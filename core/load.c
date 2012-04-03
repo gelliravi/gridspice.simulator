@@ -4122,8 +4122,16 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		output_error_raw("%s(%d): expected object block closing }", filename, linenum);
 		REJECT;
 	}
+	FILE *xmlDump = fopen("xmlDump.xml", "w+");
+	char buf[2000];
+	int count = object_dump_xml(buf,2000,obj);
+	printf("%s", buf);
+	fwrite(buf, 1, count, xmlDump);
+
+
 	if (subobj) *subobj = obj;
 	DONE;
+
 }
 
 static int import(PARSER)
