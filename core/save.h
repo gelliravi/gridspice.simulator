@@ -8,6 +8,8 @@
 #include "globals.h"
 #include "module.h"
 
+
+int saveall_xml(char *filename);
 int saveall(char *);
 
 #endif

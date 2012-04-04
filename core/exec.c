@@ -1177,10 +1177,6 @@ STATUS exec_start(void)
 		pthread_cond_destroy(&done[k]);
 	}
 
-	// Output model in XML format
-	FILE *xmlDump = fopen("kyle.xml", "w");
-	object_saveall_xml(xmlDump);
-	fclose(xmlDump);
 
 	/* report performance */
 	if (global_profiler && sync.status==SUCCESS)

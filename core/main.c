@@ -170,8 +170,12 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 	/* save the model */
 	if (strcmp(global_savefile,"")!=0)
 	{
-		if (saveall(global_savefile)==FAILED)
+	  //if (saveall(global_savefile)==FAILED)
+	  //		output_error("save to '%s' failed", global_savefile);
+		
+		if (saveall_xml(global_savefile)==FAILED)
 			output_error("save to '%s' failed", global_savefile);
+
 	}
 
 	/* do module dumps */

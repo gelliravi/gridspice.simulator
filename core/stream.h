@@ -16,6 +16,7 @@
 #define SF_OBJECTS 0x0400
 #define SF_ALL     0x0f00
 
+int64 stream_out_xml(FILE *fp, int flags);
 int64 stream_out(FILE *fp, int flags);
 int64 stream_in(FILE *fp, int flags);
 char* stream_context();

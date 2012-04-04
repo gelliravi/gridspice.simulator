@@ -3657,6 +3657,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		OBJECT *subobj=NULL;
 		current_object = obj; /* object context */
 		current_module = obj->oclass->module; /* module context */
+		char * endofLine = strchr(HERE, ';');
+		char propBuf[100];
+		int length = endofLine-HERE;
+		strncpy(propBuf, HERE, length);
+		propBuf[length]='\0';
+		printf("\t<%s>%s</%s>\n", propname, propBuf, propname);
 		if (prop!=NULL && prop->ptype==PT_object && TERM(object_block(HERE,NULL,&subobj)))
 		{
 			char objname[64];
@@ -3687,6 +3693,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 		else if (prop!=NULL && prop->ptype==PT_double && TERM(expression(HERE, &dval, &unit, obj)))
 		{
+
 			if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 			{
 				output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
@@ -3702,6 +3709,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		} 
 		else if (prop!=NULL && prop->ptype==PT_double && TERM(functional_unit(HERE,&dval,&unit)))
 		{
+
 			if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 			{
 				output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
@@ -3783,6 +3791,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 		else if TERM(alternate_value(HERE,propval,sizeof(propval)))
 		{
+
 			if (prop==NULL)
 			{
 				/* check for special properties */
@@ -4075,6 +4084,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 #ifdef NAMEOBJ
 	nameobj.name = classname;
 #endif
+	printf("<%s>\n", classname);
 	if (id2==-1) id2=id+1; /* create singleton */
 	BEGIN_REPEAT;
 	while (id<id2)
@@ -4122,13 +4132,13 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		output_error_raw("%s(%d): expected object block closing }", filename, linenum);
 		REJECT;
 	}
-	FILE *xmlDump = fopen("xmlDump.xml", "w+");
+	/*	FILE *xmlDump = fopen("xmlDump.xml", "w+");
 	char buf[2000];
 	int count = object_dump_xml(buf,2000,obj);
 	printf("%s", buf);
 	fwrite(buf, 1, count, xmlDump);
-
-
+	*/
+	printf("</%s>\n", classname);
 	if (subobj) *subobj = obj;
 	DONE;
 

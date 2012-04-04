@@ -19,6 +19,7 @@ static int savetxt(char *filename, FILE *fp);
 static int savexml(char *filename, FILE *fp);
 static int savexml_strict(char *filename, FILE *fp);
 
+
 int saveall(char *filename)
 {
 	FILE *fp;
@@ -56,6 +57,69 @@ int saveall(char *filename)
 	if (global_streaming_io_enabled)
 	{
 		int res = stream_out(fp,SF_ALL)>0 ? SUCCESS : FAILED;
+		if (res==FAILED)
+			output_error("stream context is %s",stream_context());
+		return res;
+	}
+
+	/* general purpose format used */
+	for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+	{
+		if (strcmp(ext,map[i].format)==0)
+		{
+			return (*(map[i].save))(filename,fp);
+		}
+	}
+
+	output_error("saveall: extension '.%s' not a known format", ext);
+	/*	TROUBLESHOOT
+		Only the format extensions ".txt", ".gld", and ".xml" are recognized by
+		GridLAB-D.  Please end the specified output field accordingly, or omit the
+		extension entirely to force use of the default format.
+	*/
+	errno = EINVAL;
+	return FAILED;
+}
+
+
+
+int saveall_xml(char *filename)
+{
+	FILE *fp;
+	char *ext = strrchr(filename,'.');
+	struct {
+		char *format;
+		int (*save)(char*,FILE*);
+	} map[] = {
+		{"txt", savetxt},
+		{"gld", savetxt},
+		{"xml", savexml_strict},
+	};
+	int i;
+
+	/* identify output format */
+	if (ext==NULL)
+	{	/* no extension given */
+		if (filename[0]=='-') /* stdout */
+			ext=filename+1; /* format is specified after - */
+		else
+			ext=DEFAULT_FORMAT;
+	}
+	else
+		ext++;
+
+	/* setup output stream */
+	if (filename[0]=='-')
+		fp = stdout;
+	else if ((fp=fopen(filename,"wb"))==NULL){
+		output_error("saveall: unable to open stream \'%s\' for writing", filename);
+		return 0;
+	}
+
+	/* internal streaming used */
+	if (global_streaming_io_enabled)
+	{
+		int res = stream_out_xml(fp,SF_ALL)>0 ? SUCCESS : FAILED;
 		if (res==FAILED)
 			output_error("stream context is %s",stream_context());
 		return res;

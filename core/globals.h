@@ -45,6 +45,8 @@ char *global_getvar(char *name, char *buffer, int size);
 void global_dump(void);
 
 /* MAJOR and MINOR version */
+
+GLOBAL FILE * xmlDump;
 GLOBAL unsigned global_version_major INIT(REV_MAJOR); /**< The software's major version */
 GLOBAL unsigned global_version_minor INIT(REV_MINOR); /**< The software's minor version */
 

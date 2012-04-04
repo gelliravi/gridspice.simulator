@@ -1060,6 +1060,41 @@ int64 stream_out(FILE *fp, int flags)
 	return count;
 }
 
+
+int64 stream_out_xml(FILE *fp, int flags)
+{
+	int64 count = 0;
+	MODULE *mod=NULL;
+	GLOBALVAR *gvar=NULL;
+	CLASS *oclass=NULL;
+	OBJECT *obj=NULL;
+	SCHEDULE *sch=NULL;
+	SCHEDULEXFORM *xform=NULL;
+
+	/* stream header */
+	PUTD(STREAM_NAME,strlen(STREAM_NAME));
+
+	/* stream level 1 */
+	PUTS(STREAM_VERSION);
+
+	/* objects */
+	for (obj=object_get_first(); (flags&SF_OBJECTS) && obj!=NULL; obj=obj->next){
+	  ///PUTX(object,obj);
+	  char buf[3000];
+	  int count = object_dump_xml(buf, 3000, obj);
+	  fwrite( fp, 1, count, buf);
+	
+	}
+
+	/* transforms */
+	while ((xform=scheduletransform_getnext(xform))!=NULL)
+		PUTX(transform,xform);
+
+	PUTT(END,END);
+	output_verbose("stream_out() sent %"FMT_INT64"d bytes", count);
+	return count;
+}
+
 int64 stream_in(FILE *fp, int flags)
 {
 	int64 count = 0;
