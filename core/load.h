@@ -47,6 +47,8 @@ typedef struct s_unresolved_func {
 } UNR_FUNC;
 
 /* I need these in gld_loadHndl. -MH */
+
+
 STATUS load_set_index(OBJECT *obj, OBJECTNUM id);
 OBJECT *load_get_index(OBJECTNUM id);
 double load_latitude(char *buffer);

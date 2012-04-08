@@ -3627,30 +3627,30 @@ static int linear_transform(PARSER, XFORMSOURCE *xstype, void **source, double *
 static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
-	PROPERTYNAME propname;
-	char1024 propval;
-	double dval;
-	complex cval;
-	void *source=NULL;
-	XFORMSOURCE xstype = XS_UNKNOWN;
-	double scale=1,bias=0;
-	UNIT *unit=NULL;
-	OBJECT *subobj=NULL;
-	START;
-	if WHITE ACCEPT;
-	if TERM(line_spec(HERE)) {ACCEPT;}
-	if WHITE ACCEPT;
-	if TERM(object_block(HERE,obj,&subobj)) 
-	{		
-		if (WHITE,LITERAL(";"))
-		{	ACCEPT;}
-		else
-		{
-			output_error_raw("%s(%d): missing ; at end of nested object block", filename, linenum,propname);
-			REJECT;
-		}
-			
+  PROPERTYNAME propname;
+  char1024 propval;
+  double dval;
+  complex cval;
+  void *source=NULL;
+  XFORMSOURCE xstype = XS_UNKNOWN;
+  double scale=1,bias=0;
+  UNIT *unit=NULL;
+  OBJECT *subobj=NULL;
+  START;
+  if WHITE ACCEPT;
+  if TERM(line_spec(HERE)) {ACCEPT;}
+  if WHITE ACCEPT;
+  if TERM(object_block(HERE,obj,&subobj)) 
+    {		
+      if (WHITE,LITERAL(";"))
+	{	ACCEPT;}
+      else
+	{
+	  output_error_raw("%s(%d): missing ; at end of nested object block", filename, linenum,propname);
+	  REJECT;
 	}
+      
+    }
 	else if (TERM(dotted_name(HERE,propname,sizeof(propname))) && WHITE)
 	{
 		PROPERTY *prop = class_find_property(oclass,propname);
@@ -3662,7 +3662,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		int length = endofLine-HERE;
 		strncpy(propBuf, HERE, length);
 		propBuf[length]='\0';
-		printf("\t<%s>%s</%s>\n", propname, propBuf, propname);
+		fprintf(xmlDump, "\t<%s>%s</%s>\n", propname, propBuf, propname);
 		if (prop!=NULL && prop->ptype==PT_object && TERM(object_block(HERE,NULL,&subobj)))
 		{
 			char objname[64];
@@ -3987,6 +3987,9 @@ static int object_name_id_count(PARSER,char *classname, int64 *count)
 
 static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 {
+
+
+
 #define NAMEOBJ  /* DPC: not sure what this does, but it doesn't seem to be harmful */
 #ifdef NAMEOBJ
 	static OBJECT nameobj;
@@ -4084,7 +4087,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 #ifdef NAMEOBJ
 	nameobj.name = classname;
 #endif
-	printf("<%s>\n", classname);
+	fprintf(xmlDump, "<%s>\n", classname);
 	if (id2==-1) id2=id+1; /* create singleton */
 	BEGIN_REPEAT;
 	while (id<id2)
@@ -4132,13 +4135,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		output_error_raw("%s(%d): expected object block closing }", filename, linenum);
 		REJECT;
 	}
-	/*	FILE *xmlDump = fopen("xmlDump.xml", "w+");
-	char buf[2000];
-	int count = object_dump_xml(buf,2000,obj);
-	printf("%s", buf);
-	fwrite(buf, 1, count, xmlDump);
-	*/
-	printf("</%s>\n", classname);
+	if( !obj->name ){
+	    fprintf(xmlDump, "\t<name>%s:%d</name>\n", classname, id-1);
+	}
+	
+	fprintf(xmlDump, "</%s>\n", classname);
 	if (subobj) *subobj = obj;
 	DONE;
 
@@ -5504,6 +5505,8 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 
 STATUS loadall_glm(char *file) /**< a pointer to the first character in the file name string */
 {
+
+
 	OBJECT *obj, *first = object_get_first();
 	char *buffer = NULL, *p = NULL;
 	int fsize = 0;
@@ -5587,6 +5590,12 @@ Done:
 /**/
 STATUS loadall_glm_roll(char *file) /**< a pointer to the first character in the file name string */
 {
+
+  if( xmlDump == NULL ){
+    xmlDump=fopen("glmToXml.xml", "w");
+    char *rootStr = "<root type=\"DISTRIBUTION\" name=\"LIGHT RESIDENTIAL\" background=\"BLANK\" layout=\"AUTOMATIC\">\n";
+    fwrite(rootStr, 1, strlen(rootStr), xmlDump);
+  }
 	OBJECT *obj, *first = object_get_first();
 	//char *buffer = NULL, *p = NULL;
 	char *p = NULL;
@@ -5675,6 +5684,9 @@ Done:
 	free_index();
 	linenum=1; // parser starts at one
 	if (fp!=NULL) fclose(fp);
+	char *rootStr = "</root>";
+	fwrite(rootStr, 1, strlen(rootStr), xmlDump);
+
 	return status;
 }
 
