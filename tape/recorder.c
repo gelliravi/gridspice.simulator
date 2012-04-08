@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
+
 #include "gridlabd.h"
 #include "object.h"
 #include "aggregate.h"

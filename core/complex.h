@@ -28,11 +28,14 @@ typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation 
 #include <math.h>
 #include "platform.h"
 class complex { 
+  
 private:
 	double r; /**< the real part */
 	double i; /**< the imaginary part */
 	CNOTATION f; /**< the default notation to use */
+
 public:
+	
 	/** Construct a complex number with zero magnitude */
 	inline complex() /**< create a zero complex number */
 	{
