@@ -306,11 +306,7 @@ int solver_matpower()
 		iter_gencost++;
 	}
 
-	// Debug
-/*	for (unsigned int i = 0; i < 100; i++)
-	{
-		printf("%f ",rgencost[i]);
-	}*/
+
 
 	// Run the Solver function
 	//printf("Running Test\n");

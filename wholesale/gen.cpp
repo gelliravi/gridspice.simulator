@@ -18,6 +18,8 @@
 #include <errno.h>
 
 #include "gen.h"
+#include "bus.h"
+#include "wholesale.h"
 
 CLASS *gen::oclass = NULL;
 gen *gen::defaults = NULL;
@@ -103,6 +105,16 @@ int gen::create(void)
 int gen::init(OBJECT *parent)
 {
 	/* TODO: set the context-dependent initial value of properties */
+	
+	// Get the bus id (BUS_I) from bus object (parent) and set generator id (GEN_BUS)
+	OBJECT *obj_gen = OBJECTHDR(this);
+	gen *tempgen = OBJECTDATA(obj_gen,gen);
+
+	bus *tempbus = OBJECTDATA(parent,bus);
+	setObjectValue_Double(obj_gen,"GEN_BUS",tempbus->BUS_I);
+
+	//printf("Gen_id %d,bus_id %d\n",tempgen->GEN_BUS,tempbus->BUS_I);
+
 	return 1; /* return 1 on success, 0 on failure */
 }
 
