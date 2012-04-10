@@ -5592,8 +5592,11 @@ STATUS loadall_glm_roll(char *file) /**< a pointer to the first character in the
 {
 
   if( xmlDump == NULL ){
+    char buf[100];
+    sprintf(buf, "%s.xml", file);
     xmlDump=fopen("glmToXml.xml", "w");
-    char *rootStr = "<root type=\"DISTRIBUTION\" name=\"LIGHT RESIDENTIAL\" background=\"BLANK\" layout=\"AUTOMATIC\">\n";
+
+    char *rootStr = "<root type=\"DISTRIBUTION\" name=\"Feeder1\" background=\"BLANK\" layout=\"AUTOMATIC\">\n";
     fwrite(rootStr, 1, strlen(rootStr), xmlDump);
   }
 	OBJECT *obj, *first = object_get_first();

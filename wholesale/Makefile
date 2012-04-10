@@ -89,28 +89,28 @@ DIST_SOURCES = $(wholesale_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run tar
+AMTAR = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run tar
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run autoconf
-AUTOHEADER = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run autoheader
-AUTOMAKE = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run automake-1.9
+AUTOCONF = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run autoconf
+AUTOHEADER = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run autoheader
+AUTOMAKE = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run automake-1.9
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS =   -I/mnt/yizheng/gridspice.simulator/core -g -O0 -march=i686 
+CFLAGS =   -I/mnt/kanderson/gridspice.simulator/core -g -O0 -march=i686 
 CPP = gcc -E
-CPPFLAGS =   -I/mnt/yizheng/gridspice.simulator/core -g -O0 -march=i686
+CPPFLAGS =   -I/mnt/kanderson/gridspice.simulator/core -g -O0 -march=i686
 CPPUNIT_CFLAGS = 
 CPPUNIT_CONFIG = /usr/bin/cppunit-config
 CPPUNIT_LIBS = -lcppunit -ldl
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS =   -I/mnt/yizheng/gridspice.simulator/core -g -O0 -march=i686
+CXXFLAGS =   -I/mnt/kanderson/gridspice.simulator/core -g -O0 -march=i686
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -181,7 +181,7 @@ LIBS =  -lcppunit -ldl
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run makeinfo
+MAKEINFO = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run makeinfo
 MISSING_XERCES_FALSE = 
 MISSING_XERCES_TRUE = #
 OBJDUMP = objdump
@@ -254,7 +254,7 @@ host_os = linux-gnu
 host_vendor = pc
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /mnt/yizheng/gridspice.simulator/install-sh
+install_sh = /mnt/kanderson/gridspice.simulator/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
@@ -284,8 +284,8 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 wholesale_la_CPPFLAGS = -I/vol1/matlab/extern/include
 
 # TODO set the version info as desired
-#wholesale_la_LDFLAGS = -L/mnt/yizheng/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/mnt/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
-wholesale_la_LDFLAGS = -L/mnt/yizheng/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/vol1/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
+#wholesale_la_LDFLAGS = -L/mnt/kanderson/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/mnt/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
+wholesale_la_LDFLAGS = -L/mnt/kanderson/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/vol1/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
 all: all-am
 
 .SUFFIXES:
