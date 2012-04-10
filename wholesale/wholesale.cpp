@@ -19,7 +19,7 @@
 #include "bus.h"
 #include "gen.h"
 #include "branch.h"
-#include "gen_cost.h"
+//#include "gen_cost.h"
 #include "areas.h"
 #include "baseMVA.h"
 #include <math.h>
@@ -62,7 +62,7 @@ int solver_matpower()
 	unsigned int nbus = 0;
 	unsigned int ngen = 0;
 	unsigned int nbranch = 0;
-	unsigned int ngencost = 0;
+	//unsigned int ngencost = 0;
 	unsigned int nareas = 0;
 	unsigned int nbaseMVA = 0;
 
@@ -70,7 +70,7 @@ int solver_matpower()
 	vector<gen> vec_gen;
 	vector<branch> vec_branch;
 	vector<areas> vec_areas;
-	vector<gen_cost> vec_gencost;
+	//vector<gen_cost> vec_gencost;
 	vector<baseMVA> vec_baseMVA;
 	
 
@@ -128,6 +128,7 @@ int solver_matpower()
 
 	
 	// Get Generator Cost objects
+	/*
 	gen_cost *list_gen_cost;
 	FINDLIST *gen_cost_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen_cost",FT_END);
 	temp_obj = NULL;
@@ -139,7 +140,7 @@ int solver_matpower()
 		vec_gencost.push_back(*list_gen_cost);
 
 	}
-	
+	*/
 	// Get Base Information object
 	baseMVA *list_baseMVA;
 	FINDLIST *baseMVA_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"baseMVA",FT_END);
@@ -152,7 +153,7 @@ int solver_matpower()
 	nbus = vec_bus.size();
 	ngen = vec_gen.size();
 	nbranch = vec_branch.size();
-	ngencost = vec_gencost.size();
+	//ngencost = vec_gencost.size();
 	nareas = vec_areas.size();
 	nbaseMVA = vec_baseMVA.size();
 
@@ -203,6 +204,17 @@ int solver_matpower()
 	
 	// insert data for rgen
 	vector<gen>::iterator iter_gen = vec_gen.begin();
+	unsigned int max_order = 0;
+	for (unsigned int i =0; i< ngen; i++)
+	{
+		if (iter_gen->NCOST > max_order)
+			max_order = iter_gen->NCOST;
+		iter_gen++;
+	}
+	rgencost = (double *) calloc(ngen*(GENCOST_ATTR+max_order),sizeof(double));
+
+	iter_gen = vec_gen.begin();
+
 	for (unsigned int i = 0; i < ngen; i++)
 	{
 		rgen[i+0*ngen] = (double) iter_gen->GEN_BUS;
@@ -226,6 +238,27 @@ int solver_matpower()
 		rgen[i+18*ngen] = iter_gen->RAMP_30;
 		rgen[i+19*ngen] = iter_gen->RAMP_Q;
 		rgen[i+20*ngen] = iter_gen->APF;
+
+		// Cost info
+		rgencost[i+0*ngen] = iter_gen->MODEL;
+		rgencost[i+1*ngen] = iter_gen->STARTUP;
+		rgencost[i+2*ngen] = iter_gen->SHUTDOWN;
+		rgencost[i+3*ngen] = (double)iter_gen->NCOST;
+		string double_string(iter_gen->COST);
+		vector<string> v;
+		v = split(double_string,',');
+		for (unsigned int j=0; j<v.size();j++)
+		{
+			rgencost[i+(4+j)*ngen] = atof(v[j].c_str());
+		}
+		if (iter_gen->NCOST != max_order)
+		{
+			for (unsigned int j = iter_gen->NCOST; j< max_order; j++)
+			{
+				rgencost[i+(4+j)*ngen] = 0.0;
+			}
+		}
+
 		iter_gen++;
 	}	
 
@@ -267,6 +300,7 @@ int solver_matpower()
 
 
 	// insert data for rgencost
+	/*
 	vector<gen_cost>::const_iterator iter_gencost = vec_gencost.begin();
 
 	unsigned int max_order = 0;
@@ -305,6 +339,7 @@ int solver_matpower()
 		}
 		iter_gencost++;
 	}
+	*/
 
 
 
@@ -319,7 +354,7 @@ int solver_matpower()
 	mxArray* bus_array = initArray(rbus, nbus, BUS_ATTR);	
 	mxArray* gen_array = initArray(rgen, ngen, GEN_ATTR);
 	mxArray* branch_array = initArray(rbranch, nbranch, BRANCH_ATTR);
-	mxArray* gencost_array = initArray(rgencost, ngencost, GENCOST_ATTR+max_order);
+	mxArray* gencost_array = initArray(rgencost, ngen, GENCOST_ATTR+max_order);
 	mxArray* areas_array = initArray(rareas, nareas, AREA_ATTR);
 
 
@@ -347,6 +382,7 @@ int solver_matpower()
 	prhs[5] = gencost_array;
 
 	mlxOpf(5, plhs, 6, prhs); // cout if first parameter is 0;
+	//mlxOpf(0,plhs,6,prhs);
 	
 	//printf("Finish the opf\n");
 	// Update class bus
@@ -418,7 +454,7 @@ int solver_matpower()
 */	
 	// Update class gen
 	double *ogen = getArray(plhs[1]);
-	iter_gencost = vec_gencost.begin();
+	iter_gen = vec_gen.begin();
 	temp_obj = NULL;
 	for (unsigned int i = 0; i < ngen; i++)
 	{
@@ -461,17 +497,18 @@ int solver_matpower()
 
 		// Calculate Price
 		double price = 0;
-		unsigned int NCOST = (unsigned int)rgencost[i+3*ngencost];
+		unsigned int NCOST = (unsigned int)rgencost[i+3*ngen];
 		//printf("Bus %d, order %d ",i,NCOST);
 		for (unsigned int j = 0; j < NCOST; j++)
 		{
-			price += pow(ogen[i+1*ngen],NCOST-1-j)*rgencost[i+(4+j)*ngencost];
+			price += pow(ogen[i+1*ngen],NCOST-1-j)*rgencost[i+(4+j)*ngen];
 			//printf("Coeff %d: %f and price %f",j,rgencost[i+(4+j)*ngencost],price);
 		}
 
 		setObjectValue_Double(temp_obj,"Price",price);
 		//printf("\nBus %d, Price %f\n",i,price);
 		
+		iter_gen++;
 	}
 
 	// Update class branch	
@@ -521,7 +558,7 @@ int solver_matpower()
 	vec_bus.clear();
 	vec_gen.clear();
 	vec_branch.clear();
-	vec_gencost.clear();
+	//vec_gencost.clear();
 	vec_baseMVA.clear();
 
 
@@ -576,3 +613,7 @@ void setObjectValue_Complex(OBJECT* obj, char* Property, complex val)
 	setObjectValue_Double2Complex(obj,Property,val.Re(),val.Im());
 }
 
+void setObjectValue_Char(OBJECT* obj, char* Property, char* value)
+{
+	gl_set_value_by_name(obj,Property,value);
+}

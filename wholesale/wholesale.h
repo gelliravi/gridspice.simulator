@@ -43,6 +43,8 @@ void setObjectValue_Double2Complex(OBJECT* obj, char* Property, double Re, doubl
 
 void setObjectValue_Complex(OBJECT* obj, char* Property, complex val);
 
+void setObjectValue_Char(OBJECT* obj, char* Property, char* value);
+
 /* optional exports */
 #ifdef OPTIONAL
 
