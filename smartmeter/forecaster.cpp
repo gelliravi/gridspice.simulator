@@ -12,6 +12,13 @@ forecaster::forecaster(TIMESTAMP start, size_t num_days, db_access *db_)
     // init params
     params.svm_type = EPSILON_SVR;
     params.kernel_type = RBF;
+    params.gamma = 0;
+    params.cache_size = 100;
+    params.eps = 0.001;
+    params.C = 1;
+    params.p = 0.1;
+    params.shrinking = 1;
+    params.probability = 0;
 
     // update the model to contain these days
     curr_bound = base + (num_days * S_DAY_IN_SECONDS);
@@ -150,6 +157,7 @@ svm_node *forecaster::datapoint_to_node(datapoint *dp)
     svm_node *to_return = (svm_node *) malloc(sizeof(svm_node) * temp_vector.size());
     for (int i = 0; i < temp_vector.size(); i++) {
         memcpy(&to_return[i], temp_vector[i], sizeof(svm_node));
+        free(temp_vector[i]);
         // to_return[i] = (svm_node *) temp_vector[i];
     }
     return to_return;
@@ -182,6 +190,7 @@ void forecaster::update_models()
         }
 
         svm_models[i].sp = construct_problem(i); 
+        const char *error = svm_check_parameter(svm_models[i].sp, &params);
         svm_models[i].model = svm_train(svm_models[i].sp, &params);
     }
 }

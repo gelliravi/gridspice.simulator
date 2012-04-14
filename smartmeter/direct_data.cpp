@@ -152,13 +152,20 @@ int direct_data::init(OBJECT *parent)
 
 void direct_data::update_day_ahead_forecast(TIMESTAMP tomorrow)
 {
+    double temp[96];
     for (int i = 0; i < 96; i++) {
         TIMESTAMP curr = tomorrow + (i * S_INTERVAL_IN_SECONDS);
         bool is_dr = false;
         if (strcmp(dr_flags, "") != 0) {
             is_dr = dr_flags[i] == '1';
         }
-        forecasted_load[i] = f->predict_load(curr, is_dr);
+        temp[i] = f->predict_load(curr, is_dr);
+        forecasted_load[i] = temp[i];
+        // forecasted_load[i] = f->predict_load(curr, is_dr);
+    }
+    std::cout << std::endl << "DAY AHEAD FORECAST" << std::endl;
+    for (int i = 0; i < 96; i++) {
+        std::cout << "Interval " << i << ": " << temp[i] << std::endl;
     }
 }
 
