@@ -150,11 +150,11 @@ int direct_data::init(OBJECT *parent)
 }
 
 
-void direct_data::update_day_ahead_forecast(TIMESTAMP tomorrow)
+void direct_data::update_day_ahead_forecast(TIMESTAMP t)
 {
     double temp[96];
     for (int i = 0; i < 96; i++) {
-        TIMESTAMP curr = tomorrow + (i * S_INTERVAL_IN_SECONDS);
+        TIMESTAMP curr = t + (i * S_INTERVAL_IN_SECONDS);
         bool is_dr = false;
         if (strcmp(dr_flags, "") != 0) {
             is_dr = dr_flags[i] == '1';
@@ -194,8 +194,8 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
         gl_localtime(t1, &dt1);
         if (dt0.day != dt1.day) { // we're transitioning to a new day in the system
             f->update_forecast(t1);
-            TIMESTAMP tomorrow = round_to_day_start(t1 + S_DAY_IN_SECONDS);
-            update_day_ahead_forecast(tomorrow);
+            TIMESTAMP day_start = round_to_day_start(t1);
+            update_day_ahead_forecast(day_start);
         }
 
         // increment time by INTERVAL_SIZE (in minutes) * 60 to get seconds

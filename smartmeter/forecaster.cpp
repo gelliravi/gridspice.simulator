@@ -101,8 +101,7 @@ forecaster::datapoint *forecaster::calculate_datapoint(TIMESTAMP t, bool is_dr)
     d->dt = dt;
 
     for (int i = 0; i < NUM_LOAD_HISTORY_DAYS; i++) {
-        // add 2 to skip yesterday's load (since this is a day ahead forecast
-        TIMESTAMP curr = t - ((i + 2) * S_DAY_IN_SECONDS);        
+        TIMESTAMP curr = t - ((i + 1) * S_DAY_IN_SECONDS);        
         DATETIME curr_dt;
         gl_localtime(curr, &curr_dt);
         d->load_history[i] = db->get_power_usage(curr_dt);
