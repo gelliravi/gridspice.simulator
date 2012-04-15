@@ -383,12 +383,15 @@ int solver_matpower()
 
 	mlxOpf(5, plhs, 6, prhs); // cout if first parameter is 0;
 	//mlxOpf(0,plhs,6,prhs);
-	
-	//printf("Finish the opf\n");
-	// Update class bus
+
+
+	// Get data from array
 	double *obus = getArray(plhs[0]);
-	//printf("Get bus\n");
-	//iter_bus = vec_bus.begin();
+	double *ogen = getArray(plhs[1]);
+	double *obranch = getArray(plhs[2]);
+
+	// Update class bus
+
 	temp_obj = NULL;
 	for (unsigned int i=0; i < nbus; i++)
 	{
@@ -411,6 +414,8 @@ int solver_matpower()
 		
 		temp_obj = gl_find_next(bus_list,temp_obj);
 
+		
+		//Matpower does not overwrite the generator power in bus class
 		setObjectValue_Double(temp_obj,"PD",obus[i+2*nbus]);
 		setObjectValue_Double(temp_obj,"QD",obus[i+3*nbus]);
 		setObjectValue_Double(temp_obj,"GS",obus[i+4*nbus]);
@@ -453,7 +458,7 @@ int solver_matpower()
 	}
 */	
 	// Update class gen
-	double *ogen = getArray(plhs[1]);
+	
 	iter_gen = vec_gen.begin();
 	temp_obj = NULL;
 	for (unsigned int i = 0; i < ngen; i++)
@@ -495,6 +500,8 @@ int solver_matpower()
 		setObjectValue_Double(temp_obj,"MU_QMAX",ogen[i+23*ngen]);
 		setObjectValue_Double(temp_obj,"MU_QMIN",ogen[i+24*ngen]);
 
+
+
 		// Calculate Price
 		double price = 0;
 		unsigned int NCOST = (unsigned int)rgencost[i+3*ngen];
@@ -512,8 +519,8 @@ int solver_matpower()
 	}
 
 	// Update class branch	
-	//printf("Get branch\n");
-	double *obranch = getArray(plhs[2]);
+	
+	
 	//iter_branch = vec_branch.begin();
 	temp_obj = NULL;
 	for (unsigned int i = 0; i<nbranch; i++)
