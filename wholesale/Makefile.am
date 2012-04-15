@@ -15,7 +15,7 @@ wholesale_la_CPPFLAGS = -I/vol1/matlab/extern/include
 
 # TODO set the version info as desired
 #wholesale_la_LDFLAGS = -L/mnt/yizheng/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/mnt/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
-wholesale_la_LDFLAGS = -L/mnt/yizheng/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/vol1/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
+wholesale_la_LDFLAGS = -L/mnt/kanderson/gridspice.simulator/wholesale -lopf -lmwmclmcrrt -lmwmclmcrrt -L/vol1/matlab/runtime/glnx86 -module -no-undefined -avoid-version -version-info 0:0:0
 
 uninstall-hook:
 	-rmdir $(DESTDIR)$(pkglibdir)

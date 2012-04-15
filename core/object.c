@@ -879,6 +879,7 @@ int object_set_value_by_name(OBJECT *obj, /**< the object to change */
 		return 0;
 	}
 	addr = (void*)((char *)(obj+1)+(int64)(prop->addr)); /* warning: cast from pointer to integer of different size */
+	//printf("class: %s name: %s value: %s\n",obj->oclass->name,prop->name, value);
 	return object_set_value_by_addr(obj,addr,value,prop);
 }
 
@@ -1313,7 +1314,16 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
  **/
 int object_init(OBJECT *obj){ /**< the object to initialize */
 	if(obj->oclass->init != NULL){
-		return (int)(*(obj->oclass->init))(obj, obj->parent);
+	  //printf("<%s>\n",obj->oclass->name);
+          int result = (int)(*(obj->oclass->init))(obj, obj->parent);
+	        
+	  //printf("<\\%s>\n",obj->oclass->name);
+	  //char outbuffer [50000];
+	  //int size = 50000;
+	  
+	  //object_dump(outbuffer, 50000, obj);
+	  //printf("object dump: %s \n",outbuffer);
+	  return result;
 	}
 	return 1;
 }
@@ -1345,6 +1355,8 @@ int object_isa(OBJECT *obj, /**< the object to test */
 		return 0;
 	}
 }
+
+
 
 /** Dump an object to a buffer
 	@return the number of characters written to the buffer
@@ -1389,6 +1401,9 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 	for(prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next){
 		char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 		if(value != NULL){
+		  if( strlen(value)==0 ){
+		    continue;
+		  }
 			count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 			if(count > size){
 				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
@@ -1406,7 +1421,101 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 		for(prop = pclass->pmap; prop != NULL && prop->oclass == pclass; prop = prop->next){
 			char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 			if(value != NULL){
-				count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+			 if( strlen(value)==0 ){
+			   continue;
+			 }
+			  count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+				if(count > size){
+					throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
+					/* TROUBLESHOOT
+						The buffer used to dump objects has overflowed.  This can only be fixed by increasing the size of the buffer and recompiling.
+						If you do not have access to source code, please report this problem so that it can be corrected in the next build.
+					 */
+				}
+			}
+		}
+	}
+
+	count += sprintf(buffer+count,"}\n");
+	if(count < size && count < sizeof(buffer)){
+		strncpy(outbuffer, buffer, count+1);
+		return count;
+	} else {
+		output_error("buffer too small in object_dump()!");
+		return 0;
+	}
+	
+}
+
+
+
+/** Dump an object to a buffer
+	@return the number of characters written to the buffer
+ **/
+int object_dump_xml(char *outbuffer, /**< the destination buffer */
+				int size, /**< the size of the buffer */
+				OBJECT *obj){ /**< the object to dump */
+	char buffer[65536];
+	char tmp[256];
+	char tmp2[1024];
+	int count = 0;
+	PROPERTY *prop = NULL;
+	CLASS *pclass = NULL;
+	if(size>sizeof(buffer)){
+		size = sizeof(buffer);
+	}
+	
+	count += sprintf(buffer + count, "object %s:%d {\n", obj->oclass->name, obj->id);
+
+	/* dump internal properties */
+	if(obj->parent != NULL){
+		count += sprintf(buffer + count, "\t<parent>%s:%d (%s)</parent>\n", obj->parent->oclass->name, obj->parent->id, obj->parent->name != NULL ? obj->parent->name : "");
+	} else {
+		count += sprintf(buffer + count, "\troot object\n");
+	}
+	if(obj->name != NULL){
+		count += sprintf(buffer + count, "\tname %s\n", obj->name);
+	}
+
+	count += sprintf(buffer + count, "\trank = %d;\n", obj->rank);
+	count += sprintf(buffer + count, "\tclock = %s (%" FMT_INT64 "d);\n", convert_from_timestamp(obj->clock, tmp, sizeof(tmp)) > 0 ? tmp : "(invalid)", obj->clock);
+
+	if(!isnan(obj->latitude)){
+		count += sprintf(buffer + count, "\tlatitude = %s;\n", convert_from_latitude(obj->latitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
+	}
+	if(!isnan(obj->longitude)){
+		count += sprintf(buffer + count, "\tlongitude = %s;\n", convert_from_longitude(obj->longitude, tmp, sizeof(tmp)) ? tmp : "(invalid)");
+	}
+	count += sprintf(buffer + count, "\tflags = %s;\n", convert_from_set(tmp, sizeof(tmp), &(obj->flags), object_flag_property()) ? tmp : "(invalid)");
+
+	/* dump properties */
+	for(prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next){
+		char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
+		if(value != NULL){
+		  if( strlen(value)==0 ){
+		    continue;
+		  }
+		  count += sprintf(buffer + count, "\t<%s>%s%s</%s>;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value, prop->name);
+			if(count > size){
+				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
+				/* TROUBLESHOOT
+					The buffer used to dump objects has overflowed.  This can only be fixed by increasing the size of the buffer and recompiling.
+					If you do not have access to source code, please report this problem so that it can be corrected in the next build.
+				 */
+			}
+		}
+	}
+
+	/* dump inherited properties */
+	pclass = obj->oclass;
+	while((pclass = pclass->parent) != NULL){
+		for(prop = pclass->pmap; prop != NULL && prop->oclass == pclass; prop = prop->next){
+			char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
+			if(value != NULL){
+			 if( strlen(value)==0 ){
+			   continue;
+			 }
+			  count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 				if(count > size){
 					throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 					/* TROUBLESHOOT

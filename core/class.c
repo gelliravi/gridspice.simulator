@@ -1309,6 +1309,7 @@ static int buffer_write(char *buffer, size_t len, char *format, ...){
 	}
 }
 
+
 /** Generate the XSD snippet of a class
 	@return the number of characters written to the buffer
  **/
@@ -1387,6 +1388,117 @@ int class_get_xsd(CLASS *oclass, /**< a pointer to the class to convert to XSD *
 	n += buffer_write(buffer+n, len-n, "\t\t</xs:all>\n");
 	n += buffer_write(buffer+n, len-n, "\t</xs:complexType>\n");
 	n += buffer_write(buffer+n, len-n, "</xs:element>\n");
+	buffer[n] = 0;
+	if(check == 0){
+		printf("class_get_xsd() overflowed.\n");
+		buffer[0] = 0;
+		return 0;
+	}
+	return (int)n;
+}
+
+/** Generate the XSD snippet of a class
+	@return the number of characters written to the buffer
+ **/
+int class_get_java(CLASS *oclass, /**< a pointer to the class to convert to XSD */
+				  char *buffer, /**< a pointer to the first character in the buffer */
+				  size_t len) /**< the size of the buffer */
+{
+	size_t n=0;
+	PROPERTY *prop;
+	int i;
+	extern KEYWORD oflags[];
+	struct {
+		char *name;
+		char *type;
+		KEYWORD *keys;
+	} attribute[]={
+		{"id", "int64",NULL},
+		{"parent", "object",NULL},
+		{"rank", "int32",NULL},
+		{"clock", "datetime",NULL},
+		{"valid_to", "datetime",NULL},
+		{"latitude", "latitude",NULL},
+		{"longitude", "longitude",NULL},
+		{"in_svc", "datetime",NULL},
+		{"out_svc", "datetime",NULL},
+		{"flags", "set",oflags},
+	};
+	check = 1;
+	n += buffer_write(buffer+n, len-n, "public static void set_%s_attributes( ElementBase myElement ) throws Exception{", oclass->name);
+	//n += buffer_write(buffer+n, len-n, "<xs:element name=\"%s\">\n", oclass->name);
+	//n += buffer_write(buffer+n, len-n, "\t<xs:complexType>\n");
+	//n += buffer_write(buffer+n, len-n, "\t\t<xs:all>\n");
+	/*for (i=0; i < sizeof(attribute) / sizeof(attribute[0]); i++)
+	{
+		n += buffer_write(buffer+n, len-n, "\t\t\t<xs:element name=\"%s\">\n", attribute[i].name);
+		n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:simpleType>\n");
+		if (attribute[i].keys==NULL){
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t<xs:restriction base=\"xs:%s\"/>\n", attribute[i].type);
+		}
+		else
+		{
+			KEYWORD *key;
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t<xs:restriction base=\"xs:string\">\n");
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t\t<xs:pattern value=\"");
+			for (key=attribute[i].keys; key!=NULL; key=key->next){
+				n += buffer_write(buffer+n, len-n, "%s%s", key==attribute[i].keys?"":"|", key->name);
+			}
+			n += buffer_write(buffer+n, len-n, "\"/>\n");
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t</xs:restriction>\n");
+		}
+		n += buffer_write(buffer+n, len-n, "\t\t\t\t</xs:simpleType>\n");
+		n += buffer_write(buffer+n, len-n, "\t\t\t</xs:element>\n");
+	}*/
+	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
+	{
+	  if( prop->access != PA_PUBLIC )
+	    continue;
+		char *proptype=class_get_property_typename(prop->ptype);
+		n += buffer_write(buffer+n, len-n, "\tif (myElement.get(\"%s\")!=null){\n", prop->name );
+		n += buffer_write(buffer+n, len-n, "\t\tthrow new Exception(\"CANNOT CREATE ELEMENT, DUPLICATE ATTRIBUTE\");\n\t}\n");
+
+		if (prop->unit!=NULL){
+		        //n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:element name=\"%s\" type=\"xs:string\"/>\n", prop->name);
+		  n += buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\",new %sAttributeWithUnits(\"%s\",\"%s\",\"%s\"));\n", 
+				    prop->name, proptype==NULL?"string2":proptype, prop->name, prop->unit, prop->description, prop->access==PA_PUBLIC?"true":"false");
+		} else {
+		  if (prop->keywords == NULL) {
+		    n += buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\", new %sAttribute(\"%s\",\"%s\"));\n",prop->name, 
+				      proptype==NULL?"String":proptype, prop->name, prop->description, prop->access==PA_PUBLIC?"true":"false");
+		  } else {
+		    n+= buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\", new %sAttribute(\"%s\",Arrays.asList( ", prop->name,
+				     proptype==NULL?"String":proptype, prop->name);
+		    KEYWORD *key;
+		  
+		    for (key=prop->keywords; key!=NULL; key=key->next){
+		      n += buffer_write(buffer+n, len-n, "%s\"%s\"", key==prop->keywords?"":",", key->name);
+		    }
+		    n+= buffer_write(buffer+n, len-n, "), \"%s\"));\n", prop->description, prop->access==PA_PUBLIC?"true":"false");
+		  }
+		}
+	       
+		  /*n += buffer_write(buffer+n, len-n, "\t\t\t<xs:element name=\"%s\">\n", prop->name);
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:simpleType>\n");
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t<xs:restriction base=\"xs:%s\">\n", proptype==NULL?"string":proptype);
+			if (prop->keywords!=NULL)
+			{
+				KEYWORD *key;
+				n += buffer_write(buffer+n, len-n, "\t\t\t\t\t<xs:pattern value=\"");
+				for (key=prop->keywords; key!=NULL; key=key->next){
+					n += buffer_write(buffer+n, len-n, "%s%s", key==prop->keywords?"":"|", key->name);
+				}
+				n += buffer_write(buffer+n, len-n, "\"/>\n");
+			}
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t</xs:restriction>\n");
+			n += buffer_write(buffer+n, len-n, "\t\t\t\t</xs:simpleType>\n");
+			n += buffer_write(buffer+n, len-n, "\t\t\t</xs:element>\n");*/
+		
+	}
+	n += buffer_write(buffer+n, len-n,"}");
+        //n += buffer_write(buffer+n, len-n, "\t\t</xs:all>\n");
+        //n += buffer_write(buffer+n, len-n, "\t</xs:complexType>\n");
+        //n += buffer_write(buffer+n, len-n, "</xs:element>\n");
 	buffer[n] = 0;
 	if(check == 0){
 		printf("class_get_xsd() overflowed.\n");

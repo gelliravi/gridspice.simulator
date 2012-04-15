@@ -4,7 +4,7 @@
 	@addtogroup load_glm GLM file loader
 	@ingroup core
 
-	@note The function of GLM files has evolved from Version 1.  Now GLM files
+	@note Thefunction of GLM files has evolved from Version 1.  Now GLM files
 	are used to synthesize models, whereas XML files are used to store models.
 
 	@bug This loader uses a crude parser.  Someday it will be replaced by a more robust
@@ -3662,6 +3662,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			char objname[64];
 			if (subobj->name) strcpy(objname,subobj->name); else sprintf(objname,"%s:%d", subobj->oclass->name,subobj->id);
 			if (object_set_value_by_name(obj,propname,objname))
+			  
 				ACCEPT
 			else
 			{
@@ -3913,6 +3914,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 	else { syntax_error(HERE); REJECT; }
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj)) ACCEPT;
+	  //  printf("property name: %s, property value:%s\n",propname, propval);
 	DONE;
 }
 
@@ -4107,6 +4109,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		}
 		else if TERM(object_properties(HERE,oclass,obj))
 		{
+		  //printf("oclass: %s\n",oclass->name);
 			ACCEPT;
 		} 
 		else REJECT;
@@ -4119,8 +4122,16 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		output_error_raw("%s(%d): expected object block closing }", filename, linenum);
 		REJECT;
 	}
+	FILE *xmlDump = fopen("xmlDump.xml", "w+");
+	char buf[2000];
+	int count = object_dump_xml(buf,2000,obj);
+	printf("%s", buf);
+	fwrite(buf, 1, count, xmlDump);
+
+
 	if (subobj) *subobj = obj;
 	DONE;
+
 }
 
 static int import(PARSER)
