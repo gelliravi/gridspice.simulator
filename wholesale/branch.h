@@ -9,6 +9,9 @@
 #ifndef _branch_H
 #define _branch_H
 
+
+#define MAXSIZE 10000
+
 #include <stdarg.h>
 #include "gridlabd.h"
 
@@ -22,6 +25,8 @@ public:
 	// Variables
 	int	F_BUS;
 	int	T_BUS;
+	char	F_BUS_NAME[MAXSIZE];
+	char	T_BUS_NAME[MAXSIZE];	
 	double	BR_R;
 	double 	BR_X;
 	double 	BR_B;

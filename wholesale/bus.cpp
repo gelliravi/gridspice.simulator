@@ -19,10 +19,15 @@
 //#include "solver_matpower.h"
 #include "bus.h"
 #include "gen.h"
-#include "line.h"
+#include "branch.h"
 #include "gen_cost.h"
 #include "wholesale.h"
 #include "lock.h"
+#include <map>
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 #define TIME_INTERVAL 900
 
@@ -143,25 +148,7 @@ int bus::create(void)
 	bus *tempbus;
 
 	tempbus = OBJECTDATA(obj,bus);
-/*	
-	tempbus->feeder1_PD = tempbus->feeder2_PD = tempbus->feeder3_PD = tempbus->feeder4_PD = tempbus->feeder5_PD = 0;
-		tempbus->feeder6_PD = tempbus->feeder7_PD = tempbus->feeder8_PD = tempbus->feeder9_PD = tempbus->feeder10_PD = 0;
 
-		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
-		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
-*/
-/*
-	tempbus->feeder0 = complex();
-	tempbus->feeder1 = complex();
-	tempbus->feeder2 = complex();
-	tempbus->feeder3 = complex();
-	tempbus->feeder4 = complex();
-	tempbus->feeder5 = complex();
-	tempbus->feeder6 = complex();
-	tempbus->feeder7 = complex();
-	tempbus->feeder8 = complex();
-	tempbus->feeder9 = complex();
-*/
 	setObjectValue_Double2Complex(obj,"feeder0",0,0);
 	setObjectValue_Double2Complex(obj,"feeder1",0,0);
 	setObjectValue_Double2Complex(obj,"feeder2",0,0);
@@ -183,6 +170,58 @@ int bus::create(void)
 int bus::init(OBJECT *parent)
 {
 	/* TODO: set the context-dependent initial value of properties */
+	OBJECT *obj_this = OBJECTHDR(this);
+	bus *bus_this;
+	bus_this = OBJECTDATA(obj_this,bus);
+
+	if (bus_this->BUS_TYPE == 3)
+	{
+		// Create map between bus name and bus id		
+		multimap<string,unsigned int>bus_map;
+		multimap<string,unsigned int>::iterator it;
+		unsigned int bus_index = 0;
+		OBJECT *obj_map = NULL;
+		bus *bus_obj_map;
+		FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
+		while (gl_find_next(bus_list,obj_map) != NULL)
+		{
+			bus_index++;
+			obj_map = gl_find_next(bus_list,obj_map);
+			bus_obj_map = OBJECTDATA(obj_map,bus);
+			bus_map.insert(pair<string,unsigned int>(obj_map->name,bus_index));
+			setObjectValue_Double(obj_map,"BUS_I",bus_index);
+		}
+
+		//Update bus index in branch
+		OBJECT *obj_branch = NULL;
+		branch *branch_obj;
+		FINDLIST *branch_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"branch",FT_END);
+		multimap<string,unsigned int>::iterator find_res;
+		while (gl_find_next(branch_list,obj_branch) != NULL)
+		{
+			obj_branch = gl_find_next(branch_list,obj_branch);
+			branch_obj = OBJECTDATA(obj_branch,branch);
+			
+			string F_bus_name(branch_obj->F_BUS_NAME);
+			find_res = bus_map.find(F_bus_name);
+			setObjectValue_Double(obj_branch,"F_BUS",(*find_res).second);
+
+			string T_bus_name(branch_obj->T_BUS_NAME);
+			find_res = bus_map.find(T_bus_name);
+			setObjectValue_Double(obj_branch,"T_BUS",(*find_res).second);
+		}
+		/*
+		obj_branch = NULL;
+		while (gl_find_next(branch_list,obj_branch) != NULL)
+		{
+			obj_branch = gl_find_next(branch_list,obj_branch);
+			branch_obj = OBJECTDATA(obj_branch,branch);
+			cout<<"From Bus "<<branch_obj->F_BUS<<"To Bus "<<branch_obj->T_BUS<<endl;
+		}
+		*/
+	}
+
+
 	
 
 	return 1; /* return 1 on success, 0 on failure */
@@ -202,18 +241,7 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 	{
 		LOCK_OBJECT(obj);		
 		double sum_PD, sum_QD;
-/*
-		sum_PD = tempbus->feeder1_PD + tempbus->feeder2_PD + tempbus->feeder3_PD + tempbus->feeder4_PD + tempbus->feeder5_PD;
-		sum_PD += tempbus->feeder6_PD + tempbus->feeder7_PD + tempbus->feeder8_PD + tempbus->feeder9_PD + tempbus->feeder10_PD;
-		sum_QD = tempbus->feeder1_QD + tempbus->feeder2_QD + tempbus->feeder3_QD + tempbus->feeder4_QD + tempbus->feeder5_QD;
-		sum_QD += tempbus->feeder6_QD + tempbus->feeder7_QD + tempbus->feeder8_QD + tempbus->feeder9_QD + tempbus->feeder10_QD;
 
-		tempbus->feeder1_PD = tempbus->feeder2_PD = tempbus->feeder3_PD = tempbus->feeder4_PD = tempbus->feeder5_PD = 0;
-		tempbus->feeder6_PD = tempbus->feeder7_PD = tempbus->feeder8_PD = tempbus->feeder9_PD = tempbus->feeder10_PD = 0;
-
-		tempbus->feeder1_QD = tempbus->feeder2_QD = tempbus->feeder3_QD = tempbus->feeder4_QD = tempbus->feeder5_QD = 0;
-		tempbus->feeder6_QD = tempbus->feeder7_QD = tempbus->feeder8_QD = tempbus->feeder9_QD = tempbus->feeder10_QD = 0;
-*/
 
 		sum_PD = tempbus->feeder0.Re() + tempbus->feeder1.Re() + tempbus->feeder2.Re() + tempbus->feeder3.Re() + tempbus->feeder4.Re() + tempbus->feeder5.Re() + tempbus->feeder6.Re() + tempbus->feeder7.Re() + tempbus->feeder8.Re() + tempbus->feeder9.Re();
 
