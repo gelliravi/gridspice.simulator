@@ -60,9 +60,14 @@ bus::bus(MODULE *module)
                 // attributes of bus class. the names follow the MATPOWER Bus Data structure
 		if (gl_publish_variable(oclass,
                         PT_int16, "BUS_I", PADDR(BUS_I),        // bus number
-                        PT_int16, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
+                        //PT_int16, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
                                                                 // 1 = PQ, 2= PV
                                                                 // 3 = ref, 4 = isolated (feeder)
+			PT_enumeration, "BUS_TYPE", PADDR(BUS_TYPE),
+				PT_KEYWORD, "PQ", 1,
+				PT_KEYWORD, "PV", 2,
+				PT_KEYWORD, "REF", 3,
+				PT_KEYWORD, "ISOLATE", 4,
                         PT_double, "PD[MW]", PADDR(PD),         // real power demand
                         PT_double, "QD[MVAr]", PADDR(QD),       // reactive power demand
                         PT_double, "GS[MW]", PADDR(GS),         // shunt conductance
@@ -167,6 +172,10 @@ int bus::create(void)
 	setObjectValue_Double2Complex(obj,"feeder7",0,0);
 	setObjectValue_Double2Complex(obj,"feeder8",0,0);
 	setObjectValue_Double2Complex(obj,"feeder9",0,0);
+
+
+	
+
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -174,6 +183,7 @@ int bus::create(void)
 int bus::init(OBJECT *parent)
 {
 	/* TODO: set the context-dependent initial value of properties */
+	
 
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -317,6 +327,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 		{
 			GL_THROW("OPF Failed at bus");
 		}
+		
 	
 		
 	}
