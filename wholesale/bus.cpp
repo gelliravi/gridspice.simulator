@@ -210,6 +210,22 @@ int bus::init(OBJECT *parent)
 			find_res = bus_map.find(T_bus_name);
 			setObjectValue_Double(obj_branch,"T_BUS",(*find_res).second);
 		}
+
+		//Update bus index in gen
+		OBJECT *obj_gen = NULL;
+		gen *gen_obj;
+		FINDLIST *gen_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen",FT_END);
+		bus *gen_parent_bus;
+		while (gl_find_next(gen_list,obj_gen) != NULL)
+		{
+			obj_gen = gl_find_next(gen_list,obj_gen);
+			gen_obj = OBJECTDATA(obj_gen,gen);
+				
+			OBJECT *gen_parent = object_parent(obj_gen);
+			gen_parent_bus = OBJECTDATA(gen_parent,bus);
+			
+			setObjectValue_Double(obj_gen,"GEN_BUS",gen_parent_bus->BUS_I);
+		}
 		/*
 		obj_branch = NULL;
 		while (gl_find_next(branch_list,obj_branch) != NULL)
