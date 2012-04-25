@@ -146,14 +146,18 @@ int direct_data::init(OBJECT *parent)
         }
 
     }
+
+    for (int i = 0; i < S_NUM_DAILY_INTERVALS; i++) {
+        forecasted_load[i] = 0;
+    }
     return 1;
 }
 
 
 void direct_data::update_day_ahead_forecast(TIMESTAMP t)
 {
-    double temp[96];
-    for (int i = 0; i < 96; i++) {
+    double temp[S_NUM_DAILY_INTERVALS];
+    for (int i = 0; i < S_NUM_DAILY_INTERVALS; i++) {
         TIMESTAMP curr = t + (i * S_INTERVAL_IN_SECONDS);
         bool is_dr = false;
         if (strcmp(dr_flags, "") != 0) {
@@ -161,10 +165,9 @@ void direct_data::update_day_ahead_forecast(TIMESTAMP t)
         }
         temp[i] = f->predict_load(curr, is_dr);
         forecasted_load[i] = temp[i];
-        // forecasted_load[i] = f->predict_load(curr, is_dr);
     }
     std::cout << std::endl << "DAY AHEAD FORECAST" << std::endl;
-    for (int i = 0; i < 96; i++) {
+    for (int i = 0; i < S_NUM_DAILY_INTERVALS; i++) {
         std::cout << "Interval " << i << ": " << temp[i] << std::endl;
     }
 }
@@ -189,14 +192,8 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
     } else if (t1 <= latest_time) {
 
         // first check if we need to update forecast for next day
-        DATETIME dt0, dt1;
-        gl_localtime(t0, &dt0);
+        DATETIME dt1;
         gl_localtime(t1, &dt1);
-        if (dt0.day != dt1.day) { // we're transitioning to a new day in the system
-            f->update_forecast(t1);
-            TIMESTAMP day_start = round_to_day_start(t1);
-            update_day_ahead_forecast(day_start);
-        }
 
         // increment time by INTERVAL_SIZE (in minutes) * 60 to get seconds
         to_return = t1 + S_INTERVAL_IN_SECONDS;
@@ -226,6 +223,17 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
 
             UNLOCK_OBJECT(obj->parent);
         }
+
+        // first check if we need to update forecast for next day
+        DATETIME next;
+        gl_localtime(to_return, &next);
+        if (dt1.day != next.day) { // we're transitioning to a new day in the system
+            f->update_forecast(to_return);
+            TIMESTAMP day_start = round_to_day_start(to_return);
+            update_day_ahead_forecast(day_start);
+        }
+
+
     }
     return to_return;
 }
