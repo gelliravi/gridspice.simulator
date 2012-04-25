@@ -80,12 +80,6 @@ bool db_access::get_latest_date(DATETIME &dt)
 double db_access::get_power_usage(const DATETIME &dt) 
 {
     string date_field = dt_to_string(dt);
-    /*
-    stringstream date_builder;
-    date_builder << dt.year << "-" << dt.month << "-" << dt.day;
-    string date_field = date_builder.str();
-    */
-
     int interval_number = (dt.hour * 4) + (dt.minute / 15) + 1; // out of 96
     stringstream interval_builder;
     interval_builder << "QKW" << interval_number;

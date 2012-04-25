@@ -164,7 +164,10 @@ void direct_data::update_day_ahead_forecast(TIMESTAMP t)
             is_dr = dr_flags[i] == '1';
         }
         temp[i] = f->predict_load(curr, is_dr);
-        forecasted_load[i] = temp[i];
+        if (temp[i] == -1) {
+            gl_warning("missing day in timeframe, forecast timeframe, forecast failed");
+            forecasted_load[i] = temp[i];
+        }
     }
     std::cout << std::endl << "DAY AHEAD FORECAST" << std::endl;
     for (int i = 0; i < S_NUM_DAILY_INTERVALS; i++) {
@@ -188,7 +191,8 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
     TIMESTAMP to_return = TS_NEVER;
 
     if (t1 < earliest_time) {
-        to_return = earliest_time;
+        gl_error("start time of simulation is before start of dataset or "
+            "starts during training period");
     } else if (t1 <= latest_time) {
 
         // first check if we need to update forecast for next day
@@ -232,7 +236,6 @@ TIMESTAMP direct_data::sync(TIMESTAMP t0, TIMESTAMP t1)
             TIMESTAMP day_start = round_to_day_start(to_return);
             update_day_ahead_forecast(day_start);
         }
-
 
     }
     return to_return;

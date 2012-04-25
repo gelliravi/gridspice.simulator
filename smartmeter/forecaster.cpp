@@ -43,6 +43,9 @@ bool forecaster::update_forecast(TIMESTAMP bound)
 double forecaster::predict_load(TIMESTAMP t, bool is_dr)
 {
     datapoint *d = calculate_datapoint(t, is_dr);        
+    if (d == NULL) {
+        return -1;
+    }
     svm_node *n = datapoint_to_node(d);
 
     // figure out interval
@@ -91,13 +94,24 @@ forecaster::datapoint *forecaster::calculate_datapoint(TIMESTAMP t, bool is_dr)
     d->humidity = db->get_humidity(dt);
     if (d->humidity != -1) {
         d->humidity = pow(d->humidity - 50, 2);
+    } else {
+        delete d;
+        return NULL;
     }
+
     d->temp = db->get_temp(dt);
     if (d->temp != -1) {
         d->temp = pow(d->temp - 68, 2);
+    } else { 
+        delete d;
+        return NULL;
     }
     d->is_dr = is_dr;
     d->load = db->get_power_usage(dt);
+    if (d->load == -1) {
+        delete d;
+        return NULL;
+    }
     d->dt = dt;
 
     for (int i = 0; i < NUM_LOAD_HISTORY_DAYS; i++) {
