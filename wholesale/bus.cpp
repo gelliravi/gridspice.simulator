@@ -202,11 +202,11 @@ int bus::init(OBJECT *parent)
 			obj_branch = gl_find_next(branch_list,obj_branch);
 			branch_obj = OBJECTDATA(obj_branch,branch);
 			
-			string F_bus_name(branch_obj->F_BUS_NAME);
+			string F_bus_name(branch_obj->from);
 			find_res = bus_map.find(F_bus_name);
 			setObjectValue_Double(obj_branch,"F_BUS",(*find_res).second);
 
-			string T_bus_name(branch_obj->T_BUS_NAME);
+			string T_bus_name(branch_obj->to);
 			find_res = bus_map.find(T_bus_name);
 			setObjectValue_Double(obj_branch,"T_BUS",(*find_res).second);
 		}

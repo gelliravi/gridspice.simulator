@@ -25,8 +25,8 @@ public:
 	// Variables
 	int	F_BUS;
 	int	T_BUS;
-	char	F_BUS_NAME[MAXSIZE];
-	char	T_BUS_NAME[MAXSIZE];	
+	char	from[MAXSIZE];
+	char	to[MAXSIZE];	
 	double	BR_R;
 	double 	BR_X;
 	double 	BR_B;
