@@ -53,8 +53,8 @@ branch::branch(MODULE *module)
 		if (gl_publish_variable(oclass,
               PT_int16, "F_BUS", PADDR(F_BUS),          // "from" bus number
               PT_int16, "T_BUS", PADDR(T_BUS),          // "to" bus number
-	      PT_char1024, "F_BUS_NAME", PADDR(F_BUS_NAME), // "from" bus name
-	      PT_char1024, "T_BUS_NAME", PADDR(T_BUS_NAME), // "to" bus name
+	      PT_char1024, "from", PADDR(from), // "from" bus name
+	      PT_char1024, "to", PADDR(to), // "to" bus name
               PT_double, "BR_R", PADDR(BR_R),           // resistance (p.u.)
               PT_double, "BR_X", PADDR(BR_X),           // reactance (p.u.)
               PT_double, "BR_B", PADDR(BR_B),           // total line charging susceptance (p.u.)
