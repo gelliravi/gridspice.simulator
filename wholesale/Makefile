@@ -61,9 +61,8 @@ LTLIBRARIES = $(pkglib_LTLIBRARIES)
 wholesale_la_LIBADD =
 am_wholesale_la_OBJECTS = wholesale_la-init.lo wholesale_la-main.lo \
 	wholesale_la-wholesale.lo wholesale_la-bus.lo \
-	wholesale_la-gen.lo wholesale_la-gen_cost.lo \
-	wholesale_la-areas.lo wholesale_la-baseMVA.lo \
-	wholesale_la-branch.lo
+	wholesale_la-gen.lo wholesale_la-areas.lo \
+	wholesale_la-baseMVA.lo wholesale_la-branch.lo
 wholesale_la_OBJECTS = $(am_wholesale_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/core
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -272,7 +271,6 @@ wholesale_la_SOURCES = init.cpp main.cpp wholesale.h \
 	wholesale.cpp include/mclmcrrt.h include/mclcppclass.h\
 	bus.cpp bus.h \
 	gen.cpp gen.h \
-	gen_cost.cpp gen_cost.h \
 	areas.cpp areas.h \
 	baseMVA.cpp baseMVA.h \
 	branch.cpp branch.h \
@@ -360,7 +358,6 @@ include ./$(DEPDIR)/wholesale_la-baseMVA.Plo
 include ./$(DEPDIR)/wholesale_la-branch.Plo
 include ./$(DEPDIR)/wholesale_la-bus.Plo
 include ./$(DEPDIR)/wholesale_la-gen.Plo
-include ./$(DEPDIR)/wholesale_la-gen_cost.Plo
 include ./$(DEPDIR)/wholesale_la-init.Plo
 include ./$(DEPDIR)/wholesale_la-main.Plo
 include ./$(DEPDIR)/wholesale_la-wholesale.Plo
@@ -420,13 +417,6 @@ wholesale_la-gen.lo: gen.cpp
 #	source='gen.cpp' object='wholesale_la-gen.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-gen.lo `test -f 'gen.cpp' || echo '$(srcdir)/'`gen.cpp
-
-wholesale_la-gen_cost.lo: gen_cost.cpp
-	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-gen_cost.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-gen_cost.Tpo" -c -o wholesale_la-gen_cost.lo `test -f 'gen_cost.cpp' || echo '$(srcdir)/'`gen_cost.cpp; \
-	then mv -f "$(DEPDIR)/wholesale_la-gen_cost.Tpo" "$(DEPDIR)/wholesale_la-gen_cost.Plo"; else rm -f "$(DEPDIR)/wholesale_la-gen_cost.Tpo"; exit 1; fi
-#	source='gen_cost.cpp' object='wholesale_la-gen_cost.lo' libtool=yes \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o wholesale_la-gen_cost.lo `test -f 'gen_cost.cpp' || echo '$(srcdir)/'`gen_cost.cpp
 
 wholesale_la-areas.lo: areas.cpp
 	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(wholesale_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT wholesale_la-areas.lo -MD -MP -MF "$(DEPDIR)/wholesale_la-areas.Tpo" -c -o wholesale_la-areas.lo `test -f 'areas.cpp' || echo '$(srcdir)/'`areas.cpp; \

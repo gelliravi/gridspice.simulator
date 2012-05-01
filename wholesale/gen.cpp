@@ -54,43 +54,47 @@ gen::gen(MODULE *module)
 
 		if (gl_publish_variable(oclass,
 			/* TODO: add your published properties here */
-                        PT_int16, "GEN_BUS", PADDR(GEN_BUS),    // bus number
-                        PT_double, "PG[MW]", PADDR(PG),         // real power output
-                        PT_double, "QG[MVAr]", PADDR(QG),       // reactive power output
-                        PT_double, "QMAX[MVAr]", PADDR(QMAX),   // maximum reactive power output
-                        PT_double, "QMIN[MVAr]", PADDR(QMIN),   // minimum reactive power output
-                        PT_double, "VG", PADDR(VG),             // voltage magnitude setpoint
-                        PT_double, "MBASE", PADDR(MBASE),       // total MVA base of machine, defaults to baseMVA
-                        PT_double, "GEN_STATUS", PADDR(GEN_STATUS),//machine status
-                                                                // >0 = machine in-service
-                                                                // <=0 = machine out-of-service
-                        PT_double, "PMAX[MW]", PADDR(PMAX),      // maximum real power output
-                        PT_double, "PMIN[MW]", PADDR(PMIN),      // minimum real power output
-                        PT_double, "PC1[MW]", PADDR(PC1),       // lower real power output of PQ capability curve
-                        PT_double, "PC2[MW]", PADDR(PC2),       // upper real power output of PQ capability curve
-                        PT_double, "QC1MIN[MVAr]", PADDR(QC1MIN),       // minimum reactive power output at PC1
-                        PT_double, "QC1MAX[MVAr]", PADDR(QC1MAX),       // maximum reactive power output at PC1
-			PT_double, "QC2MIN[MVAr]", PADDR(QC2MIN),       // minimum reactive power output at PC2
-                        PT_double, "QC2MAX[MVAr]", PADDR(QC2MAX),       // maximum reactive power output at PC2
-                        PT_double, "RAMP_AGC", PADDR(RAMP_AGC),         // ramp rate for load following/AGC
-                        PT_double, "RAMP_10[MW]", PADDR(RAMP_10),           // ramp rate for 10 min reserves
-                        PT_double, "RAMP_30[MW]", PADDR(RAMP_30),           // ramp rate for 30 min reserves
-                        PT_double, "RAMP_Q[MW]", PADDR(RAMP_Q),           // ramp rate for reactive power
-                        PT_double, "APF", PADDR(APF),                   // area participation factor
-			PT_double, "MU_PMAX", PADDR(MU_PMAX),
+                        PT_int16, "GEN_BUS", PADDR(GEN_BUS), PT_DESCRIPTION, "bus number",
+                        PT_double, "PG[MW]", PADDR(PG), PT_DESCRIPTION, "real power output",
+                        PT_double, "QG[MVAr]", PADDR(QG), PT_DESCRIPTION, "reactive power output",
+                        PT_double, "QMAX[MVAr]", PADDR(QMAX), PT_DESCRIPTION, "maximum reactive power output",
+                        PT_double, "QMIN[MVAr]", PADDR(QMIN), PT_DESCRIPTION, "minimum reactive power output",
+                        PT_double, "VG", PADDR(VG), PT_DESCRIPTION, "voltage magnitude setpoint",
+                        PT_double, "MBASE", PADDR(MBASE), PT_DESCRIPTION, "total MVA base of machine, defaults to baseMVA",
+                        PT_enumeration, "GEN_STATUS", PADDR(GEN_STATUS), PT_DESCRIPTION, "machine status, >0 = machine in-service, <=0 = machine out-of-service",
+				PT_KEYWORD, "In", 1,
+				PT_KEYWORD, "Out", 0,
+                        PT_double, "PMAX[MW]", PADDR(PMAX), PT_DESCRIPTION, "maximum real power output",
+                        PT_double, "PMIN[MW]", PADDR(PMIN), PT_DESCRIPTION, "minimum real power output",
+                        PT_double, "PC1[MW]", PADDR(PC1), PT_DESCRIPTION, "lower real power output of PQ capability curve",
+                        PT_double, "PC2[MW]", PADDR(PC2), PT_DESCRIPTION, "upper real power output of PQ capability curve",
+                        PT_double, "QC1MIN[MVAr]", PADDR(QC1MIN), PT_DESCRIPTION, "minimum reactive power output at PC1",
+                        PT_double, "QC1MAX[MVAr]", PADDR(QC1MAX), PT_DESCRIPTION, "maximum reactive power output at PC1",
+			PT_double, "QC2MIN[MVAr]", PADDR(QC2MIN), PT_DESCRIPTION, "minimum reactive power output at PC2",
+                        PT_double, "QC2MAX[MVAr]", PADDR(QC2MAX), PT_DESCRIPTION, "maximum reactive power output at PC2",
+                        PT_double, "RAMP_AGC", PADDR(RAMP_AGC),PT_DESCRIPTION,"ramp rate for load following/AGC",
+                        PT_double, "RAMP_10[MW]", PADDR(RAMP_10), PT_DESCRIPTION, "ramp rate for 10 min reserves",
+                        PT_double, "RAMP_30[MW]", PADDR(RAMP_30), PT_DESCRIPTION , "ramp rate for 30 min reserves",
+                        PT_double, "RAMP_Q[MW]", PADDR(RAMP_Q), PT_DESCRIPTION, "ramp rate for reactive power",
+                        PT_double, "APF", PADDR(APF), PT_DESCRIPTION, "area participation factor",
+			PT_double, "MU_PMAX", PADDR(MU_PMAX), PT_DESCRIPTION, "Kuhn-Tucker multiplier on upper P_g limit (mu/MW)",
 			PT_double, "MU_PMIN", PADDR(MU_PMIN),
-			PT_double, "MU_QMAX", PADDR(MU_QMAX),
-			PT_double, "MU_QMIN", PADDR(MU_QMIN),
-			PT_double, "Price", PADDR(Price),
-			PT_int16, "MODEL", PADDR(MODEL),         // cost model
+PT_DESCRIPTION, "Kuhn-Tucker multiplier on lower P_g limit (mu/MW)",		
+			PT_double, "MU_QMAX", PADDR(MU_QMAX), PT_DESCRIPTION, "Kuhn-Tucker multiplier on upper Q_g limit (mu/MW)",
+			PT_double, "MU_QMIN", PADDR(MU_QMIN), PT_DESCRIPTION, "Kuhn-Tucker multiplier on lower Q_g limit (mu/MW)",
+			PT_double, "Price", PADDR(Price), PT_DESCRIPTION, "generator operation price in US dollar",
+
+// Cost model
+			PT_enumeration, "MODEL", PADDR(MODEL), PT_DESCRIPTION, "cost model",
+				PT_KEYWORD, "Piecewise Linear", 1,
+				PT_KEYWORD, "Polynomial", 2,
                                                                 // 1 = piecewise linear
                                                                 // 2 = polynomial
-                        PT_double, "STARTUP", PADDR(STARTUP),   // start up cost in US dollars
-                        PT_double, "SHUTDOWN", PADDR(SHUTDOWN), // shutdown cost in US dollars
-                        PT_int16, "NCOST", PADDR(NCOST),         // number of cost coeff for poly cost function
-                                                                // or number of data points for piecewise linear
+                        PT_double, "STARTUP", PADDR(STARTUP), PT_DESCRIPTION, "start up cost in US dollars",
+                        PT_double, "SHUTDOWN", PADDR(SHUTDOWN), PT_DESCRIPTION, "shutdown cost in US dollars",
+                        PT_int16, "NCOST", PADDR(NCOST), PT_DESCRIPTION, "number of cost coeff for poly cost function or number of data points for piecewise linear",
                         /*Only support model 2 right now -- LYZ @ Jan 11th, 2012*/
-                        PT_char1024, "COST", PADDR(COST), 	// n+1 coeff of n-th order polynomial cost, starting with highest order
+                        PT_char1024, "COST", PADDR(COST), PT_DESCRIPTION, "n+1 coeff of n-th order polynomial cost, starting with highest order",
                         NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(gen));

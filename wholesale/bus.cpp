@@ -20,7 +20,7 @@
 #include "bus.h"
 #include "gen.h"
 #include "branch.h"
-#include "gen_cost.h"
+//#include "gen_cost.h"
 #include "wholesale.h"
 #include "lock.h"
 #include <map>
@@ -64,32 +64,29 @@ bus::bus(MODULE *module)
                 
                 // attributes of bus class. the names follow the MATPOWER Bus Data structure
 		if (gl_publish_variable(oclass,
-                        PT_int16, "BUS_I", PADDR(BUS_I),        // bus number
-                        //PT_int16, "BUS_TYPE", PADDR(BUS_TYPE),   // bus type
-                                                                // 1 = PQ, 2= PV
-                                                                // 3 = ref, 4 = isolated (feeder)
-			PT_enumeration, "BUS_TYPE", PADDR(BUS_TYPE),
+                        PT_int16, "BUS_I", PADDR(BUS_I), PT_DESCRIPTION, "bus number",
+			PT_enumeration, "BUS_TYPE", PADDR(BUS_TYPE), PT_DESCRIPTION, "bus type",
 				PT_KEYWORD, "PQ", 1,
 				PT_KEYWORD, "PV", 2,
 				PT_KEYWORD, "REF", 3,
 				PT_KEYWORD, "ISOLATE", 4,
-                        PT_double, "PD[MW]", PADDR(PD),         // real power demand
-                        PT_double, "QD[MVAr]", PADDR(QD),       // reactive power demand
-                        PT_double, "GS[MW]", PADDR(GS),         // shunt conductance
-                        PT_double, "BS[MVAr]", PADDR(BS),       // shunt susceptance
-                        PT_int16, "BUS_AREA", PADDR(BUS_AREA),  // area number
-                        PT_double, "VM", PADDR(VM),             // voltage magnitude
-                        PT_double, "VA", PADDR(VA),             // voltage angle
-                        PT_double, "BASE_KV[kV]", PADDR(BASE_KV),   // base voltage
-                        PT_int16, "ZONE", PADDR(ZONE),          // lose zone
-                        PT_double, "VMAX", PADDR(VMAX),         // maximum voltage magnitude
-                        PT_double, "VMIN", PADDR(VMIN),         // minimum voltage magnitude
-			PT_double, "LAM_P", PADDR(LAM_P),
-			PT_double, "LAM_Q", PADDR(LAM_Q),
-			PT_double, "MU_VMAX", PADDR(MU_VMAX),
-			PT_double, "MU_VMIN", PADDR(MU_VMIN),
-			PT_int16, "IFHEADER", PADDR(ifheader),	// if connected with distribution network
-			PT_char1024, "HEADER", PADDR(header_name), // the name of header node of distribution network
+                        PT_double, "PD[MW]", PADDR(PD), PT_DESCRIPTION, "real power demand",
+                        PT_double, "QD[MVAr]", PADDR(QD), PT_DESCRIPTION, "reactive power demand",
+                        PT_double, "GS[MW]", PADDR(GS), PT_DESCRIPTION, "shunt conductance",
+                        PT_double, "BS[MVAr]", PADDR(BS), PT_DESCRIPTION, "shunt susceptance",
+                        PT_int16, "BUS_AREA", PADDR(BUS_AREA), PT_DESCRIPTION, "area number",
+                        PT_double, "VM", PADDR(VM), PT_DESCRIPTION, "voltage magnitude",
+                        PT_double, "VA", PADDR(VA), PT_DESCRIPTION, "voltage angle",
+                        PT_double, "BASE_KV[kV]", PADDR(BASE_KV), PT_DESCRIPTION, "base voltage",
+                        PT_int16, "ZONE", PADDR(ZONE), PT_DESCRIPTION, "lose zone",
+                        PT_double, "VMAX", PADDR(VMAX), PT_DESCRIPTION, "maximum voltage magnitude",
+                        PT_double, "VMIN", PADDR(VMIN), PT_DESCRIPTION, "minimum voltage magnitude",
+			PT_double, "LAM_P", PADDR(LAM_P), PT_DESCRIPTION, "Lagrange multiplier on real power mismatch (mu/MW)",
+			PT_double, "LAM_Q", PADDR(LAM_Q), PT_DESCRIPTION, "Lagrange multiplier on reactive power mistmatch (mu/MW)",
+			PT_double, "MU_VMAX", PADDR(MU_VMAX), PT_DESCRIPTION, "Kuhn-Tucker multiplier on upper voltage limit (mu/p.u.)",
+			PT_double, "MU_VMIN", PADDR(MU_VMIN), PT_DESCRIPTION, "Kuhn-Tucker multiplier on lower voltage limit (mu/p.u.)",
+			PT_int16, "IFHEADER", PADDR(ifheader), PT_DESCRIPTION, "if connected with distribution network",
+			PT_char1024, "HEADER", PADDR(header_name), PT_DESCRIPTION, "the name of header node of distribution network",
                         //PT_double, "length[ft]",PADDR(length),
 			
 			// for feeder
@@ -116,20 +113,20 @@ bus::bus(MODULE *module)
 			PT_double, "feeder9_QD", PADDR(feeder9_QD),
 			PT_double, "feeder10_QD", PADDR(feeder10_QD),
 			*/
-			PT_complex,"CVoltageA",PADDR(CVoltageA),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
-			PT_complex,"CVoltageB",PADDR(CVoltageB),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
-			PT_complex,"CVoltageC",PADDR(CVoltageC),// complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
-			PT_double,"V_nom",PADDR(V_nom),
-			PT_complex,"feeder0", PADDR(feeder0),
-			PT_complex,"feeder1", PADDR(feeder1),
-			PT_complex,"feeder2", PADDR(feeder2),
-			PT_complex,"feeder3", PADDR(feeder3),
-			PT_complex,"feeder4", PADDR(feeder4),
-			PT_complex,"feeder5", PADDR(feeder5),
-			PT_complex,"feeder6", PADDR(feeder6),
-			PT_complex,"feeder7", PADDR(feeder7),
-			PT_complex,"feeder8", PADDR(feeder8),
-			PT_complex,"feeder9", PADDR(feeder9),
+			PT_complex,"CVoltageA",PADDR(CVoltageA),PT_DESCRIPTION, "complex voltage phase A of distribution network: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;",
+			PT_complex,"CVoltageB",PADDR(CVoltageB),PT_DESCRIPTION, "complex voltage phase B of distribution network: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;",
+			PT_complex,"CVoltageC",PADDR(CVoltageC),PT_DESCRIPTION, "complex voltage phase C of distribution network: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;",
+			PT_double,"V_nom",PADDR(V_nom), PT_DESCRIPTION, "Normalized voltage of distribution network",
+			PT_complex,"feeder0", PADDR(feeder0), PT_DESCRIPTION, "Feeder 0 Complex power",
+			PT_complex,"feeder1", PADDR(feeder1), PT_DESCRIPTION, "Feeder 1 Complex power",
+			PT_complex,"feeder2", PADDR(feeder2), PT_DESCRIPTION, "Feeder 2 Complex power",
+			PT_complex,"feeder3", PADDR(feeder3), PT_DESCRIPTION, "Feeder 3 Complex power",
+			PT_complex,"feeder4", PADDR(feeder4), PT_DESCRIPTION, "Feeder 4 Complex power",
+			PT_complex,"feeder5", PADDR(feeder5), PT_DESCRIPTION, "Feeder 5 Complex power",
+			PT_complex,"feeder6", PADDR(feeder6), PT_DESCRIPTION, "Feeder 6 Complex power",
+			PT_complex,"feeder7", PADDR(feeder7), PT_DESCRIPTION, "Feeder 7 Complex power",
+			PT_complex,"feeder8", PADDR(feeder8), PT_DESCRIPTION, "Feeder 8 Complex power",
+			PT_complex,"feeder9", PADDR(feeder9), PT_DESCRIPTION, "Feeder 9 Complex power",
 		     /* TODO: add your published properties here */
 		    NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
@@ -225,6 +222,12 @@ int bus::init(OBJECT *parent)
 			gen_parent_bus = OBJECTDATA(gen_parent,bus);
 			
 			setObjectValue_Double(obj_gen,"GEN_BUS",gen_parent_bus->BUS_I);
+
+			// add NCOST
+			string double_string(gen_obj->COST);
+			vector<string> v;
+			v = split(double_string,',');
+			setObjectValue_Double(obj_gen,"NCOST",v.size());
 		}
 		/*
 		obj_branch = NULL;
