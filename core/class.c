@@ -1452,35 +1452,36 @@ int class_get_java(CLASS *oclass, /**< a pointer to the class to convert to XSD 
 	}*/
 	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 	{
-	  if( prop->access != PA_PUBLIC )
+	  if( prop->access != PA_PUBLIC ){
 	    continue;
-		char *proptype=class_get_property_typename(prop->ptype);
-		n += buffer_write(buffer+n, len-n, "\tif (myElement.get(\"%s\")!=null){\n", prop->name );
-		n += buffer_write(buffer+n, len-n, "\t\tthrow new Exception(\"CANNOT CREATE ELEMENT, DUPLICATE ATTRIBUTE\");\n\t}\n");
-
-		if (prop->unit!=NULL){
-		        //n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:element name=\"%s\" type=\"xs:string\"/>\n", prop->name);
-		  n += buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\",new %sAttributeWithUnits(\"%s\",\"%s\",\"%s\"));\n", 
-				    prop->name, proptype==NULL?"string2":proptype, prop->name, prop->unit, prop->description, prop->access==PA_PUBLIC?"true":"false");
-		} else {
-		  if (prop->keywords == NULL) {
-		    n += buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\", new %sAttribute(\"%s\",\"%s\"));\n",prop->name, 
-				      proptype==NULL?"String":proptype, prop->name, prop->description, prop->access==PA_PUBLIC?"true":"false");
+	  }
+	  char *proptype=class_get_property_typename(prop->ptype);
+	  n += buffer_write(buffer+n, len-n, "\tif (myElement.get(\"%s\")!=null){\n", prop->name );
+	  n += buffer_write(buffer+n, len-n, "\t\tthrow new Exception(\"CANNOT CREATE ELEMENT, DUPLICATE ATTRIBUTE\");\n\t}\n");
+	  
+	  if (prop->unit!=NULL){
+	    //n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:element name=\"%s\" type=\"xs:string\"/>\n", prop->name);
+	    n += buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\",new %sAttributeWithUnits(\"%s\",\"%s\",\"%s\"));\n", 
+			      prop->name, proptype==NULL?"string2":proptype, prop->name, prop->unit, prop->description, prop->access==PA_PUBLIC?"true":"false");
+	  } else {
+	    if (prop->keywords == NULL) {
+	      n += buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\", new %sAttribute(\"%s\",\"%s\"));\n",prop->name, 
+				proptype==NULL?"String":proptype, prop->name, prop->description, prop->access==PA_PUBLIC?"true":"false");
 		  } else {
-		    n+= buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\", new %sAttribute(\"%s\",Arrays.asList( ", prop->name,
-				     proptype==NULL?"String":proptype, prop->name);
-		    KEYWORD *key;
-		  
-		    for (key=prop->keywords; key!=NULL; key=key->next){
-		      n += buffer_write(buffer+n, len-n, "%s\"%s\"", key==prop->keywords?"":",", key->name);
+	      n+= buffer_write(buffer+n, len-n, "\tmyElement.set(\"%s\", new %sAttribute(\"%s\",Arrays.asList( ", prop->name,
+			       proptype==NULL?"String":proptype, prop->name);
+	      KEYWORD *key;
+	      
+	      for (key=prop->keywords; key!=NULL; key=key->next){
+		n += buffer_write(buffer+n, len-n, "%s\"%s\"", key==prop->keywords?"":",", key->name);
 		    }
-		    n+= buffer_write(buffer+n, len-n, "), \"%s\"));\n", prop->description, prop->access==PA_PUBLIC?"true":"false");
+	      n+= buffer_write(buffer+n, len-n, "), \"%s\"));\n", prop->description, prop->access==PA_PUBLIC?"true":"false");
 		  }
-		}
-	       
+	  }
+	  
 		  /*n += buffer_write(buffer+n, len-n, "\t\t\t<xs:element name=\"%s\">\n", prop->name);
-			n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:simpleType>\n");
-			n += buffer_write(buffer+n, len-n, "\t\t\t\t\t<xs:restriction base=\"xs:%s\">\n", proptype==NULL?"string":proptype);
+		    n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:simpleType>\n");
+		    n += buffer_write(buffer+n, len-n, "\t\t\t\t\t<xs:restriction base=\"xs:%s\">\n", proptype==NULL?"string":proptype);
 			if (prop->keywords!=NULL)
 			{
 				KEYWORD *key;

@@ -64,7 +64,7 @@ bus::bus(MODULE *module)
                 
                 // attributes of bus class. the names follow the MATPOWER Bus Data structure
 		if (gl_publish_variable(oclass,
-                        PT_int16, "BUS_I", PADDR(BUS_I), PT_DESCRIPTION, "bus number",
+		   	PT_int16, "BUS_I", PADDR(BUS_I), PT_ACCESS,PA_REFERENCE, PT_DESCRIPTION, "bus number",
 			PT_enumeration, "BUS_TYPE", PADDR(BUS_TYPE), PT_DESCRIPTION, "bus type",
 				PT_KEYWORD, "PQ", 1,
 				PT_KEYWORD, "PV", 2,
