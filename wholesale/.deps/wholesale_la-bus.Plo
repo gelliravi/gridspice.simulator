@@ -119,7 +119,7 @@ wholesale_la-bus.lo: bus.cpp /usr/include/stdlib.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_vector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_bvector.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/vector.tcc \
-  gen.h branch.h gen_cost.h ../core/lock.h \
+  gen.h branch.h ../core/lock.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/map \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_tree.h \
   /usr/lib/gcc/i686-pc-linux-gnu/4.3.4/../../../../include/c++/4.3.4/bits/stl_map.h \
@@ -480,8 +480,6 @@ libopf.h:
 gen.h:
 
 branch.h:
-
-gen_cost.h:
 
 ../core/lock.h:
 

@@ -51,31 +51,31 @@ branch::branch(MODULE *module)
 			GL_THROW("unable to register object class implemented by %s", __FILE__);
 
 		if (gl_publish_variable(oclass,
-              PT_int16, "F_BUS", PADDR(F_BUS),          // "from" bus number
-              PT_int16, "T_BUS", PADDR(T_BUS),          // "to" bus number
-	      PT_char1024, "from", PADDR(from), // "from" bus name
-	      PT_char1024, "to", PADDR(to), // "to" bus name
-              PT_double, "BR_R", PADDR(BR_R),           // resistance (p.u.)
-              PT_double, "BR_X", PADDR(BR_X),           // reactance (p.u.)
-              PT_double, "BR_B", PADDR(BR_B),           // total line charging susceptance (p.u.)
-              PT_double, "RATE_A", PADDR(RATE_A),       // MVA rating A (long term rating)
-              PT_double, "RATE_B", PADDR(RATE_B),       // MVA rating B (short term rating)
-              PT_double, "RATE_C", PADDR(RATE_C),       // MVA rating C (emergency rating)
-              PT_double, "TAP", PADDR(TAP),             // transformer off nominal turns ratio
-                                                        // ( taps at "from" bus, impedance at "to"
-                                                        // bus, i.e. if r=x=0, tap = \frac{|V_f|}{|V_t|}
-              PT_double, "SHIFT", PADDR(SHIFT),         // transformer phase shift angle (degrees)
-              PT_int16,	 "BR_STATUS", PADDR(BR_STATUS),   // initial branch status, 1 = in-service,0=out-of-service
-              PT_double, "ANGMIN", PADDR(ANGMIN),       // minimum angle difference, \theta_f - \theta_t (degrees)
-              PT_double, "ANGMAX", PADDR(ANGMAX),       // maximum angle difference, \theta_f - \theta_t (degrees)
-		PT_double, "PF", PADDR(PF),
-		PT_double, "QF", PADDR(QF),
-		PT_double, "PT", PADDR(PT),
-		PT_double, "QT", PADDR(QT),
-		PT_double, "MU_SF", PADDR(MU_SF),
-		PT_double, "MU_ST", PADDR(MU_ST),
-		PT_double, "MU_ANGMIN", PADDR(MU_ANGMIN),
-		PT_double, "MU_ANGMAX", PADDR(MU_ANGMAX),
+              PT_int16, "F_BUS", PADDR(F_BUS), PT_DESCRIPTION, "from bus number",
+              PT_int16, "T_BUS", PADDR(T_BUS), PT_DESCRIPTION, "to bus number",
+	      PT_char1024, "from", PADDR(from), PT_DESCRIPTION,"from bus name",
+	      PT_char1024, "to", PADDR(to), PT_DESCRIPTION, "to bus name",
+              PT_double, "BR_R", PADDR(BR_R), PT_DESCRIPTION, "resistance (p.u.)",
+              PT_double, "BR_X", PADDR(BR_X), PT_DESCRIPTION, "reactance (p.u.)",
+              PT_double, "BR_B", PADDR(BR_B),  PT_DESCRIPTION,"total line charging susceptance (p.u.)",
+              PT_double, "RATE_A", PADDR(RATE_A), PT_DESCRIPTION, "MVA rating A (long term rating)",
+              PT_double, "RATE_B", PADDR(RATE_B), PT_DESCRIPTION, "MVA rating B (short term rating)",
+              PT_double, "RATE_C", PADDR(RATE_C), PT_DESCRIPTION, "MVA rating C (emergency rating)",
+              PT_double, "TAP", PADDR(TAP), PT_DESCRIPTION, "transformer off nominal turns ratio ( taps at from bus, impedance at to bus, i.e. if r=x=0, tap = \frac{|V_f|}{|V_t|}",
+              PT_double, "SHIFT", PADDR(SHIFT), PT_DESCRIPTION, "transformer phase shift angle (degrees)",
+              PT_enumeration,	 "BR_STATUS", PADDR(BR_STATUS), PT_DESCRIPTION, "initial branch status, 1 = in-service,0=out-of-service",
+			PT_KEYWORD, "In", 1,
+			PT_KEYWORD, "Out", 0,
+              PT_double, "ANGMIN", PADDR(ANGMIN), PT_DESCRIPTION, "minimum angle difference, \theta_f - \theta_t (degrees)",
+              PT_double, "ANGMAX", PADDR(ANGMAX), PT_DESCRIPTION, "maximum angle difference, \theta_f - \theta_t (degrees)",
+		PT_double, "PF", PADDR(PF), PT_DESCRIPTION, "real power injected at from bus end (MW)",
+		PT_double, "QF", PADDR(QF), PT_DESCRIPTION, "reactive power injected at from bus end (MVAr)",
+		PT_double, "PT", PADDR(PT), PT_DESCRIPTION, "real power injected at to bus end (MW)",
+		PT_double, "QT", PADDR(QT), PT_DESCRIPTION, "reactive poewr injected at to bus end (MVAr)",
+		PT_double, "MU_SF", PADDR(MU_SF), PT_DESCRIPTION, "Kuhn-Tucker multiplier on MVA limit at from bus (mu/MVA)",
+		PT_double, "MU_ST", PADDR(MU_ST), PT_DESCRIPTION, "Kuhn-Tucker multiplier on MVA limit at to bus (mu/MVA)",
+		PT_double, "MU_ANGMIN", PADDR(MU_ANGMIN), PT_DESCRIPTION, "Kuhn-Tucker multiplier lower angle difference limit (mu/degree)",
+		PT_double, "MU_ANGMAX", PADDR(MU_ANGMAX), PT_DESCRIPTION, "Kuhn-Tucker multiplier upper angle difference limit (mu/degree)",
            
               NULL)<1 && errno) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
