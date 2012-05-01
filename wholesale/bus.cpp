@@ -222,6 +222,12 @@ int bus::init(OBJECT *parent)
 			gen_parent_bus = OBJECTDATA(gen_parent,bus);
 			
 			setObjectValue_Double(obj_gen,"GEN_BUS",gen_parent_bus->BUS_I);
+
+			// add NCOST
+			string double_string(gen_obj->COST);
+			vector<string> v;
+			v = split(double_string,',');
+			setObjectValue_Double(obj_gen,"NCOST",v.size());
 		}
 		/*
 		obj_branch = NULL;
