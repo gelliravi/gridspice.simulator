@@ -45,10 +45,11 @@ public:
 	double 	LAM_Q; //Lagrange multiplier on reactive power mismatch (u/MVAr)
 	double 	MU_VMAX; //Kuhn-Tucker multiplier on upper voltage limit (u/p.u.)
 	double 	MU_VMIN; //Kuhn-Tucker multiplier on lower voltage limit (u/p.u)
+	int	BASE_MVA;
 
 	// feed header	
 	int 	ifheader;
-	char	header_name[MAXSIZE]; 
+	//char	header_name[MAXSIZE]; 
 	complex CVoltageA; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 	complex CVoltageB; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;
 	complex CVoltageC; // complex voltage: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;

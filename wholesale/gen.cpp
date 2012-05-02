@@ -54,7 +54,7 @@ gen::gen(MODULE *module)
 
 		if (gl_publish_variable(oclass,
 			/* TODO: add your published properties here */
-                        PT_int16, "GEN_BUS", PADDR(GEN_BUS), PT_DESCRIPTION, "bus number",
+                        //PT_int16, "GEN_BUS", PADDR(GEN_BUS), PT_DESCRIPTION, "bus number",
                         PT_double, "PG[MW]", PADDR(PG), PT_DESCRIPTION, "real power output",
                         PT_double, "QG[MVAr]", PADDR(QG), PT_DESCRIPTION, "reactive power output",
                         PT_double, "QMAX[MVAr]", PADDR(QMAX), PT_DESCRIPTION, "maximum reactive power output",
@@ -92,7 +92,7 @@ PT_DESCRIPTION, "Kuhn-Tucker multiplier on lower P_g limit (mu/MW)",
                                                                 // 2 = polynomial
                         PT_double, "STARTUP", PADDR(STARTUP), PT_DESCRIPTION, "start up cost in US dollars",
                         PT_double, "SHUTDOWN", PADDR(SHUTDOWN), PT_DESCRIPTION, "shutdown cost in US dollars",
-                        PT_int16, "NCOST", PADDR(NCOST), PT_DESCRIPTION, "number of cost coeff for poly cost function or number of data points for piecewise linear",
+                        //PT_int16, "NCOST", PADDR(NCOST),PT_DESCRIPTION, "number of cost coeff for poly cost function or number of data points for piecewise linear",
                         /*Only support model 2 right now -- LYZ @ Jan 11th, 2012*/
                         PT_char1024, "COST", PADDR(COST), PT_DESCRIPTION, "n+1 coeff of n-th order polynomial cost, starting with highest order",
                         NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);

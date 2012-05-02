@@ -31,7 +31,7 @@ using std::string;
 inline mxArray* initArray(double rdata[], int nRow, int nColumn);
 inline double*	getArray(mxArray* X);
 
-int solver_matpower();
+int solver_matpower(vector<unsigned int> bus_BUS_I, vector<unsigned int> branch_F_BUS, vector<unsigned int> branch_T_BUS, vector<unsigned int> gen_GEN_BUS, vector<unsigned int> gen_NCOST,unsigned int BASEMVA);
 
 inline vector<string> split(const string s, char c);
 

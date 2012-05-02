@@ -57,21 +57,21 @@ double* getArray(mxArray *X)
 //int solver_matpower(double *rbus, unsigned int nbus, double *rgen, unsigned int ngen, 
 //	double *rbranch, unsigned int nbranch, double *rgencost, unsigned int ngencost,
 //	double *rareas,	unsigned int nareas)
-int solver_matpower()
+int solver_matpower(vector<unsigned int> bus_BUS_I, vector<unsigned int> branch_F_BUS, vector<unsigned int> branch_T_BUS, vector<unsigned int> gen_GEN_BUS, vector<unsigned int> gen_NCOST,unsigned int BASEMVA)
 {	
 	unsigned int nbus = 0;
 	unsigned int ngen = 0;
 	unsigned int nbranch = 0;
 	//unsigned int ngencost = 0;
-	unsigned int nareas = 0;
-	unsigned int nbaseMVA = 0;
+	//unsigned int nareas = 0;
+	//unsigned int nbaseMVA = 0;
 
 	vector<bus> vec_bus;
 	vector<gen> vec_gen;
 	vector<branch> vec_branch;
-	vector<areas> vec_areas;
+	//vector<areas> vec_areas;
 	//vector<gen_cost> vec_gencost;
-	vector<baseMVA> vec_baseMVA;
+	//vector<baseMVA> vec_baseMVA;
 	
 
 	
@@ -115,6 +115,7 @@ int solver_matpower()
 	}
 
 	// Get Area Objects
+/*
 	areas *list_areas;
 	FINDLIST *areas_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"areas",FT_END);
 	temp_obj = NULL;
@@ -125,7 +126,7 @@ int solver_matpower()
 		list_areas = OBJECTDATA(temp_obj,areas);
 		vec_areas.push_back(*list_areas);
 	}
-
+*/
 	
 	// Get Generator Cost objects
 	/*
@@ -142,20 +143,20 @@ int solver_matpower()
 	}
 	*/
 	// Get Base Information object
-	baseMVA *list_baseMVA;
-	FINDLIST *baseMVA_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"baseMVA",FT_END);
-	temp_obj = NULL;
-	temp_obj = gl_find_next(baseMVA_list,temp_obj);
-	list_baseMVA = OBJECTDATA(temp_obj,baseMVA);
-	vec_baseMVA.push_back(*list_baseMVA);
+	//baseMVA *list_baseMVA;
+	//FINDLIST *baseMVA_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"baseMVA",FT_END);
+	//temp_obj = NULL;
+	//temp_obj = gl_find_next(baseMVA_list,temp_obj);
+	//list_baseMVA = OBJECTDATA(temp_obj,baseMVA);
+	//vec_baseMVA.push_back(*list_baseMVA);
 
 	// Get the size of each class
 	nbus = vec_bus.size();
 	ngen = vec_gen.size();
 	nbranch = vec_branch.size();
 	//ngencost = vec_gencost.size();
-	nareas = vec_areas.size();
-	nbaseMVA = vec_baseMVA.size();
+	//nareas = vec_areas.size();
+	//nbaseMVA = vec_baseMVA.size();
 
 
 	// create arrays for input and allocate memory
@@ -169,7 +170,7 @@ int solver_matpower()
 	rbranch = (double *) calloc(nbranch*BRANCH_ATTR,sizeof(double));
 
 	double *rareas;
-	rareas = (double *) calloc(nareas*AREA_ATTR,sizeof(double));
+	rareas = (double *) calloc(AREA_ATTR,sizeof(double));
 
 	double rbaseMVA;
 
@@ -184,13 +185,15 @@ int solver_matpower()
 	{
 		for (unsigned int i=0; i < nbus; i++)
 		{
-			rbus[i+0*nbus] = (double)iter_bus->BUS_I;
+			//rbus[i+0*nbus] = (double)iter_bus->BUS_I;
+			rbus[i+0*nbus] = bus_BUS_I[i];
 			rbus[i+1*nbus] = (double)iter_bus->BUS_TYPE;
 			rbus[i+2*nbus] = iter_bus->PD;
 			rbus[i+3*nbus] = iter_bus->QD;
 			rbus[i+4*nbus] = iter_bus->GS;
 			rbus[i+5*nbus] = iter_bus->BS;
-			rbus[i+6*nbus] = (double)iter_bus->BUS_AREA;
+			//rbus[i+6*nbus] = (double)iter_bus->BUS_AREA;
+			rbus[i+6*nbus] = 1;
 			rbus[i+7*nbus] = iter_bus->VM;
 			rbus[i+8*nbus] = iter_bus->VA;
 			rbus[i+9*nbus] = iter_bus->BASE_KV;
@@ -207,8 +210,8 @@ int solver_matpower()
 	unsigned int max_order = 0;
 	for (unsigned int i =0; i< ngen; i++)
 	{
-		if (iter_gen->NCOST > max_order)
-			max_order = iter_gen->NCOST;
+		if (gen_NCOST[i] > max_order)
+			max_order = gen_NCOST[i];
 		iter_gen++;
 	}
 	rgencost = (double *) calloc(ngen*(GENCOST_ATTR+max_order),sizeof(double));
@@ -217,7 +220,8 @@ int solver_matpower()
 
 	for (unsigned int i = 0; i < ngen; i++)
 	{
-		rgen[i+0*ngen] = (double) iter_gen->GEN_BUS;
+		//rgen[i+0*ngen] = (double) iter_gen->GEN_BUS;
+		rgen[i+0*ngen] = gen_GEN_BUS[i];
 		rgen[i+1*ngen] = iter_gen->PG;
 		rgen[i+2*ngen] = iter_gen->QG;
 		rgen[i+3*ngen] = iter_gen->QMAX;
@@ -243,7 +247,8 @@ int solver_matpower()
 		rgencost[i+0*ngen] = iter_gen->MODEL;
 		rgencost[i+1*ngen] = iter_gen->STARTUP;
 		rgencost[i+2*ngen] = iter_gen->SHUTDOWN;
-		rgencost[i+3*ngen] = (double)iter_gen->NCOST;
+		//rgencost[i+3*ngen] = (double)iter_gen->NCOST;
+		rgencost[i+3*ngen] = gen_NCOST[i];
 		string double_string(iter_gen->COST);
 		vector<string> v;
 		v = split(double_string,',');
@@ -251,9 +256,9 @@ int solver_matpower()
 		{
 			rgencost[i+(4+j)*ngen] = atof(v[j].c_str());
 		}
-		if (iter_gen->NCOST != max_order)
+		if (gen_NCOST[i] != max_order)
 		{
-			for (unsigned int j = iter_gen->NCOST; j< max_order; j++)
+			for (unsigned int j = gen_NCOST[i]; j< max_order; j++)
 			{
 				rgencost[i+(4+j)*ngen] = 0.0;
 			}
@@ -268,8 +273,10 @@ int solver_matpower()
 	vector<branch>::iterator iter_branch = vec_branch.begin();
 	for (unsigned int i = 0; i < nbranch; i++)
 	{
-		rbranch[i+0*nbranch] = (double)iter_branch->F_BUS;
-		rbranch[i+1*nbranch] = (double)iter_branch->T_BUS;
+		//rbranch[i+0*nbranch] = (double)iter_branch->F_BUS;
+		rbranch[i+0*nbranch] = branch_F_BUS[i];
+		//rbranch[i+1*nbranch] = (double)iter_branch->T_BUS;
+		rbranch[i+1*nbranch] = branch_T_BUS[i];
 		rbranch[i+2*nbranch] = iter_branch->BR_R;
 		rbranch[i+3*nbranch] = iter_branch->BR_X;
 		rbranch[i+4*nbranch] = iter_branch->BR_B;
@@ -286,18 +293,18 @@ int solver_matpower()
 
 	
 	// insert data for rareas
-	vector<areas>::const_iterator iter_areas = vec_areas.begin();
-	for (unsigned int i = 0; i < nareas; i++)
-	{
-		rareas[i+0*nareas] = (double)iter_areas->AREA;
-		rareas[i+1*nareas] = (double)iter_areas->REFBUS;
-		iter_areas++;
-	} 
+	//vector<areas>::const_iterator iter_areas = vec_areas.begin();
+	//for (unsigned int i = 0; i < nareas; i++)
+	//{
+		rareas[0] = 1;
+		rareas[1] = 1;
+	//	iter_areas++;
+	//} 
 
 	// insert data for rbaseMVA
-	vector<baseMVA>::const_iterator iter_baseMVA = vec_baseMVA.begin();
-	rbaseMVA = iter_baseMVA->BASEMVA;
-
+	//vector<baseMVA>::const_iterator iter_baseMVA = vec_baseMVA.begin();
+	//rbaseMVA = iter_baseMVA->BASEMVA;
+	rbaseMVA = BASEMVA;
 
 	// insert data for rgencost
 	/*
@@ -355,8 +362,8 @@ int solver_matpower()
 	mxArray* gen_array = initArray(rgen, ngen, GEN_ATTR);
 	mxArray* branch_array = initArray(rbranch, nbranch, BRANCH_ATTR);
 	mxArray* gencost_array = initArray(rgencost, ngen, GENCOST_ATTR+max_order);
-	mxArray* areas_array = initArray(rareas, nareas, AREA_ATTR);
-
+	//mxArray* areas_array = initArray(rareas, nareas, AREA_ATTR);
+	mxArray* areas_array = initArray(rareas, 1, AREA_ATTR);
 
 	mxArray* busout;
 	mxArray* genout;
@@ -566,7 +573,7 @@ int solver_matpower()
 	vec_gen.clear();
 	vec_branch.clear();
 	//vec_gencost.clear();
-	vec_baseMVA.clear();
+	//vec_baseMVA.clear();
 
 
 	short ifsuccess = (short)*getArray(plhs[3]);
@@ -596,6 +603,7 @@ void setObjectValue_Double(OBJECT* obj, char* Property, double value)
 	char buffer[1024];
 	snprintf(buffer,sizeof(buffer),"%g",value);
 	gl_set_value_by_name(obj,Property,buffer);
+	
 }
 
 void setObjectValue_Double2Complex_inDegree(OBJECT* obj, char* Property, double Mag, double Ang)

@@ -20,6 +20,8 @@
 #include "bus.h"
 #include "gen.h"
 #include "branch.h"
+#include "baseMVA.h"
+#include "areas.h"
 //#include "gen_cost.h"
 #include "wholesale.h"
 #include "lock.h"
@@ -33,6 +35,15 @@ using namespace std;
 
 CLASS *bus::oclass = NULL;
 bus *bus::defaults = NULL;
+
+// Global Variable
+multimap<string,unsigned int>bus_map;
+vector<unsigned int> bus_BUS_I;
+vector<unsigned int> branch_F_BUS;
+vector<unsigned int> branch_T_BUS;
+vector<unsigned int> gen_GEN_BUS;
+vector<unsigned int> gen_NCOST;
+
 
 #ifdef OPTIONAL
 /* TODO: define this to allow the use of derived classes */
@@ -56,6 +67,9 @@ bus::bus(MODULE *module)
 	/* TODO: include this if you are deriving this from a superclass */
 	pclass = SUPERCLASS::oclass;
 #endif
+
+
+
 	if (oclass==NULL)
 	{
 		oclass = gl_register_class(module,"bus",sizeof(bus),passconfig);
@@ -64,7 +78,7 @@ bus::bus(MODULE *module)
                 
                 // attributes of bus class. the names follow the MATPOWER Bus Data structure
 		if (gl_publish_variable(oclass,
-		   	PT_int16, "BUS_I", PADDR(BUS_I), PT_ACCESS,PA_REFERENCE, PT_DESCRIPTION, "bus number",
+		   	//PT_int16, "BUS_I", PADDR(BUS_I), PT_DESCRIPTION, "bus number",
 			PT_enumeration, "BUS_TYPE", PADDR(BUS_TYPE), PT_DESCRIPTION, "bus type",
 				PT_KEYWORD, "PQ", 1,
 				PT_KEYWORD, "PV", 2,
@@ -74,45 +88,22 @@ bus::bus(MODULE *module)
                         PT_double, "QD[MVAr]", PADDR(QD), PT_DESCRIPTION, "reactive power demand",
                         PT_double, "GS[MW]", PADDR(GS), PT_DESCRIPTION, "shunt conductance",
                         PT_double, "BS[MVAr]", PADDR(BS), PT_DESCRIPTION, "shunt susceptance",
-                        PT_int16, "BUS_AREA", PADDR(BUS_AREA), PT_DESCRIPTION, "area number",
+                        //PT_int16, "BUS_AREA", PADDR(BUS_AREA), PT_DESCRIPTION, "area number",
                         PT_double, "VM", PADDR(VM), PT_DESCRIPTION, "voltage magnitude",
                         PT_double, "VA", PADDR(VA), PT_DESCRIPTION, "voltage angle",
                         PT_double, "BASE_KV[kV]", PADDR(BASE_KV), PT_DESCRIPTION, "base voltage",
                         PT_int16, "ZONE", PADDR(ZONE), PT_DESCRIPTION, "lose zone",
                         PT_double, "VMAX", PADDR(VMAX), PT_DESCRIPTION, "maximum voltage magnitude",
                         PT_double, "VMIN", PADDR(VMIN), PT_DESCRIPTION, "minimum voltage magnitude",
+			PT_int16, "BASE_MVA", PADDR(BASE_MVA), PT_DESCRIPTION, "base MVA",
 			PT_double, "LAM_P", PADDR(LAM_P), PT_DESCRIPTION, "Lagrange multiplier on real power mismatch (mu/MW)",
 			PT_double, "LAM_Q", PADDR(LAM_Q), PT_DESCRIPTION, "Lagrange multiplier on reactive power mistmatch (mu/MW)",
 			PT_double, "MU_VMAX", PADDR(MU_VMAX), PT_DESCRIPTION, "Kuhn-Tucker multiplier on upper voltage limit (mu/p.u.)",
 			PT_double, "MU_VMIN", PADDR(MU_VMIN), PT_DESCRIPTION, "Kuhn-Tucker multiplier on lower voltage limit (mu/p.u.)",
-			PT_int16, "IFHEADER", PADDR(ifheader), PT_DESCRIPTION, "if connected with distribution network",
-			PT_char1024, "HEADER", PADDR(header_name), PT_DESCRIPTION, "the name of header node of distribution network",
-                        //PT_double, "length[ft]",PADDR(length),
-			
-			// for feeder
-			/*
-			PT_double, "feeder1_PD", PADDR(feeder1_PD),
-			PT_double, "feeder2_PD", PADDR(feeder2_PD),
-			PT_double, "feeder3_PD", PADDR(feeder3_PD),
-			PT_double, "feeder4_PD", PADDR(feeder4_PD),
-			PT_double, "feeder5_PD", PADDR(feeder5_PD),
-			PT_double, "feeder6_PD", PADDR(feeder6_PD),
-			PT_double, "feeder7_PD", PADDR(feeder7_PD),
-			PT_double, "feeder8_PD", PADDR(feeder8_PD),
-			PT_double, "feeder9_PD", PADDR(feeder9_PD),
-			PT_double, "feeder10_PD", PADDR(feeder10_PD),
-
-			PT_double, "feeder1_QD", PADDR(feeder1_QD),
-			PT_double, "feeder2_QD", PADDR(feeder2_QD),
-			PT_double, "feeder3_QD", PADDR(feeder3_QD),
-			PT_double, "feeder4_QD", PADDR(feeder4_QD),
-			PT_double, "feeder5_QD", PADDR(feeder5_QD),
-			PT_double, "feeder6_QD", PADDR(feeder6_QD),
-			PT_double, "feeder7_QD", PADDR(feeder7_QD),
-			PT_double, "feeder8_QD", PADDR(feeder8_QD),
-			PT_double, "feeder9_QD", PADDR(feeder9_QD),
-			PT_double, "feeder10_QD", PADDR(feeder10_QD),
-			*/
+			PT_enumeration, "IFHEADER", PADDR(ifheader), PT_DESCRIPTION, "if connected with distribution network",
+				PT_KEYWORD, "Yes", 1,
+				PT_KEYWORD, "No", 0,
+	
 			PT_complex,"CVoltageA",PADDR(CVoltageA),PT_DESCRIPTION, "complex voltage phase A of distribution network: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;",
 			PT_complex,"CVoltageB",PADDR(CVoltageB),PT_DESCRIPTION, "complex voltage phase B of distribution network: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;",
 			PT_complex,"CVoltageC",PADDR(CVoltageC),PT_DESCRIPTION, "complex voltage phase C of distribution network: Cvoltage.Mag() = VM, Cvoltage.Arg() = VA;",
@@ -132,6 +123,7 @@ bus::bus(MODULE *module)
 		defaults = this;
 		memset(this,0,sizeof(bus));
 		/* TODO: set the default values of all properties here */
+		//BUS_AREA = 1;
 	}
 }
 
@@ -157,7 +149,7 @@ int bus::create(void)
 	setObjectValue_Double2Complex(obj,"feeder8",0,0);
 	setObjectValue_Double2Complex(obj,"feeder9",0,0);
 
-
+	
 	
 
 	return 1; /* return 1 on success, 0 on failure */
@@ -171,10 +163,46 @@ int bus::init(OBJECT *parent)
 	bus *bus_this;
 	bus_this = OBJECTDATA(obj_this,bus);
 
+	// Set bus BUS_AREA
+	//setObjectValue_Double(obj_this,"BUS_AREA",1);
+
+
 	if (bus_this->BUS_TYPE == 3)
 	{
+		// Create baseMVA object
+		//printf("Arrive tihs point\n");
+		/*
+		OBJECT *obj_baseMVA;
+		obj_baseMVA = gl_create_object(baseMVA::oclass);
+		//printf("Arrive tihs point2\n");
+		if (obj_baseMVA == NULL)
+			gl_error("Create baseMVA object failed\n");
+		else
+		{
+			OBJECTDATA(obj_baseMVA,baseMVA)->create();
+			//printf("Arrive tihs point3\n");
+			baseMVA *baseMVA_obj;
+			baseMVA_obj = OBJECTDATA(obj_baseMVA,baseMVA);
+			setObjectValue_Double(obj_baseMVA,"BASEMVA",bus_this->BASE_MVA);
+			//printf("this is bus %d with base MVA %d\n",bus_this->BUS_I, bus_this->BASE_MVA);
+		}
+
+		// Create Areas object
+		OBJECT *obj_areas;
+		obj_areas = gl_create_object(areas::oclass);
+		if (obj_areas == NULL)
+			gl_error("Create Areas object failed\n");
+		else
+		{
+			OBJECTDATA(obj_areas,areas)->create();
+			setObjectValue_Double(obj_areas,"AREA",1);
+			setObjectValue_Double(obj_areas,"REFBUS",1);
+		}
+		*/
+
+		
 		// Create map between bus name and bus id		
-		multimap<string,unsigned int>bus_map;
+
 		multimap<string,unsigned int>::iterator it;
 		unsigned int bus_index = 0;
 		OBJECT *obj_map = NULL;
@@ -186,7 +214,8 @@ int bus::init(OBJECT *parent)
 			obj_map = gl_find_next(bus_list,obj_map);
 			bus_obj_map = OBJECTDATA(obj_map,bus);
 			bus_map.insert(pair<string,unsigned int>(obj_map->name,bus_index));
-			setObjectValue_Double(obj_map,"BUS_I",bus_index);
+			//setObjectValue_Double(obj_map,"BUS_I",bus_index);
+			bus_BUS_I.push_back(bus_index);
 		}
 
 		//Update bus index in branch
@@ -194,6 +223,7 @@ int bus::init(OBJECT *parent)
 		branch *branch_obj;
 		FINDLIST *branch_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"branch",FT_END);
 		multimap<string,unsigned int>::iterator find_res;
+		
 		while (gl_find_next(branch_list,obj_branch) != NULL)
 		{
 			obj_branch = gl_find_next(branch_list,obj_branch);
@@ -201,11 +231,13 @@ int bus::init(OBJECT *parent)
 			
 			string F_bus_name(branch_obj->from);
 			find_res = bus_map.find(F_bus_name);
-			setObjectValue_Double(obj_branch,"F_BUS",(*find_res).second);
+			//setObjectValue_Double(obj_branch,"F_BUS",(*find_res).second);
+			branch_F_BUS.push_back((*find_res).second);
 
 			string T_bus_name(branch_obj->to);
 			find_res = bus_map.find(T_bus_name);
-			setObjectValue_Double(obj_branch,"T_BUS",(*find_res).second);
+			//setObjectValue_Double(obj_branch,"T_BUS",(*find_res).second);
+			branch_T_BUS.push_back((*find_res).second);
 		}
 
 		//Update bus index in gen
@@ -213,31 +245,30 @@ int bus::init(OBJECT *parent)
 		gen *gen_obj;
 		FINDLIST *gen_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"gen",FT_END);
 		bus *gen_parent_bus;
+		multimap<string,unsigned int>::iterator find_gen;
 		while (gl_find_next(gen_list,obj_gen) != NULL)
 		{
+					
+	
 			obj_gen = gl_find_next(gen_list,obj_gen);
 			gen_obj = OBJECTDATA(obj_gen,gen);
 				
 			OBJECT *gen_parent = object_parent(obj_gen);
 			gen_parent_bus = OBJECTDATA(gen_parent,bus);
 			
-			setObjectValue_Double(obj_gen,"GEN_BUS",gen_parent_bus->BUS_I);
+			//setObjectValue_Double(obj_gen,"GEN_BUS",gen_parent_bus->BUS_I);
+
+			string Gen_parent_name(gen_parent->name);
+			find_gen = bus_map.find(Gen_parent_name);
+			gen_GEN_BUS.push_back((*find_gen).second);
 
 			// add NCOST
 			string double_string(gen_obj->COST);
 			vector<string> v;
 			v = split(double_string,',');
-			setObjectValue_Double(obj_gen,"NCOST",v.size());
+			//setObjectValue_Double(obj_gen,"NCOST",v.size());
+			gen_NCOST.push_back(v.size());
 		}
-		/*
-		obj_branch = NULL;
-		while (gl_find_next(branch_list,obj_branch) != NULL)
-		{
-			obj_branch = gl_find_next(branch_list,obj_branch);
-			branch_obj = OBJECTDATA(obj_branch,branch);
-			cout<<"From Bus "<<branch_obj->F_BUS<<"To Bus "<<branch_obj->T_BUS<<endl;
-		}
-		*/
 	}
 
 
@@ -306,77 +337,15 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 	bus *tempbus;
 	
 	tempbus = OBJECTDATA(obj,bus);
-	//unsigned int bus_num = tempbus->BUS_I;
-	
-/*
-	if (tempbus->ifheader == 1)
-	{
-		//gl_warning("Start to work with feeder\n");
-		//printf("This is node %d\n",bus_num);
-		// Find the object
-		OBJECT *node_head = gl_get_object(tempbus->header_name);
-		//printf("find the object\n");
 
-		//Lock the object
-		LOCK_OBJECT(node_head);
-		//printf("lock the object\n");
-
-		//get the power value
-		node *head_node;
-		head_node = OBJECTDATA(node_head,node);
-		complex power_out = head_node->powerA;
-		//printf("voltage A %f+j%f\n",head_node->voltageA.Re(),head_node->voltageA.Im());
-
-		// update the object
-		tempbus->PD += power_out.Re();
-		tempbus->QD += power_out.Im();
-		
-
-		// running the OPF
-		if (solver_matpower() == 1)
-		{
-			GL_THROW("OPF Failed at bus for distributon network");
-		}
-		
-		// update the voltage
-	
-		// voltage A
-		head_node->voltageA.SetPolar(tempbus->VM,tempbus->VA+0*PI/180);
-
-		// voltage B
-		head_node->voltageB.SetPolar(tempbus->VM,tempbus->VA+120*PI/180);
-
-		// voltage C
-		head_node->voltageC.SetPolar(tempbus->VM,tempbus->VA+240*PI/180);
-	
-		UNLOCK_OBJECT(node_head);
-
-	}	
-	
-*/
 	if (tempbus->BUS_TYPE == 3) //ref bus
-	{
-/*		
-		OBJECT *temp_obj = NULL;
-		bus *iter_bus;
-		FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,"bus",FT_END);
-		printf("Before simulation!\n");
-		while (gl_find_next(bus_list,temp_obj)!=NULL)
-		{
-			temp_obj = gl_find_next(bus_list,temp_obj);
-			iter_bus = OBJECTDATA(temp_obj,bus);
-			printf("Bus %d; PD %f; QD %f; VM %f; VA %f;\n",iter_bus->BUS_I,iter_bus->PD,iter_bus->QD,iter_bus->VM,iter_bus->VA);
-		};
-*/
-		
+	{	
 		//Run OPF solver
-		if (solver_matpower() == 1)
+		if (solver_matpower(bus_BUS_I,branch_F_BUS,branch_T_BUS,gen_GEN_BUS,gen_NCOST,tempbus->BASE_MVA) == 1)
 		{
 			GL_THROW("OPF Failed at bus");
 		}
-		
 	
-		
 	}
 	
 

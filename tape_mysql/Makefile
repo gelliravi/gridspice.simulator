@@ -86,21 +86,21 @@ DIST_SOURCES = $(tape_mysql_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run aclocal-1.9
+ACLOCAL = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run tar
+AMTAR = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run tar
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run autoconf
-AUTOHEADER = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run autoheader
-AUTOMAKE = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run automake-1.9
+AUTOCONF = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run autoconf
+AUTOHEADER = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run autoheader
+AUTOMAKE = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run automake-1.9
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS =   -I/mnt/kanderson/gridspice.simulator/core -g -O0 -march=i686 
+CFLAGS =   -I/mnt/yizheng/gridspice.simulator/core -g -O0 -march=i686 
 CPP = gcc -E
-CPPFLAGS =   -I/mnt/kanderson/gridspice.simulator/core -g -O0 -march=i686
+CPPFLAGS =   -I/mnt/yizheng/gridspice.simulator/core -g -O0 -march=i686
 CPPUNIT_CFLAGS = 
 CPPUNIT_CONFIG = /usr/bin/cppunit-config
 CPPUNIT_LIBS = -lcppunit -ldl
@@ -178,7 +178,7 @@ LIBS =  -lcppunit -ldl
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /mnt/kanderson/gridspice.simulator/missing --run makeinfo
+MAKEINFO = ${SHELL} /mnt/yizheng/gridspice.simulator/missing --run makeinfo
 MISSING_XERCES_FALSE = 
 MISSING_XERCES_TRUE = #
 OBJDUMP = objdump
@@ -251,7 +251,7 @@ host_os = linux-gnu
 host_vendor = pc
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /mnt/kanderson/gridspice.simulator/install-sh
+install_sh = /mnt/yizheng/gridspice.simulator/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var

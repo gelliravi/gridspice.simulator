@@ -38,8 +38,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new branch(module);
 	new gen(module);
 	//new gen_cost(module);
-	new areas(module);
-	new baseMVA(module);
+	//new areas(module);
+	//new baseMVA(module);
 	
 	/* always return the first class registered */
 	/* TODO this module will not compile until a class has been defined */

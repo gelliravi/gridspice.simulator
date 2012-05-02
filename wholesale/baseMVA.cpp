@@ -52,7 +52,7 @@ baseMVA::baseMVA(MODULE *module)
 
 		if (gl_publish_variable(oclass,
 			/* TODO: add your published properties here */
-			PT_int16, "BASEMVA", PADDR(BASEMVA), PT_DESCRIPTION,"base voltage (kV)",  
+			PT_int16, "BASEMVA", PADDR(BASEMVA), PT_DESCRIPTION,"base MVA",  
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
 		memset(this,0,sizeof(baseMVA));
