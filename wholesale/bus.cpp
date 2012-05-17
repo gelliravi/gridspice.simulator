@@ -44,6 +44,15 @@ vector<unsigned int> branch_T_BUS;
 vector<unsigned int> gen_GEN_BUS;
 vector<unsigned int> gen_NCOST;
 
+//Sanity Check Flag
+bool IF_REFERENCE = false;
+unsigned int BUS_NUM = 0;
+unsigned int BUS_NUM_GEN = 0;
+unsigned int BUS_NUM_BRANCH = 0;
+unsigned int GEN_NUM = 0;
+unsigned int BRANCH_NUM = 0;
+
+
 
 #ifdef OPTIONAL
 /* TODO: define this to allow the use of derived classes */
@@ -123,7 +132,13 @@ bus::bus(MODULE *module)
 		defaults = this;
 		memset(this,0,sizeof(bus));
 		/* TODO: set the default values of all properties here */
-		//BUS_AREA = 1;
+		ifheader = 0;
+		CVoltageA = 0;
+		CVoltageB = 0;
+		CVoltageC = 0;
+		V_nom = 0;
+		ZONE = 1;
+		
 	}
 }
 
@@ -163,8 +178,12 @@ int bus::init(OBJECT *parent)
 	bus *bus_this;
 	bus_this = OBJECTDATA(obj_this,bus);
 
-	// Set bus BUS_AREA
-	//setObjectValue_Double(obj_this,"BUS_AREA",1);
+	// Sanity Check -- number of branch bus/gen bus
+	BUS_NUM += 1;
+	if (bus_this->BUS_TYPE == 2 || bus_this->BUS_TYPE == 3)
+		BUS_NUM_GEN += 1;
+	if (bus_this->BUS_TYPE == 1)
+		BUS_NUM_BRANCH += 1;
 
 
 	if (bus_this->BUS_TYPE == 3)
@@ -231,13 +250,26 @@ int bus::init(OBJECT *parent)
 			
 			string F_bus_name(branch_obj->from);
 			find_res = bus_map.find(F_bus_name);
+			if (find_res == bus_map.end())
+			{
+				gl_error("Cannot find from bus %s in branch", F_bus_name);
+				exit(1);
+			}
 			//setObjectValue_Double(obj_branch,"F_BUS",(*find_res).second);
 			branch_F_BUS.push_back((*find_res).second);
 
 			string T_bus_name(branch_obj->to);
 			find_res = bus_map.find(T_bus_name);
+			if (find_res == bus_map.end())
+			{
+				gl_error("Cannot find to bus %s in branch", T_bus_name);
+				exit(1);
+			}
 			//setObjectValue_Double(obj_branch,"T_BUS",(*find_res).second);
 			branch_T_BUS.push_back((*find_res).second);
+
+			//Sanity Check -- count branch number
+			//BRANCH_NUM += 1;
 		}
 
 		//Update bus index in gen
@@ -260,6 +292,11 @@ int bus::init(OBJECT *parent)
 
 			string Gen_parent_name(gen_parent->name);
 			find_gen = bus_map.find(Gen_parent_name);
+			if (find_gen == bus_map.end())
+			{
+				gl_error("Cannot find bus %s at generator %s",Gen_parent_name,obj_gen->name);
+				exit(1);
+			}
 			gen_GEN_BUS.push_back((*find_gen).second);
 
 			// add NCOST
@@ -268,7 +305,13 @@ int bus::init(OBJECT *parent)
 			v = split(double_string,',');
 			//setObjectValue_Double(obj_gen,"NCOST",v.size());
 			gen_NCOST.push_back(v.size());
+
+			//Sanity Check -- count gen number
+			GEN_NUM += 1;
 		}
+		
+		// Sanity Check -- if reference bus is defined
+		IF_REFERENCE ^= true;
 	}
 
 
@@ -286,6 +329,26 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 	bus *tempbus;
 
 	tempbus = OBJECTDATA(obj,bus);
+
+
+	//Sanity Check
+	if (IF_REFERENCE != true)
+	{
+		gl_error("No defined reference bus or more than one reference bus\n");
+		exit(1);
+	}
+	if (BUS_NUM_GEN != GEN_NUM)
+	{
+		gl_error("There are %d generator bus and %d generator. Not equal!\n",BUS_NUM_GEN,GEN_NUM);
+		exit(1);
+	}
+	//if (BUS_NUM_BRANCH != BRANCH_NUM)
+	//{
+	//	gl_error("There are %d branch bus and %d branch. Not equal!\n",BUS_NUM_BRANCH,BRANCH_NUM);
+	//	exit(1);
+	//}
+	
+
 
 	if (tempbus->ifheader == 1)
 	{
@@ -343,7 +406,8 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 		//Run OPF solver
 		if (solver_matpower(bus_BUS_I,branch_F_BUS,branch_T_BUS,gen_GEN_BUS,gen_NCOST,tempbus->BASE_MVA) == 1)
 		{
-			GL_THROW("OPF Failed at bus");
+			gl_error("OPF Failed");
+			exit(1);
 		}
 	
 	}
@@ -358,12 +422,13 @@ TIMESTAMP bus::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement post-topdown behavior */
-/*	OBJECT *obj = OBJECTHDR(this);
-	bus *tempbus;
+	//OBJECT *obj = OBJECTHDR(this);
+	//bus *tempbus;
 	
-	tempbus = OBJECTDATA(obj,bus);
-	unsigned int bus_num = tempbus->BUS_I;
-	if (tempbus->BUS_TYPE == 3)
+	//tempbus = OBJECTDATA(obj,bus);
+	//unsigned int bus_num = tempbus->BUS_I;
+	//printf("Bus %d, Real power %f, reactive power %f\n",tempbus->BUS_I,tempbus->LAM_P,tempbus->LAM_Q);
+/*	if (tempbus->BUS_TYPE == 3)
 	{
 		OBJECT *temp_obj = NULL;
 		bus *iter_bus;
